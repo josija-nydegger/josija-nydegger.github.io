@@ -64,6 +64,9 @@ a:hover { text-decoration-color: var(--accent); }
 /* ---------- Abschnitte ---------- */
 section { margin-top: 44px; }
 h2 { font-size: 16px; margin: 0 0 16px; }
+h3 { font-size: 15px; margin: 24px 0 4px; }
+.bullets { margin: 0 0 14px; padding-left: 20px; }
+.bullets li { margin: 2px 0; }
 p { margin: 0 0 14px; }
 
 /* ---------- Listen (Publikationen, Blog, CV) ---------- */
@@ -124,6 +127,9 @@ article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px soli
   border: 1px solid var(--border); border-radius: 999px; text-decoration: none;
 }
 .button:hover { border-color: var(--accent); }
+/* Hervorgehobener Button (z. B. Lebenslauf auf der Startseite) */
+.button.primary { margin-top: 12px; background: var(--text); border-color: var(--text); color: var(--bg); font-weight: 500; }
+.button.primary:hover { opacity: 0.85; }
 
 /* ---------- Fusszeile mit Hell/Dunkel/System-Umschalter ---------- */
 footer {
