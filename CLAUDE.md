@@ -6,28 +6,37 @@ Live: <https://josija-nydegger.github.io> · gehostet mit GitHub Pages (Jekyll, 
 ## Grundsätze
 
 - **Schlicht bleiben:** eine Spalte, viel Weissraum, keine Animationen, keine Frameworks (kein React, Tailwind, Bootstrap), kein Build-Tool. Nur HTML, CSS, Jekyll/Liquid und Markdown.
-- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht.
-- **Sprache:** Deutsch, Schweizer Rechtschreibung (immer `ss`, nie `ß`). Arbeitstitel in Originalsprache belassen.
+- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme ist das kleine eigene Inline-Skript für den Hell/Dunkel/System-Umschalter in `_layouts/default.html` (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet).
+- **Sprache:** Deutsch (Hauptsprache, Schweizer Rechtschreibung, immer `ss`, nie `ß`) und Englisch (amerikanische Schreibweise, `en_US`). Arbeitstitel in Originalsprache belassen.
 - **Datenschutz:** Keine E-Mail-Adresse, Wohnadresse, Telefonnummer, kein Geburtsdatum und kein Zivilstand auf der Seite. Kontakt läuft über LinkedIn.
 - Änderungen klein halten und bestehende Klassen in `style.css` wiederverwenden, statt neue Stile zu erfinden.
 
 ## Struktur
 
 ```
-_config.yml          Jekyll-Einstellungen, Plugins (seo-tag, feed, sitemap), Social-Links
-_layouts/post.html   Layout für Blogbeiträge
-_posts/              Blogbeiträge in Markdown (werden automatisch gelistet)
+_config.yml          Jekyll-Einstellungen, Plugins (seo-tag, sitemap), Social-Links, defaults für lang/locale
+_data/i18n.yml       Feste Texte (Abschnittstitel, "Zurück", Datumsformat usw.) auf DE und EN
+_layouts/default.html  Gemeinsames Layout: <head>, hreflang, Sprachumschalter, Footer mit Theme-Umschalter
+_layouts/post.html   Layout für Blogbeiträge (baut auf default auf)
+_includes/blog-list.html  Blog-Liste der Startseite (nur Beiträge der eigenen Sprache)
+_includes/atom.xml   Vorlage für die RSS-/Atom-Feeds
+_posts/              Deutsche Blogbeiträge in Markdown (werden automatisch gelistet)
+_posts/en/           Englische Blogbeiträge (→ /en/blog/:title/)
 _drafts/vorlage.md   Vorlage für neue Beiträge (wird nicht veröffentlicht)
-index.html           Startseite: Bio, Arbeiten, Projekte, Blog, Kontakt
-cv.html              Lebenslauf
-style.css            Gesamtes Design; Farben als CSS-Variablen inkl. Dark Mode
+index.html           Startseite DE: Bio, Arbeiten, Projekte, Blog, Kontakt
+cv.html              Lebenslauf DE
+feed.xml             RSS-Feed DE
+en/index.html        Startseite EN (/en/)
+en/cv.html           Lebenslauf EN (/en/cv.html)
+en/feed.xml          RSS-Feed EN
+style.css            Gesamtes Design; Farben als CSS-Variablen inkl. Dark Mode (System + data-theme)
 images/              profil.jpg, og-image.jpg (Link-Vorschau 1200×630), blog/ für Beitragsbilder
-arbeiten/            PDFs von Arbeiten (Projekt-, Bachelorarbeiten)
+arbeiten/            PDFs von Arbeiten (Projekt-, Bachelorarbeiten), nur im Original
 favicon.svg, favicon-32.png, apple-touch-icon.png
 ANLEITUNG.md         Anleitung für PDF-Uploads (nicht veröffentlicht)
 ```
 
-`index.html` und `cv.html` beginnen mit Front Matter (`---`), damit Liquid-Tags wie `{% seo %}` funktionieren. Diese Zeilen nicht entfernen.
+Alle Seiten beginnen mit Front Matter (`---`) mit `layout: default` und `ref:`. Diese Zeilen nicht entfernen. `lang` und `locale` setzt `_config.yml` automatisch (Ordner `en/` und `_posts/en/` → Englisch, sonst Deutsch).
 
 **Achtung Permalinks:** Weil `permalink: /blog/:title/` in `_config.yml` mit `/` endet, macht Jekyll aus jeder Seite mit Front Matter eine Ordner-URL (`cv.html` → `/cv/`). Jede neue Seite braucht deshalb ein explizites `permalink:` im Front Matter (z. B. `permalink: /cv.html`). Interne Links und Asset-Pfade immer absolut schreiben (`/style.css`, `/images/...`).
 
@@ -42,8 +51,10 @@ ANLEITUNG.md         Anleitung für PDF-Uploads (nicht veröffentlicht)
   ---
   title: Titel des Beitrags
   description: Ein Satz Zusammenfassung (für Blog-Liste und Link-Vorschau).
+  ref: kurze-kennung
   ---
   ```
+- Englische Übersetzung: `_posts/en/JJJJ-MM-TT-english-title.md` mit **derselben `ref`**. Ohne Gegenstück führt der Sprachumschalter zur Blog-Liste der anderen Sprache.
 - Optional `image: /images/blog/bild.jpg` für eine eigene Link-Vorschau.
 - Layout wird automatisch gesetzt (`defaults` in `_config.yml`).
 - Beiträge werden teils in Obsidian geschrieben: Wikilinks `[[...]]` in normale Markdown-Links umwandeln, Bilder nach `images/blog/` verschieben und mit absolutem Pfad (`/images/blog/...`) einbinden.
@@ -51,38 +62,31 @@ ANLEITUNG.md         Anleitung für PDF-Uploads (nicht veröffentlicht)
 ### Arbeiten (index.html, Abschnitt "Arbeiten")
 - Neueste zuerst. Ein Eintrag ist ein `<li class="item">`-Block mit `item-head`, `item-title`, `item-year`, `item-sub`.
 - PDF in `arbeiten/` ablegen und verlinken mit
-  `<div class="tags"><a class="tag" href="arbeiten/DATEI.pdf">PDF</a></div>`.
+  `<div class="tags"><a class="tag" href="/arbeiten/DATEI.pdf">PDF</a></div>`.
+- Immer auch in `en/index.html` eintragen: Titel im Original, nur die Beschreibung übersetzen.
 
 ### Projekte (index.html, Abschnitt "Projekte")
 - Gleiche Struktur wie Arbeiten; Tags für Links (`Code`, `Demo`) und Technologien.
 
-## Nächste Aufgabe: Website zweisprachig (Deutsch / Englisch)
+## Zweisprachigkeit (Deutsch / Englisch)
 
-Status: **geplant, noch nicht umgesetzt.** Ziel: alle Inhalte in beiden Sprachen, ausser die PDFs der Arbeiten (nur im Original).
+Status: **umgesetzt** (Oktober 2026).
 
-### Anforderungen
-- **Deutsch bleibt Hauptsprache** unter den bestehenden URLs (`/`, `/cv.html`), damit Links und Google-Einträge gültig bleiben.
-- **Englisch unter `/en/`**: `/en/` (Startseite) und `/en/cv.html`. Blogbeiträge unter `/en/blog/:title/`.
-- **Sprachumschalter oben rechts** auf jeder Seite ("DE | EN", aktive Sprache hervorgehoben). Er führt zur **entsprechenden Seite** in der anderen Sprache (CV → CV, Beitrag → übersetzter Beitrag). Gibt es keine Übersetzung eines Beitrags, führt er zur Startseite der anderen Sprache (Abschnitt Blog).
-- Schlicht im bestehenden Stil, gut bedienbar auf dem Handy, ohne JavaScript (reine Links).
-
-### Umsetzung (Vorschlag)
-- Ein gemeinsames Layout (`_layouts/default.html`) mit `<head>`, Umschalter und Footer, das `index`, `cv` und Beiträge beider Sprachen nutzen. Doppelten Code vermeiden.
-- Front Matter jeder Seite und jedes Beitrags: `lang: de` oder `lang: en` und eine gemeinsame Kennung `ref:` (z. B. `ref: home`, `ref: cv`, `ref: ifcopenshell-einstieg`). Der Umschalter sucht in `site.pages` bzw. `site.posts` das Gegenstück mit gleicher `ref` und anderer `lang`.
-- Beiträge: `_posts/` für Deutsch, englische Beiträge mit `lang: en` und `permalink: /en/blog/:title/` (per `defaults` in `_config.yml` für einen Unterordner, z. B. `_posts/en/`). Die Blog-Liste auf jeder Startseite zeigt nur Beiträge der eigenen Sprache.
-- `<html lang="…">` je nach Seite setzen; `hreflang`-Links (`de`, `en`, `x-default` → Deutsch) im `<head>` für Google.
-- Feste Texte (Abschnittstitel "Arbeiten/Works", "Projekte/Projects", "Zurück/Back", "Die ersten Beiträge folgen bald" usw.) in `_data/i18n.yml` ablegen statt doppelt hart codieren.
-- Datumsformat: Deutsch `3.11.2026`, Englisch `3 Nov 2026`.
-- RSS: jekyll-feed unterstützt Kategorien/Sprachen nur eingeschränkt. Lösung wählen (z. B. eigener Feed `/en/feed.xml` als Liquid-Template) und die Feed-Links pro Sprache anpassen.
-- `jekyll-seo-tag`: `locale` pro Seite setzen (`de_CH` / `en_US`).
-- `ANLEITUNG.md` und `_drafts/vorlage.md` um die englische Variante ergänzen.
+- Deutsch unter den bestehenden URLs (`/`, `/cv.html`, `/blog/:title/`), Englisch unter `/en/`, `/en/cv.html`, `/en/blog/:title/`.
+- Sprachumschalter "DE | EN" oben rechts (reine Links). Er sucht in `site.pages` bzw. `site.posts` die Seite mit gleicher `ref` und anderer `lang`; ohne Gegenstück → Startseite der anderen Sprache (bei Beiträgen `#blog`).
+- `hreflang`-Links (`de`, `en`, `x-default` → Deutsch) nur, wenn ein echtes Gegenstück existiert.
+- Feste Texte stehen in `_data/i18n.yml`. Neue feste Texte immer dort in beiden Sprachen ergänzen.
+- Datumsformat: Deutsch `3.11.2026`, Englisch `3 Nov 2026` (`date_format` in `i18n.yml`).
+- RSS: jekyll-feed wurde ersetzt durch eigene Atom-Feeds `/feed.xml` (DE) und `/en/feed.xml` (EN), beide aus `_includes/atom.xml`.
+- PDFs der Arbeiten gibt es nur im Original.
 
 ### Übersetzung
-- Texte natürlich übersetzen, nicht wörtlich. Begriffe mit Vorsicht: Werkstudent → *working student*, Sozialpädagoge HF → *Social Pedagogue (Swiss College of Higher Education)*, Tragwerke → *structural engineering / load-bearing structures*, Zivildienst → *Swiss civilian service*, Matura → *Swiss Matura (university entrance qualification)*. Unsichere Übersetzungen mir zur Prüfung auflisten.
-- Titel der Arbeiten bleiben im Original; nur die Beschreibung (z. B. "Projektarbeit, Berner Fachhochschule") wird übersetzt.
+- Texte natürlich übersetzen, nicht wörtlich. Feste Begriffe: Werkstudent → *working student*, Sozialpädagoge HF → *Social Pedagogue (Swiss College of Higher Education)*, Tragwerke → *structural engineering*, Zivildienst → *Swiss civilian service*, Matura → *Swiss Matura (university entrance qualification)*, Tiefbau → *infrastructure engineering*, Hochbau → *structural engineering for buildings*, Projektarbeit → *semester project*. Unsichere Übersetzungen mir zur Prüfung auflisten.
+- Titel der Arbeiten (auch der Maturaarbeit) bleiben im Original; nur die Beschreibung wird übersetzt.
+- Eigennamen ohne offizielle englische Bezeichnung bleiben im Original (z. B. ICP Höhere Fachschule für Sozialpädagogik, HOPE Sozialwerk, Chrischtehüsli, Gymnasium Interlaken, UGZ Stadt Zürich).
 
-### Danach gilt
-- **Beide Sprachen immer synchron halten:** Jede Änderung an Bio, CV, Arbeiten oder Projekten in beiden Versionen nachführen und mich darauf hinweisen.
+### Es gilt
+- **Beide Sprachen immer synchron halten:** Jede Änderung an Bio, CV, Arbeiten oder Projekten in `index.html`/`cv.html` **und** `en/index.html`/`en/cv.html` nachführen und mich darauf hinweisen.
 - Blogbeiträge dürfen auch nur in einer Sprache existieren.
 
 ## Später vielleicht
@@ -93,5 +97,5 @@ Status: **geplant, noch nicht umgesetzt.** Ziel: alle Inhalte in beiden Sprachen
 ## Prüfen
 
 - Es gibt keinen lokalen Build. Nach dem Push baut GitHub die Seite in 1–2 Minuten; Fehler stehen im Tab **Actions** des Repos.
-- Vor dem Commit: Liquid-Syntax prüfen (`{% %}` / `{{ }}` geschlossen), Links und Dateinamen auf exakte Schreibweise prüfen, Darstellung auf Handybreite bedenken.
+- Vor dem Commit: Liquid-Syntax prüfen (auch `_layouts/`, `_includes/`, `_data/i18n.yml`) (`{% %}` / `{{ }}` geschlossen), Links und Dateinamen auf exakte Schreibweise prüfen, Darstellung auf Handybreite bedenken.
 - Commit-Nachrichten kurz und auf Deutsch, z. B. `Blog: Beitrag zu IfcOpenShell` oder `Arbeiten: PDF Projektarbeit BFH`.

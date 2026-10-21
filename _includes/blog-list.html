@@ -1,0 +1,20 @@
+{%- assign t = site.data.i18n[page.lang] -%}
+{%- assign posts = site.posts | where: "lang", page.lang -%}
+  <section id="blog">
+    <h2>{{ t.blog }} <a class="rss" href="{{ t.feed_url }}" title="{{ t.rss_title }}">RSS</a></h2>
+    {% if posts.size > 0 %}
+    <div class="list">
+      {% for post in posts %}
+      <a class="item" href="{{ post.url | relative_url }}">
+        <div class="item-head">
+          <p class="item-title">{{ post.title }}</p>
+          <span class="item-year">{{ post.date | date: t.date_format }}</span>
+        </div>
+        {% if post.description %}<p class="item-sub">{{ post.description }}</p>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="item-sub">{{ t.no_posts }}</p>
+    {% endif %}
+  </section>

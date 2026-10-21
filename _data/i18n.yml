@@ -1,0 +1,57 @@
+# Feste Texte der Website in beiden Sprachen.
+# Verwendung in Layouts und Seiten: {% assign t = site.data.i18n[page.lang] %} … {{ t.back }}
+de:
+  name: Deutsch
+  home_url: /
+  feed_url: /feed.xml
+  feed_title: Josija Nydegger – Blog
+  tagline: Bauingenieurwesen · BIM · Digital Construction
+  date_format: "%-d.%-m.%Y"
+  lang_label: Sprache
+  back: Zurück
+  # Startseite
+  works: Arbeiten
+  projects: Projekte
+  blog: Blog
+  contact: Kontakt
+  rss_title: RSS-Feed abonnieren
+  no_posts: Die ersten Beiträge folgen bald.
+  # Lebenslauf
+  education: Ausbildung
+  experience: Erfahrung
+  activities: Weitere Tätigkeiten
+  skills: Kenntnisse
+  interests: Interessen
+  # Hell / Dunkel / System
+  theme_label: Farbschema
+  theme_light: Hell
+  theme_dark: Dunkel
+  theme_system: System
+
+en:
+  name: English
+  home_url: /en/
+  feed_url: /en/feed.xml
+  feed_title: Josija Nydegger – Blog (English)
+  tagline: Civil Engineering · BIM · Digital Construction
+  date_format: "%-d %b %Y"
+  lang_label: Language
+  back: Back
+  # Home page
+  works: Academic work
+  projects: Projects
+  blog: Blog
+  contact: Contact
+  rss_title: Subscribe to the RSS feed
+  no_posts: The first posts are coming soon.
+  # CV
+  education: Education
+  experience: Experience
+  activities: Other activities
+  skills: Skills
+  interests: Interests
+  # Light / Dark / System
+  theme_label: Color scheme
+  theme_light: Light
+  theme_dark: Dark
+  theme_system: System

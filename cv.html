@@ -1,23 +1,12 @@
 ---
+layout: default
 title: Lebenslauf
 permalink: /cv.html
+ref: cv
 description: Lebenslauf von Josija Nydegger – Ausbildung, Erfahrung und Kenntnisse im Bauingenieurwesen.
 ---
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  {% seo %}
-  {% feed_meta %}
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<main>
-  <a class="back" href="/">← Zurück</a>
+{%- assign t = site.data.i18n[page.lang] -%}
+  <a class="back" href="{{ t.home_url }}">← {{ t.back }}</a>
 
   <div class="header">
     <img class="avatar" src="/images/profil.jpg" alt="Josija Nydegger" onerror="this.style.display='none'">
@@ -29,7 +18,7 @@ description: Lebenslauf von Josija Nydegger – Ausbildung, Erfahrung und Kenntn
   <!-- Tipp: Diese Seite lässt sich im Browser über "Drucken → Als PDF speichern" exportieren. -->
 
   <section style="margin-top:0">
-    <h2>Ausbildung</h2>
+    <h2>{{ t.education }}</h2>
     <ul class="list">
       <li class="item">
         <div class="item-head">
@@ -70,7 +59,7 @@ description: Lebenslauf von Josija Nydegger – Ausbildung, Erfahrung und Kenntn
   </section>
 
   <section>
-    <h2>Erfahrung</h2>
+    <h2>{{ t.experience }}</h2>
     <ul class="list">
       <li class="item">
         <div class="item-head">
@@ -125,7 +114,7 @@ description: Lebenslauf von Josija Nydegger – Ausbildung, Erfahrung und Kenntn
   </section>
 
   <section>
-    <h2>Weitere Tätigkeiten</h2>
+    <h2>{{ t.activities }}</h2>
     <ul class="list">
       <li class="item">
         <div class="item-head">
@@ -151,7 +140,7 @@ description: Lebenslauf von Josija Nydegger – Ausbildung, Erfahrung und Kenntn
   </section>
 
   <section>
-    <h2>Kenntnisse</h2>
+    <h2>{{ t.skills }}</h2>
     <div class="tags">
       <span class="tag">BIM / IFC</span>
       <span class="tag">IfcOpenShell</span>
@@ -175,11 +164,6 @@ description: Lebenslauf von Josija Nydegger – Ausbildung, Erfahrung und Kenntn
   </section>
 
   <section>
-    <h2>Interessen</h2>
+    <h2>{{ t.interests }}</h2>
     <p>Ausdauersport (10 km bis Marathon, Engadin Skimarathon), Gespräche mit Menschen, Qualitätsjournalismus und Bücher, Fliegerei.</p>
   </section>
-
-  <footer>© 2026 Josija Nydegger</footer>
-</main>
-</body>
-</html>

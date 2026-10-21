@@ -1,24 +1,12 @@
 ---
-# Diese leeren Striche sind nötig, damit GitHub die Blog-Liste automatisch einfügt.
+layout: default
+ref: home
 ---
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  {% seo %}
-  {% feed_meta %}
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<main>
+{%- assign t = site.data.i18n[page.lang] -%}
 
   <!-- ===== Kopf ===== -->
   <div class="header">
-    <img class="avatar" src="images/profil.jpg" alt="Josija Nydegger" onerror="this.style.display='none'">
+    <img class="avatar" src="/images/profil.jpg" alt="Josija Nydegger" onerror="this.style.display='none'">
     <div>
       <h1>Josija Nydegger</h1>
       <div class="meta">Bauingenieurwesen · Berner Fachhochschule</div>
@@ -47,12 +35,12 @@
       In meiner Freizeit programmiere ich kleine Tools, die du auf
       <a href="https://github.com/josija-nydegger">GitHub</a> findest, und laufe Distanzen von 10 km bis zum Marathon.
     </p>
-    <p>Hier geht's zu meinem <a href="cv.html">Lebenslauf</a>.</p>
+    <p>Hier geht's zu meinem <a href="/cv.html">Lebenslauf</a>.</p>
   </section>
 
   <!-- ===== Arbeiten ===== -->
   <section>
-    <h2>Arbeiten</h2>
+    <h2>{{ t.works }}</h2>
     <ul class="list">
       <!-- PDF hinzufügen: Datei in den Ordner "arbeiten" hochladen und unter dem Eintrag einfügen:
            <div class="tags"><a class="tag" href="arbeiten/DATEINAME.pdf">PDF</a></div> -->
@@ -75,7 +63,7 @@
 
   <!-- ===== Projekte ===== -->
   <section>
-    <h2>Projekte</h2>
+    <h2>{{ t.projects }}</h2>
     <ul class="list">
       <li class="item">
         <div class="item-head">
@@ -102,29 +90,12 @@
     </ul>
   </section>
 
-  <!-- ===== Blog (wird automatisch aus dem Ordner _posts erzeugt) ===== -->
-  <section>
-    <h2>Blog <a class="rss" href="{{ '/feed.xml' | relative_url }}" title="RSS-Feed abonnieren">RSS</a></h2>
-    {% if site.posts.size > 0 %}
-    <div class="list">
-      {% for post in site.posts %}
-      <a class="item" href="{{ post.url | relative_url }}">
-        <div class="item-head">
-          <p class="item-title">{{ post.title }}</p>
-          <span class="item-year">{{ post.date | date: "%-d.%-m.%Y" }}</span>
-        </div>
-        {% if post.description %}<p class="item-sub">{{ post.description }}</p>{% endif %}
-      </a>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="item-sub">Die ersten Beiträge folgen bald.</p>
-    {% endif %}
-  </section>
+  <!-- ===== Blog (wird automatisch aus dem Ordner _posts erzeugt, nur Beiträge dieser Sprache) ===== -->
+  {% include blog-list.html %}
 
   <!-- ===== Kontakt ===== -->
   <section>
-    <h2>Kontakt</h2>
+    <h2>{{ t.contact }}</h2>
     <p>Am einfachsten erreichst du mich über <a href="https://www.linkedin.com/in/josija-nydegger">LinkedIn</a>.</p>
     <div class="socials">
       <a href="https://www.linkedin.com/in/josija-nydegger" target="_blank" rel="noopener">LinkedIn</a>
@@ -133,8 +104,3 @@
       <a href="https://orcid.org/0009-0005-4270-2574" target="_blank" rel="noopener">ORCID</a>
     </div>
   </section>
-
-  <footer>© 2026 Josija Nydegger</footer>
-</main>
-</body>
-</html>

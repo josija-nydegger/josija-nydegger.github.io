@@ -23,21 +23,40 @@ social:
     - https://orcid.org/0009-0005-4270-2574
 
 # Von GitHub Pages unterstützte Plugins
+# (RSS-Feeds sind eigene Vorlagen: /feed.xml und /en/feed.xml, siehe _includes/atom.xml)
 plugins:
   - jekyll-seo-tag   # Titel, Beschreibung und Link-Vorschau (Open Graph)
-  - jekyll-feed      # RSS-Feed unter /feed.xml
   - jekyll-sitemap   # Sitemap unter /sitemap.xml
 
-# Blogbeiträge erscheinen unter /blog/titel-des-beitrags/
+# Deutsche Blogbeiträge erscheinen unter /blog/titel-des-beitrags/,
+# englische (Ordner _posts/en/) unter /en/blog/title-of-the-post/
 permalink: /blog/:title/
 
-# Alle Beiträge in _posts verwenden automatisch das Layout "post"
+# Standardwerte: alles ist Deutsch, ausser im Ordner en/ und _posts/en/.
+# Alle Beiträge verwenden automatisch das Layout "post".
 defaults:
+  - scope:
+      path: ""
+    values:
+      lang: de
+      locale: de_CH
+  - scope:
+      path: "en"
+    values:
+      lang: en
+      locale: en_US
   - scope:
       path: ""
       type: posts
     values:
       layout: post
+  - scope:
+      path: "_posts/en"
+      type: posts
+    values:
+      lang: en
+      locale: en_US
+      permalink: /en/blog/:title/
 
 markdown: kramdown
 kramdown:

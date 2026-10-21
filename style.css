@@ -1,5 +1,8 @@
-/* ---------- Farben (hell / dunkel) ---------- */
+/* ---------- Farben (hell / dunkel) ----------
+   Standard folgt der Systemeinstellung. Der Umschalter unten rechts setzt
+   data-theme="light" oder "dark" auf <html> und überschreibt sie. */
 :root {
+  color-scheme: light dark;
   --bg: #ffffff;
   --text: #1a1a1a;
   --muted: #6b6b6b;
@@ -8,7 +11,7 @@
   --tag-bg: #f2f2f2;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #111111;
     --text: #ededed;
     --muted: #9a9a9a;
@@ -17,6 +20,16 @@
     --tag-bg: #1e1e1e;
   }
 }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111111;
+  --text: #ededed;
+  --muted: #9a9a9a;
+  --border: #2a2a2a;
+  --accent: #ffffff;
+  --tag-bg: #1e1e1e;
+}
+:root[data-theme="light"] { color-scheme: light; }
 
 /* ---------- Grundlayout ---------- */
 * { box-sizing: border-box; }
@@ -30,6 +43,7 @@ body {
   line-height: 1.65;
 }
 main {
+  position: relative;
   max-width: 680px;
   margin: 0 auto;
   padding: 56px 20px 40px;
@@ -92,12 +106,32 @@ article pre { background: var(--tag-bg); padding: 14px; border-radius: 8px; over
 article code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
 article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid var(--border); color: var(--muted); }
 
-/* ---------- Fusszeile ---------- */
-footer { margin-top: 56px; color: var(--muted); font-size: 13px; }
+/* ---------- Sprachumschalter oben rechts ---------- */
+.lang { position: absolute; top: 16px; right: 20px; font-size: 13px; color: var(--muted); }
+.lang a, .lang span { display: inline-block; padding: 6px 4px; }
+.lang a { color: var(--muted); text-decoration: none; }
+.lang a:hover { color: var(--text); }
+.lang [aria-current] { color: var(--text); font-weight: 600; }
+
+/* ---------- Fusszeile mit Hell/Dunkel/System-Umschalter ---------- */
+footer {
+  margin-top: 56px; color: var(--muted); font-size: 13px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
 footer a { color: var(--muted); }
+.theme { display: flex; gap: 2px; }
+.theme[hidden] { display: none; }
+.theme button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
+  background: none; color: var(--muted); cursor: pointer;
+}
+.theme button:hover { color: var(--text); }
+.theme button[aria-pressed="true"] { background: var(--tag-bg); color: var(--text); }
+.theme svg { width: 16px; height: 16px; }
 
 @media print {
-  .back, .socials, footer { display: none; }
+  .back, .socials, .lang, footer { display: none; }
   main { padding-top: 0; }
 }
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+{%- assign t = site.data.i18n[include.lang] -%}
+{%- assign posts = site.posts | where: "lang", include.lang %}
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ include.lang }}">
+  <title>{{ t.feed_title | xml_escape }}</title>
+  <subtitle>{{ t.tagline | xml_escape }}</subtitle>
+  <link href="{{ page.url | absolute_url }}" rel="self" type="application/atom+xml"/>
+  <link href="{{ t.home_url | absolute_url }}" rel="alternate" type="text/html" hreflang="{{ include.lang }}"/>
+  <id>{{ page.url | absolute_url }}</id>
+  <updated>{% if posts.size > 0 %}{{ posts.first.date | date_to_xmlschema }}{% else %}{{ site.time | date_to_xmlschema }}{% endif %}</updated>
+  <author><name>{{ site.author.name | xml_escape }}</name><uri>{{ site.author.url }}</uri></author>
+  {%- for post in posts limit: 20 %}
+  <entry>
+    <title type="html">{{ post.title | xml_escape }}</title>
+    <link href="{{ post.url | absolute_url }}" rel="alternate" type="text/html"/>
+    <id>{{ post.url | absolute_url }}</id>
+    <published>{{ post.date | date_to_xmlschema }}</published>
+    <updated>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</updated>
+    {%- if post.description %}
+    <summary type="html">{{ post.description | xml_escape }}</summary>
+    {%- endif %}
+    <content type="html" xml:base="{{ post.url | absolute_url }}">{{ post.content | xml_escape }}</content>
+  </entry>
+  {%- endfor %}
+</feed>

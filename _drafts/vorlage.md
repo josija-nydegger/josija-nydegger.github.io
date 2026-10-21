@@ -1,6 +1,7 @@
 ---
 title: Titel des Beitrags
 description: Kurze Zusammenfassung in einem Satz (erscheint in der Blog-Liste).
+ref: titel-des-beitrags
 ---
 
 Diese Datei ist eine Vorlage und wird nicht veröffentlicht, weil sie im Ordner `_drafts` liegt.
@@ -10,7 +11,17 @@ Diese Datei ist eine Vorlage und wird nicht veröffentlicht, weil sie im Ordner 
 1. Diese Datei kopieren und im Ordner `_posts` speichern.
 2. Dateiname: `JJJJ-MM-TT-titel-ohne-leerzeichen.md`, z. B. `2026-11-03-ifcopenshell-einstieg.md`.
    Das Datum im Dateinamen ist das Veröffentlichungsdatum.
-3. Oben `title` und `description` anpassen, darunter den Text schreiben.
+3. Oben `title`, `description` und `ref` anpassen, darunter den Text schreiben.
+   `ref` ist eine kurze Kennung ohne Leerzeichen, z. B. `ifcopenshell-einstieg`.
+
+**Englische Version (optional):**
+
+1. Eine Kopie mit englischem Text im Ordner `_posts/en/` speichern, z. B.
+   `_posts/en/2026-11-03-getting-started-with-ifcopenshell.md`.
+2. Dieselbe `ref` wie beim deutschen Beitrag eintragen. Dann führt der Sprachumschalter
+   "DE | EN" direkt zum übersetzten Beitrag. Sprache und Adresse (`/en/blog/...`) werden automatisch gesetzt.
+3. Ein Beitrag darf auch nur in einer Sprache existieren. Dann führt der Umschalter zur Blog-Liste
+   der anderen Sprache.
 
 ## Zwischentitel
 

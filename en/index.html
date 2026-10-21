@@ -1,0 +1,108 @@
+---
+layout: default
+permalink: /en/
+ref: home
+description: Personal website of Josija Nydegger – civil engineering student at BFH, academic work, projects and a blog on structural engineering, BIM and digital construction.
+---
+{%- assign t = site.data.i18n[page.lang] -%}
+
+  <!-- ===== Header ===== -->
+  <div class="header">
+    <img class="avatar" src="/images/profil.jpg" alt="Josija Nydegger" onerror="this.style.display='none'">
+    <div>
+      <h1>Josija Nydegger</h1>
+      <div class="meta">Civil Engineering · Bern University of Applied Sciences</div>
+    </div>
+  </div>
+
+  <!-- ===== Bio ===== -->
+  <section style="margin-top:0">
+    <p>
+      I study <strong>civil engineering</strong> part-time at
+      <a href="https://www.bfh.ch/en/">Bern University of Applied Sciences</a> in Burgdorf, and alongside my studies
+      I work as a working student in the infrastructure engineering department at <a href="https://www.bsb-partner.ch/">BSB + Partner</a> in Bern.
+      In November 2026, I'm moving to structural engineering for buildings at <a href="https://www.baukonstrukt.ch/">Baukonstrukt</a> in Biel.
+      I'm particularly interested in structural engineering, digital construction and BIM (for example with IfcOpenShell),
+      numerical simulation, and how custom software can make engineering work easier.
+    </p>
+    <p>
+      Before that, I studied civil engineering at <a href="https://ethz.ch/en.html">ETH Zurich</a>, along with a
+      first year of computer science. My bachelor's thesis there dealt with the
+      fluid-structure interaction of a wind turbine blade in COMSOL. After that, my path took me
+      into the social sector for a while: first in an interim role in the office of the head of social services
+      at the City of Opfikon, and then during my Swiss civilian service at a low-threshold drop-in and
+      counseling center in the city of Zurich. I then returned to civil engineering.
+    </p>
+    <p>
+      In my free time, I build small tools, which you can find on
+      <a href="https://github.com/josija-nydegger">GitHub</a>, and I run anything from 10K to marathon distance.
+    </p>
+    <p>Here's my <a href="/en/cv.html">CV</a>.</p>
+  </section>
+
+  <!-- ===== Academic work (titles stay in the original language) ===== -->
+  <section>
+    <h2>{{ t.works }}</h2>
+    <ul class="list">
+      <!-- Add a PDF: upload the file to the "arbeiten" folder and add below the entry:
+           <div class="tags"><a class="tag" href="/arbeiten/FILENAME.pdf">PDF</a></div> -->
+      <li class="item">
+        <div class="item-head">
+          <p class="item-title">Analyse der Einsturzwahrscheinlichkeit von Strassenbrücken in den USA</p>
+          <span class="item-year">2026</span>
+        </div>
+        <p class="item-sub">Semester project, Bern University of Applied Sciences (in progress)</p>
+      </li>
+      <li class="item">
+        <div class="item-head">
+          <p class="item-title">Simulating the fluid-structure interaction of a wind turbine blade in COMSOL</p>
+          <span class="item-year">2021</span>
+        </div>
+        <p class="item-sub">Bachelor's thesis, ETH Zurich</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ===== Projects ===== -->
+  <section>
+    <h2>{{ t.projects }}</h2>
+    <ul class="list">
+      <li class="item">
+        <div class="item-head">
+          <p class="item-title">QR-tool</p>
+        </div>
+        <p class="item-sub">Prototype for one-way, network-free data transfer from a computer to a smartphone using a sequence of QR codes, with optional AES-256 encryption and fountain codes to recover lost frames.</p>
+        <div class="tags">
+          <a class="tag" href="https://github.com/josija-nydegger/QR-tool" target="_blank" rel="noopener">Code</a>
+          <a class="tag" href="https://josija-nydegger.github.io/QR-tool/QR-Reader.html" target="_blank" rel="noopener">Demo</a>
+          <span class="tag">HTML / JavaScript</span>
+        </div>
+      </li>
+      <li class="item">
+        <div class="item-head">
+          <p class="item-title">weather-bot</p>
+        </div>
+        <p class="item-sub">Telegram bot that automatically sends a daily weather report, built on OpenWeatherMap and GitHub Actions.</p>
+        <div class="tags">
+          <a class="tag" href="https://github.com/josija-nydegger/weather-bot" target="_blank" rel="noopener">Code</a>
+          <span class="tag">Python</span>
+          <span class="tag">GitHub Actions</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ===== Blog (generated from _posts/en, English posts only) ===== -->
+  {% include blog-list.html %}
+
+  <!-- ===== Contact ===== -->
+  <section>
+    <h2>{{ t.contact }}</h2>
+    <p>The easiest way to reach me is on <a href="https://www.linkedin.com/in/josija-nydegger">LinkedIn</a>.</p>
+    <div class="socials">
+      <a href="https://www.linkedin.com/in/josija-nydegger" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/josija-nydegger" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.instagram.com/josija.nydegger" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://orcid.org/0009-0005-4270-2574" target="_blank" rel="noopener">ORCID</a>
+    </div>
+  </section>
