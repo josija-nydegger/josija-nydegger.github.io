@@ -1,10 +1,16 @@
+---
+# Diese leeren Striche sind nötig, damit GitHub die Blog-Liste automatisch einfügt.
+---
 <!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Josija Nydegger</title>
-  <meta name="description" content="Persönliche Website von Josija Nydegger – Bauingenieurwesen an der BFH, Projekte, Blog und Publikationen.">
+  <meta name="description" content="{{ site.description }}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,7 +21,7 @@
     <img class="avatar" src="images/profil.jpg" alt="Josija Nydegger" onerror="this.style.display='none'">
     <div>
       <h1>Josija Nydegger</h1>
-      <div class="meta">Bauingenieurwesen · BFH · <a class="email" data-u="reggedyn.ajisoj" data-d="moc.liamg" href="#">josija.nydegger [at] gmail [dot] com</a></div>
+      <div class="meta">Bauingenieurwesen · Berner Fachhochschule</div>
     </div>
   </div>
 
@@ -44,54 +50,85 @@
     <p>Hier geht's zu meinem <a href="cv.html">Lebenslauf</a>.</p>
   </section>
 
-  <!-- ===== Publikationen ===== -->
+  <!-- ===== Arbeiten ===== -->
   <section>
-    <h2>Publikationen</h2>
+    <h2>Arbeiten</h2>
     <ul class="list">
-      <!-- Vorlage: diesen <li>-Block pro Publikation kopieren.
-           Sobald eine Datei/ein Link existiert, darunter einfügen:
-           <div class="tags"><a class="tag" href="LINK">PDF</a></div> -->
+      <!-- PDF hinzufügen: Datei in den Ordner "arbeiten" hochladen und unter dem Eintrag einfügen:
+           <div class="tags"><a class="tag" href="arbeiten/DATEINAME.pdf">PDF</a></div> -->
       <li class="item">
         <div class="item-head">
           <p class="item-title">Analyse der Einsturzwahrscheinlichkeit von Strassenbrücken in den USA</p>
           <span class="item-year">2026</span>
         </div>
-        <p class="item-sub">Josija Nydegger · Projektarbeit, Berner Fachhochschule (in Arbeit)</p>
+        <p class="item-sub">Projektarbeit, Berner Fachhochschule (in Arbeit)</p>
       </li>
       <li class="item">
         <div class="item-head">
           <p class="item-title">Simulating the fluid-structure interaction of a wind turbine blade in COMSOL</p>
           <span class="item-year">2021</span>
         </div>
-        <p class="item-sub">Josija Nydegger · Bachelorarbeit, ETH Zürich</p>
+        <p class="item-sub">Bachelorarbeit, ETH Zürich</p>
       </li>
     </ul>
   </section>
 
-  <!-- ===== Blog ===== -->
+  <!-- ===== Projekte ===== -->
+  <section>
+    <h2>Projekte</h2>
+    <ul class="list">
+      <li class="item">
+        <div class="item-head">
+          <p class="item-title">QR-tool</p>
+        </div>
+        <p class="item-sub">Prototyp für einseitige, netzwerkfreie Datenübertragung vom Computer aufs Smartphone über eine Folge von QR-Codes, mit optionaler AES-256-Verschlüsselung und Fountain-Codes gegen verlorene Frames.</p>
+        <div class="tags">
+          <a class="tag" href="https://github.com/josija-nydegger/QR-tool">Code</a>
+          <a class="tag" href="https://josija-nydegger.github.io/QR-tool/QR-Reader.html">Demo</a>
+          <span class="tag">HTML / JavaScript</span>
+        </div>
+      </li>
+      <li class="item">
+        <div class="item-head">
+          <p class="item-title">weather-bot</p>
+        </div>
+        <p class="item-sub">Telegram-Bot, der täglich automatisch eine Wettermeldung verschickt, basierend auf OpenWeatherMap und GitHub Actions.</p>
+        <div class="tags">
+          <a class="tag" href="https://github.com/josija-nydegger/weather-bot">Code</a>
+          <span class="tag">Python</span>
+          <span class="tag">GitHub Actions</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ===== Blog (wird automatisch aus dem Ordner _posts erzeugt) ===== -->
   <section>
     <h2>Blog</h2>
-    <p class="item-sub">Die ersten Beiträge folgen bald.</p>
-    <!-- Sobald es Beiträge gibt, den Absatz oben durch diese Liste ersetzen (neueste zuerst):
+    {% if site.posts.size > 0 %}
     <div class="list">
-      <a class="item" href="blog/erster-beitrag.html">
+      {% for post in site.posts %}
+      <a class="item" href="{{ post.url | relative_url }}">
         <div class="item-head">
-          <p class="item-title">Titel des Beitrags</p>
-          <span class="item-year">21. Okt. 2026</span>
+          <p class="item-title">{{ post.title }}</p>
+          <span class="item-year">{{ post.date | date: "%-d.%-m.%Y" }}</span>
         </div>
-        <p class="item-sub">Kurze Zusammenfassung in einem Satz.</p>
+        {% if post.description %}<p class="item-sub">{{ post.description }}</p>{% endif %}
       </a>
+      {% endfor %}
     </div>
-    -->
+    {% else %}
+    <p class="item-sub">Die ersten Beiträge folgen bald.</p>
+    {% endif %}
   </section>
 
   <!-- ===== Kontakt ===== -->
   <section>
     <h2>Kontakt</h2>
-    <p>Am besten erreichst du mich per E-Mail: <a class="email" data-u="reggedyn.ajisoj" data-d="moc.liamg" href="#">josija.nydegger [at] gmail [dot] com</a></p>
+    <p>Am einfachsten erreichst du mich über <a href="https://www.linkedin.com/in/josija-nydegger">LinkedIn</a>.</p>
     <div class="socials">
-      <a href="https://github.com/josija-nydegger">GitHub</a>
       <a href="https://www.linkedin.com/in/josija-nydegger">LinkedIn</a>
+      <a href="https://github.com/josija-nydegger">GitHub</a>
       <a href="https://www.instagram.com/josija.nydegger">Instagram</a>
       <a href="https://orcid.org/0009-0005-4270-2574">ORCID</a>
     </div>
@@ -99,6 +136,5 @@
 
   <footer>© 2026 Josija Nydegger</footer>
 </main>
-<script src="email.js"></script>
 </body>
 </html>

@@ -1,0 +1,25 @@
+# Einstellungen für GitHub Pages (Jekyll)
+title: Josija Nydegger
+description: Persönliche Website von Josija Nydegger – Bauingenieurwesen, Arbeiten, Projekte und Blog.
+lang: de
+timezone: Europe/Zurich
+
+# Blogbeiträge erscheinen unter /blog/titel-des-beitrags/
+permalink: /blog/:title/
+
+# Alle Beiträge in _posts verwenden automatisch das Layout "post"
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+# Diese Dateien werden nicht veröffentlicht
+exclude:
+  - README.md
+  - ANLEITUNG.md
