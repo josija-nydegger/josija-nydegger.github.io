@@ -1,0 +1,97 @@
+/* ---------- Farben (hell / dunkel) ---------- */
+:root {
+  --bg: #ffffff;
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --border: #e6e6e6;
+  --accent: #1a1a1a;
+  --tag-bg: #f2f2f2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111111;
+    --text: #ededed;
+    --muted: #9a9a9a;
+    --border: #2a2a2a;
+    --accent: #ffffff;
+    --tag-bg: #1e1e1e;
+  }
+}
+
+/* ---------- Grundlayout ---------- */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+}
+main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 56px 20px 40px;
+}
+a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border); }
+a:hover { text-decoration-color: var(--accent); }
+
+/* ---------- Kopfbereich ---------- */
+.header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+.avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--tag-bg); flex-shrink: 0; }
+.header h1 { font-size: 22px; margin: 0; line-height: 1.2; }
+.header .meta { color: var(--muted); font-size: 14px; }
+.header .meta a { color: var(--muted); }
+.back { display: inline-block; margin-bottom: 28px; color: var(--muted); text-decoration: none; font-size: 14px; }
+.back:hover { color: var(--text); }
+
+/* ---------- Abschnitte ---------- */
+section { margin-top: 44px; }
+h2 { font-size: 16px; margin: 0 0 16px; }
+p { margin: 0 0 14px; }
+
+/* ---------- Listen (Publikationen, Blog, CV) ---------- */
+.list { list-style: none; margin: 0; padding: 0; }
+.item { padding: 14px 0; border-top: 1px solid var(--border); }
+.item:last-child { border-bottom: 1px solid var(--border); }
+.item-head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+.item-title { font-weight: 600; margin: 0; font-size: 15px; }
+.item-year { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.item-sub { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px; padding: 2px 8px; border-radius: 6px;
+  background: var(--tag-bg); color: var(--text); text-decoration: none;
+}
+.tag:hover { outline: 1px solid var(--border); }
+
+/* Blog-Einträge als ganze Zeile klickbar */
+a.item { display: block; text-decoration: none; color: inherit; }
+a.item:hover .item-title { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- Social-Links ---------- */
+.socials { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.socials a {
+  font-size: 14px; padding: 4px 12px; border: 1px solid var(--border);
+  border-radius: 999px; text-decoration: none;
+}
+.socials a:hover { border-color: var(--accent); }
+
+/* ---------- Blogartikel ---------- */
+article h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+article .date { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+article h2 { font-size: 18px; margin-top: 32px; }
+article img { max-width: 100%; border-radius: 8px; }
+article pre { background: var(--tag-bg); padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+article code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid var(--border); color: var(--muted); }
+
+/* ---------- Fusszeile ---------- */
+footer { margin-top: 56px; color: var(--muted); font-size: 13px; }
+footer a { color: var(--muted); }
+
+@media print {
+  .back, .socials, footer { display: none; }
+  main { padding-top: 0; }
+}
