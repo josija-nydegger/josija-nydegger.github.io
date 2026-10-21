@@ -6,9 +6,10 @@ Live: <https://josija-nydegger.github.io> · gehostet mit GitHub Pages (Jekyll, 
 ## Grundsätze
 
 - **Schlicht bleiben:** eine Spalte, viel Weissraum, keine Animationen, keine Frameworks (kein React, Tailwind, Bootstrap), kein Build-Tool. Nur HTML, CSS, Jekyll/Liquid und Markdown.
-- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme ist das kleine eigene Inline-Skript für den Hell/Dunkel/System-Umschalter in `_layouts/default.html` (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet).
+- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme sind die kleinen eigenen Inline-Skripte in `_layouts/default.html`: der Hell/Dunkel/System-Umschalter (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet) und das Einsetzen der E-Mail-Adresse.
 - **Sprache:** Deutsch (Hauptsprache, Schweizer Rechtschreibung, immer `ss`, nie `ß`) und Englisch (amerikanische Schreibweise, `en_US`). Arbeitstitel in Originalsprache belassen.
-- **Datenschutz:** Keine E-Mail-Adresse, Wohnadresse, Telefonnummer, kein Geburtsdatum und kein Zivilstand auf der Seite. Kontakt läuft über LinkedIn.
+- **Datenschutz:** Keine Wohnadresse, Telefonnummer, kein Geburtsdatum und kein Zivilstand auf der Seite. Kontakt über LinkedIn und E-Mail.
+- **E-Mail nie im Klartext** in HTML oder Repo schreiben (das Repo ist öffentlich). Sie steht nur Base64-kodiert als `email_b64` in `_config.yml` und wird per Inline-Skript in `_layouts/default.html` in alle `<a class="email">` eingesetzt. Umgebende Texte stehen in `<span class="email-wrap" hidden>` und bleiben ohne JavaScript ausgeblendet. Aktuell: Kontakt-Abschnitt beider Startseiten und Kopf beider Lebensläufe.
 - Änderungen klein halten und bestehende Klassen in `style.css` wiederverwenden, statt neue Stile zu erfinden.
 
 ## Struktur

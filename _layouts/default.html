@@ -91,6 +91,17 @@
     apply(root.dataset.theme);
     group.hidden = false;
   })();
+
+  // E-Mail-Adresse erst im Browser zusammensetzen (Schutz vor Bots). Ohne JavaScript bleibt sie ausgeblendet.
+  (function () {
+    var address;
+    try { address = atob("{{ site.email_b64 }}"); } catch (e) { return; }
+    document.querySelectorAll(".email").forEach(function (a) {
+      a.href = "mailto:" + address;
+      a.textContent = address;
+    });
+    document.querySelectorAll(".email-wrap").forEach(function (w) { w.hidden = false; });
+  })();
 </script>
 </body>
 </html>

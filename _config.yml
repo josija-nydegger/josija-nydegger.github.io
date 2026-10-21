@@ -10,6 +10,11 @@ timezone: Europe/Zurich
 # Bild für die Link-Vorschau (LinkedIn, WhatsApp usw.)
 image: /images/og-image.jpg
 
+# E-Mail-Adresse, Base64-kodiert, damit Bots sie im Quelltext nicht finden.
+# Wird erst im Browser per JavaScript zusammengesetzt (siehe _layouts/default.html).
+# Neue Adresse kodieren z. B. mit: printf 'neue@adresse.ch' | base64
+email_b64: am9zaWphLm55ZGVnZ2VyQGdtYWlsLmNvbQ==
+
 author:
   name: Josija Nydegger
   url: https://josija-nydegger.github.io
