@@ -86,6 +86,7 @@ Status: **geplant, noch nicht umgesetzt.** Ziel: alle Inhalte in beiden Sprachen
 - Blogbeiträge dürfen auch nur in einer Sprache existieren.
 
 ## Später vielleicht
+- **Baukontrolle-Web-App einbinden, sobald sie fertig ist:** als eigenständige Datei unter `projekte/baukontrolle/index.html` (ohne Front Matter, damit Jekyll sie unverändert kopiert) und als erstes Projekt im Abschnitt "Projekte" mit Demo-Button (`target="_blank"`). Nur Beispielmodelle wie das FZK-Haus, nie Kundendaten. Google Fonts möglichst lokal einbinden.
 - Newsletter über Buttondown (Gratis-Plan, manueller Versand). Erfordert Anmeldeformular, Double Opt-in und eine Datenschutzseite.
 - Eigene Domain, Tags im Blog, KaTeX für Formeln, IFC-Viewer (That Open Engine), kleine Ingenieur-Tools.
 
