@@ -53,12 +53,17 @@ p { margin: 0 0 14px; }
 
 /* ---------- Listen (Publikationen, Blog, CV) ---------- */
 .list { list-style: none; margin: 0; padding: 0; }
-.item { padding: 14px 0; border-top: 1px solid var(--border); }
+.item {
+  padding: 14px 0; border-top: 1px solid var(--border);
+  /* Zwei Spalten: Text links, Jahreszahl rechts. Text läuft nie unter die Jahreszahl. */
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px;
+}
 .item:last-child { border-bottom: 1px solid var(--border); }
-.item-head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
-.item-title { font-weight: 600; margin: 0; font-size: 15px; }
-.item-year { color: var(--muted); font-size: 13px; white-space: nowrap; }
-.item-sub { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+.item-head { display: contents; }
+.item-title { font-weight: 600; margin: 0; font-size: 15px; grid-column: 1; align-self: baseline; }
+.item-year { color: var(--muted); font-size: 13px; white-space: nowrap; grid-column: 2; grid-row: 1; align-self: baseline; }
+.item-sub { color: var(--muted); font-size: 14px; margin: 2px 0 0; grid-column: 1; }
+.item > .tags, .item > p { grid-column: 1; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .tag {
   font-size: 12px; padding: 2px 8px; border-radius: 6px;
@@ -67,7 +72,7 @@ p { margin: 0 0 14px; }
 .tag:hover { outline: 1px solid var(--border); }
 
 /* Blog-Einträge als ganze Zeile klickbar */
-a.item { display: block; text-decoration: none; color: inherit; }
+a.item { text-decoration: none; color: inherit; }
 a.item:hover .item-title { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- Social-Links ---------- */
