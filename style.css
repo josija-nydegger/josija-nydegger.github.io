@@ -81,10 +81,14 @@ p { margin: 0 0 14px; }
 .item > .tags, .item > p { grid-column: 1; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .tag {
-  font-size: 12px; padding: 2px 8px; border-radius: 6px;
+  font-size: 12px; padding: 1px 7px; border-radius: 6px; border: 1px solid transparent;
   background: var(--tag-bg); color: var(--text); text-decoration: none;
 }
-.tag:hover { outline: 1px solid var(--border); }
+/* Klickbare Tags (Code, Demo, PDF): Rahmen und Pfeil, reine Info-Tags (Python …) ohne */
+a.tag { border-color: var(--border); }
+a.tag::after { content: "↗"; margin-left: 3px; color: var(--muted); }
+a.tag:hover { border-color: var(--accent); }
+a.tag:hover::after { color: var(--text); }
 
 /* Blog-Einträge als ganze Zeile klickbar */
 a.item { text-decoration: none; color: inherit; }
@@ -113,6 +117,13 @@ article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px soli
 .lang a { color: var(--muted); text-decoration: none; }
 .lang a:hover { color: var(--text); }
 .lang [aria-current] { color: var(--text); font-weight: 600; }
+
+/* ---------- Button (z. B. 404-Seite) ---------- */
+.button {
+  display: inline-block; margin-top: 8px; font-size: 14px; padding: 6px 16px;
+  border: 1px solid var(--border); border-radius: 999px; text-decoration: none;
+}
+.button:hover { border-color: var(--accent); }
 
 /* ---------- Fusszeile mit Hell/Dunkel/System-Umschalter ---------- */
 footer {

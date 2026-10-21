@@ -15,7 +15,7 @@ Live: <https://josija-nydegger.github.io> · gehostet mit GitHub Pages (Jekyll, 
 
 ```
 _config.yml          Jekyll-Einstellungen, Plugins (seo-tag, sitemap), Social-Links, defaults für lang/locale
-_data/i18n.yml       Feste Texte (Abschnittstitel, "Zurück", Datumsformat usw.) auf DE und EN
+_data/i18n.yml       Feste Texte der gemeinsamen Templates ("Zurück", Blog, Datumsformat, Theme-Buttons) auf DE und EN
 _layouts/default.html  Gemeinsames Layout: <head>, hreflang, Sprachumschalter, Footer mit Theme-Umschalter
 _layouts/post.html   Layout für Blogbeiträge (baut auf default auf)
 _includes/blog-list.html  Blog-Liste der Startseite (nur Beiträge der eigenen Sprache)
@@ -29,6 +29,7 @@ feed.xml             RSS-Feed DE
 en/index.html        Startseite EN (/en/)
 en/cv.html           Lebenslauf EN (/en/cv.html)
 en/feed.xml          RSS-Feed EN
+404.html             Fehlerseite "PAGE NOT FOUND" (Englisch, eine für die ganze Seite)
 style.css            Gesamtes Design; Farben als CSS-Variablen inkl. Dark Mode (System + data-theme)
 images/              profil.jpg, og-image.jpg (Link-Vorschau 1200×630), blog/ für Beitragsbilder
 arbeiten/            PDFs von Arbeiten (Projekt-, Bachelorarbeiten), nur im Original
@@ -66,7 +67,7 @@ Alle Seiten beginnen mit Front Matter (`---`) mit `layout: default` und `ref:`. 
 - Immer auch in `en/index.html` eintragen: Titel im Original, nur die Beschreibung übersetzen.
 
 ### Projekte (index.html, Abschnitt "Projekte")
-- Gleiche Struktur wie Arbeiten; Tags für Links (`Code`, `Demo`) und Technologien.
+- Gleiche Struktur wie Arbeiten; Tags für Links (`Code`, `Demo`) und Technologien. Links immer als `<a class="tag">` (bekommen automatisch Rahmen und ↗), reine Info-Tags als `<span class="tag">`.
 
 ## Zweisprachigkeit (Deutsch / Englisch)
 
@@ -75,7 +76,7 @@ Status: **umgesetzt** (Oktober 2026).
 - Deutsch unter den bestehenden URLs (`/`, `/cv.html`, `/blog/:title/`), Englisch unter `/en/`, `/en/cv.html`, `/en/blog/:title/`.
 - Sprachumschalter "DE | EN" oben rechts (reine Links). Er sucht in `site.pages` bzw. `site.posts` die Seite mit gleicher `ref` und anderer `lang`; ohne Gegenstück → Startseite der anderen Sprache (bei Beiträgen `#blog`).
 - `hreflang`-Links (`de`, `en`, `x-default` → Deutsch) nur, wenn ein echtes Gegenstück existiert.
-- Feste Texte stehen in `_data/i18n.yml`. Neue feste Texte immer dort in beiden Sprachen ergänzen.
+- `_data/i18n.yml` nur für Texte, die gemeinsame Templates (`_layouts/`, `_includes/`) brauchen, immer in beiden Sprachen. Texte einer einzelnen Seite (z. B. Abschnittstitel) direkt in die Seite schreiben.
 - Datumsformat: Deutsch `3.11.2026`, Englisch `3 Nov 2026` (`date_format` in `i18n.yml`).
 - RSS: jekyll-feed wurde ersetzt durch eigene Atom-Feeds `/feed.xml` (DE) und `/en/feed.xml` (EN), beide aus `_includes/atom.xml`.
 - PDFs der Arbeiten gibt es nur im Original.
