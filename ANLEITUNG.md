@@ -61,3 +61,4 @@ Die PDFs kommen in den Ordner `arbeiten/`.
 ## Weitere Arbeit hinzufügen
 
 Im Abschnitt `Arbeiten` in `index.html` einen ganzen `<li class="item"> … </li>`-Block kopieren, darüber einfügen (neueste zuerst) und Titel, Jahr, Beschreibung und PDF-Link anpassen.
+
