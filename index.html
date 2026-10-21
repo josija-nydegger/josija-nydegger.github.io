@@ -6,8 +6,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Josija Nydegger</title>
-  <meta name="description" content="{{ site.description }}">
+  {% seo %}
+  {% feed_meta %}
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -104,7 +104,7 @@
 
   <!-- ===== Blog (wird automatisch aus dem Ordner _posts erzeugt) ===== -->
   <section>
-    <h2>Blog</h2>
+    <h2>Blog <a class="rss" href="{{ '/feed.xml' | relative_url }}" title="RSS-Feed abonnieren">RSS</a></h2>
     {% if site.posts.size > 0 %}
     <div class="list">
       {% for post in site.posts %}

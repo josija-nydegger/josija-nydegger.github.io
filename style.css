@@ -95,3 +95,11 @@ footer a { color: var(--muted); }
   .back, .socials, footer { display: none; }
   main { padding-top: 0; }
 }
+
+/* ---------- RSS-Link neben "Blog" ---------- */
+.rss {
+  font-size: 11px; font-weight: 500; margin-left: 6px; padding: 1px 6px;
+  border: 1px solid var(--border); border-radius: 4px;
+  color: var(--muted); text-decoration: none; vertical-align: middle;
+}
+.rss:hover { color: var(--text); border-color: var(--accent); }

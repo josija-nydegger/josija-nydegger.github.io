@@ -1,8 +1,32 @@
 # Einstellungen für GitHub Pages (Jekyll)
 title: Josija Nydegger
-description: Persönliche Website von Josija Nydegger – Bauingenieurwesen, Arbeiten, Projekte und Blog.
+tagline: Bauingenieurwesen · BIM · Digital Construction
+description: Persönliche Website von Josija Nydegger – Bauingenieurwesen an der BFH, Arbeiten, Projekte und Blog zu Tragwerken, BIM und Digital Construction.
+url: https://josija-nydegger.github.io
 lang: de
+locale: de_CH
 timezone: Europe/Zurich
+
+# Bild für die Link-Vorschau (LinkedIn, WhatsApp usw.)
+image: /images/og-image.jpg
+
+author:
+  name: Josija Nydegger
+  url: https://josija-nydegger.github.io
+
+social:
+  name: Josija Nydegger
+  links:
+    - https://www.linkedin.com/in/josija-nydegger
+    - https://github.com/josija-nydegger
+    - https://www.instagram.com/josija.nydegger
+    - https://orcid.org/0009-0005-4270-2574
+
+# Von GitHub Pages unterstützte Plugins
+plugins:
+  - jekyll-seo-tag   # Titel, Beschreibung und Link-Vorschau (Open Graph)
+  - jekyll-feed      # RSS-Feed unter /feed.xml
+  - jekyll-sitemap   # Sitemap unter /sitemap.xml
 
 # Blogbeiträge erscheinen unter /blog/titel-des-beitrags/
 permalink: /blog/:title/
@@ -23,3 +47,4 @@ kramdown:
 exclude:
   - README.md
   - ANLEITUNG.md
+  - CLAUDE.md
