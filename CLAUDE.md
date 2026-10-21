@@ -64,7 +64,7 @@ Alle Seiten beginnen mit Front Matter (`---`) mit `layout: default` und `ref:`. 
 ### Arbeiten (index.html, Abschnitt "Arbeiten")
 - Neueste zuerst. Ein Eintrag ist ein `<li class="item">`-Block mit `item-head`, `item-title`, `item-year`, `item-sub`.
 - PDF in `arbeiten/` ablegen und verlinken mit
-  `<div class="tags"><a class="tag" href="/arbeiten/DATEI.pdf">PDF</a></div>`.
+  `<div class="tags"><a class="tag" href="/arbeiten/DATEI.pdf" target="_blank" rel="noopener">PDF</a></div>`.
 - Immer auch in `en/index.html` eintragen: Titel im Original, nur die Beschreibung übersetzen.
 
 ### Projekte (index.html, Abschnitt "Projekte")

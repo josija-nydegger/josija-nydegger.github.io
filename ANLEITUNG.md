@@ -34,7 +34,7 @@ Die PDFs kommen in den Ordner `arbeiten/`.
 3. Direkt unter der Zeile mit `class="item-sub"` diese Zeile einfügen und den Dateinamen anpassen:
 
    ```html
-   <div class="tags"><a class="tag" href="arbeiten/projektarbeit-bfh-bruecken.pdf">PDF</a></div>
+   <div class="tags"><a class="tag" href="arbeiten/projektarbeit-bfh-bruecken.pdf" target="_blank" rel="noopener">PDF</a></div>
    ```
 
    Vollständiges Beispiel für die ETH-Arbeit:
@@ -46,7 +46,7 @@ Die PDFs kommen in den Ordner `arbeiten/`.
        <span class="item-year">2021</span>
      </div>
      <p class="item-sub">Bachelorarbeit, ETH Zürich</p>
-     <div class="tags"><a class="tag" href="arbeiten/bachelorarbeit-eth-windturbine.pdf">PDF</a></div>
+     <div class="tags"><a class="tag" href="arbeiten/bachelorarbeit-eth-windturbine.pdf" target="_blank" rel="noopener">PDF</a></div>
    </li>
    ```
 
@@ -55,7 +55,7 @@ Die PDFs kommen in den Ordner `arbeiten/`.
    Dort den Link mit Schrägstrich am Anfang schreiben, sonst findet die englische Seite die Datei nicht:
 
    ```html
-   <div class="tags"><a class="tag" href="/arbeiten/projektarbeit-bfh-bruecken.pdf">PDF</a></div>
+   <div class="tags"><a class="tag" href="/arbeiten/projektarbeit-bfh-bruecken.pdf" target="_blank" rel="noopener">PDF</a></div>
    ```
 
    Der Titel der Arbeit bleibt in der Originalsprache, nur die Beschreibung darunter ist englisch
