@@ -13,6 +13,11 @@ de:
   blog: Blog
   rss_title: RSS-Feed abonnieren
   no_posts: Die ersten Beiträge folgen bald.
+  # Blogbeitrag
+  reading_time: Min. Lesezeit
+  post_nav: Weitere Beiträge
+  prev_post: Vorheriger Beitrag
+  next_post: Nächster Beitrag
   # Hell / Dunkel / System
   theme_label: Farbschema
   theme_light: Hell
@@ -31,6 +36,11 @@ en:
   blog: Blog
   rss_title: Subscribe to the RSS feed
   no_posts: The first posts are coming soon.
+  # Blog post
+  reading_time: min read
+  post_nav: More posts
+  prev_post: Previous post
+  next_post: Next post
   # Light / Dark / System
   theme_label: Color scheme
   theme_light: Light

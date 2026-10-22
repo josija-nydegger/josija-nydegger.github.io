@@ -6,9 +6,9 @@ Live: <https://josija-nydegger.github.io> · gehostet mit GitHub Pages (Jekyll, 
 ## Grundsätze
 
 - **Schlicht bleiben:** eine Spalte, viel Weissraum, keine Animationen, keine Frameworks (kein React, Tailwind, Bootstrap), kein Build-Tool. Nur HTML, CSS, Jekyll/Liquid und Markdown.
-- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme sind die kleinen eigenen Inline-Skripte in `_layouts/default.html`: der Hell/Dunkel/System-Umschalter (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet) und das Einsetzen der E-Mail-Adresse.
+- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme sind die kleinen eigenen Inline-Skripte in `_layouts/default.html`: der Hell/Dunkel/System-Umschalter (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet), das Einsetzen der E-Mail-Adresse und der Button "Als PDF speichern" im Lebenslauf (öffnet den Druckdialog, ohne JavaScript ausgeblendet).
 - **Sprache:** Deutsch (Hauptsprache, Schweizer Rechtschreibung, immer `ss`, nie `ß`) und Englisch (amerikanische Schreibweise, `en_US`). Arbeitstitel in Originalsprache belassen.
-- **Datenschutz:** Keine Wohnadresse, Telefonnummer, kein Geburtsdatum und kein Zivilstand auf der Seite. Kontakt über LinkedIn und E-Mail.
+- **Datenschutz:** Keine Wohnadresse (Strasse), Telefonnummer und kein Geburtsdatum auf der Seite. Auf Wunsch veröffentlicht: Wohnort Lyss und "seit 2024 verheiratet mit Prisca" (Lebenslauf, Abschnitt Persönliches, und erster Satz der Startseite). Kontakt über LinkedIn und E-Mail.
 - **E-Mail nie im Klartext** in HTML oder Repo schreiben (das Repo ist öffentlich). Sie steht nur Base64-kodiert als `email_b64` in `_config.yml` und wird per Inline-Skript in `_layouts/default.html` in alle `<a class="email">` eingesetzt. Umgebende Texte stehen in `<span class="email-wrap" hidden>` und bleiben ohne JavaScript ausgeblendet. Aktuell: Kontakt-Abschnitt beider Startseiten und Kopf beider Lebensläufe.
 - Änderungen klein halten und bestehende Klassen in `style.css` wiederverwenden, statt neue Stile zu erfinden.
 
@@ -21,6 +21,7 @@ _layouts/default.html  Gemeinsames Layout: <head>, hreflang, Sprachumschalter, F
 _layouts/post.html   Layout für Blogbeiträge (baut auf default auf)
 _includes/blog-list.html  Blog-Liste der Startseite (nur Beiträge der eigenen Sprache)
 _includes/atom.xml   Vorlage für die RSS-/Atom-Feeds
+_includes/person-jsonld.html  Strukturierte Daten (schema.org/Person) für Google auf Startseite und CV
 _posts/              Deutsche Blogbeiträge in Markdown (werden automatisch gelistet)
 _posts/en/           Englische Blogbeiträge (→ /en/blog/:title/)
 _drafts/vorlage.md   Vorlage für neue Beiträge (wird nicht veröffentlicht)
@@ -32,10 +33,11 @@ en/cv.html           Lebenslauf EN (/en/cv.html)
 en/feed.xml          RSS-Feed EN
 404.html             Fehlerseite "PAGE NOT FOUND" (Englisch, eine für die ganze Seite)
 style.css            Gesamtes Design; Farben als CSS-Variablen inkl. Dark Mode (System + data-theme)
-images/              profil.jpg, og-image.jpg (Link-Vorschau 1200×630), blog/ für Beitragsbilder
+images/              profil.jpg, og-image.jpg (Link-Vorschau 1200×630), projekte/ für Projekt-Icons, blog/ für Beitragsbilder
 arbeiten/            PDFs von Arbeiten (Projekt-, Bachelorarbeiten), nur im Original
 favicon.svg, favicon-32.png, apple-touch-icon.png
 ANLEITUNG.md         Anleitung für PDF-Uploads (nicht veröffentlicht)
+README.md            Beschreibung für das GitHub-Repo (nicht veröffentlicht)
 ```
 
 Alle Seiten beginnen mit Front Matter (`---`) mit `layout: default` und `ref:`. Diese Zeilen nicht entfernen. `lang` und `locale` setzt `_config.yml` automatisch (Ordner `en/` und `_posts/en/` → Englisch, sonst Deutsch).
@@ -58,7 +60,7 @@ Alle Seiten beginnen mit Front Matter (`---`) mit `layout: default` und `ref:`. 
   ```
 - Englische Übersetzung: `_posts/en/JJJJ-MM-TT-english-title.md` mit **derselben `ref`**. Ohne Gegenstück führt der Sprachumschalter zur Blog-Liste der anderen Sprache.
 - Optional `image: /images/blog/bild.jpg` für eine eigene Link-Vorschau.
-- Layout wird automatisch gesetzt (`defaults` in `_config.yml`).
+- Layout wird automatisch gesetzt (`defaults` in `_config.yml`). Es zeigt automatisch die Lesezeit (ca. 200 Wörter/Minute) und Links zum vorherigen/nächsten Beitrag derselben Sprache (nur falls vorhanden).
 - Beiträge werden teils in Obsidian geschrieben: Wikilinks `[[...]]` in normale Markdown-Links umwandeln, Bilder nach `images/blog/` verschieben und mit absolutem Pfad (`/images/blog/...`) einbinden.
 
 ### Arbeiten (index.html, Abschnitt "Arbeiten")
@@ -69,6 +71,11 @@ Alle Seiten beginnen mit Front Matter (`---`) mit `layout: default` und `ref:`. 
 
 ### Projekte (index.html, Abschnitt "Projekte")
 - Gleiche Struktur wie Arbeiten; Tags für Links (`Code`, `Demo`) und Technologien. Links immer als `<a class="tag">` (bekommen automatisch Rahmen und ↗), reine Info-Tags als `<span class="tag">`.
+- Projekt-Icon: rund, 160×160 px, in `images/projekte/`, vor dem Titel mit `<img class="item-icon" src="/images/projekte/NAME.png" alt="" width="40" height="40" loading="lazy">`.
+
+### Lebenslauf und strukturierte Daten
+- Der Lebenslauf hat eine eigene Druckansicht (`@media print` in `style.css`): immer hell, ohne Navigation, keine Seitenumbrüche mitten in einem Eintrag.
+- Änderungen an Arbeitgeber, Studium oder Wohnort auch in `_includes/person-jsonld.html` nachführen (z. B. BSB + Partner beenden, sobald die Stelle bei Baukonstrukt AG beginnt).
 
 ## Zweisprachigkeit (Deutsch / Englisch)
 
@@ -80,7 +87,7 @@ Status: **umgesetzt** (Oktober 2026).
 - `_data/i18n.yml` nur für Texte, die gemeinsame Templates (`_layouts/`, `_includes/`) brauchen, immer in beiden Sprachen. Texte einer einzelnen Seite (z. B. Abschnittstitel) direkt in die Seite schreiben.
 - Datumsformat: Deutsch `3.11.2026`, Englisch `3 Nov 2026` (`date_format` in `i18n.yml`).
 - RSS: jekyll-feed wurde ersetzt durch eigene Atom-Feeds `/feed.xml` (DE) und `/en/feed.xml` (EN), beide aus `_includes/atom.xml`.
-- PDFs der Arbeiten gibt es nur im Original.
+- PDFs der Arbeiten gibt es nur im Original. Vor dem Hochladen auf persönliche Daten prüfen (z. B. Matrikelnummern auf dem Titelblatt) und diese echt schwärzen, nicht nur überdecken.
 
 ### Übersetzung
 - Texte natürlich übersetzen, nicht wörtlich. Feste Begriffe: Werkstudent → *working student*, Sozialpädagoge HF → *Social Pedagogue (Swiss College of Higher Education)*, Tragwerke → *structural engineering*, Zivildienst → *Swiss civilian service*, Matura → *Swiss Matura (university entrance qualification)*, Tiefbau → *infrastructure engineering*, Hochbau → *structural engineering for buildings*, Projektarbeit → *semester project*. Unsichere Übersetzungen mir zur Prüfung auflisten.

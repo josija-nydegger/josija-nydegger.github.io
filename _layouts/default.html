@@ -30,6 +30,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
   {% seo %}
+  {%- if page.ref == "home" or page.ref == "cv" %}
+  {% include person-jsonld.html %}
+  {%- endif %}
   {%- if other %}
   <link rel="alternate" hreflang="{{ lang }}" href="{{ page.url | absolute_url }}">
   <link rel="alternate" hreflang="{{ other_lang }}" href="{{ other.url | absolute_url }}">
@@ -101,6 +104,18 @@
       a.textContent = address;
     });
     document.querySelectorAll(".email-wrap").forEach(function (w) { w.hidden = false; });
+  })();
+
+  // Lebenslauf: Button "Als PDF speichern" öffnet den Druckdialog.
+  // Während des Druckens wird der Seitentitel (= vorgeschlagener Dateiname) durch data-print ersetzt.
+  (function () {
+    var button = document.querySelector("[data-print]");
+    if (!button) return;
+    var title = document.title;
+    window.addEventListener("beforeprint", function () { document.title = button.dataset.print; });
+    window.addEventListener("afterprint", function () { document.title = title; });
+    button.addEventListener("click", function () { window.print(); });
+    button.hidden = false;
   })();
 </script>
 </body>

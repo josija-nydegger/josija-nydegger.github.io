@@ -53,7 +53,9 @@ a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px
 a:hover { text-decoration-color: var(--accent); }
 
 /* ---------- Kopfbereich ---------- */
-.header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+.header { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 28px; }
+/* Namensblock füllt die Zeile und bricht nie unter das Profilbild; nur der PDF-Button darf umbrechen */
+.header > div { flex: 1 1 0; min-width: 0; }
 .avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--tag-bg); flex-shrink: 0; }
 .header h1 { font-size: 22px; margin: 0; line-height: 1.2; }
 .header .meta { color: var(--muted); font-size: 14px; }
@@ -114,6 +116,20 @@ article pre { background: var(--tag-bg); padding: 14px; border-radius: 8px; over
 article code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
 article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid var(--border); color: var(--muted); }
 
+/* Vorheriger / nächster Beitrag */
+.post-nav {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px;
+  margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border);
+}
+.post-nav a { display: flex; flex-direction: column; max-width: 48%; font-weight: 600; text-decoration: none; }
+.post-nav a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.post-nav span { color: var(--muted); font-size: 13px; font-weight: 400; }
+.post-nav .next { margin-left: auto; text-align: right; }
+@media (max-width: 520px) { .post-nav a { max-width: 100%; } }
+
+/* Projekt-Icons vor dem Titel */
+.item-icon { width: 40px; height: 40px; border-radius: 50%; vertical-align: middle; margin-right: 10px; }
+
 /* ---------- Sprachumschalter oben rechts ---------- */
 .lang { position: absolute; top: 16px; right: 20px; font-size: 13px; color: var(--muted); }
 .lang a, .lang span { display: inline-block; padding: 6px 4px; }
@@ -127,6 +143,14 @@ article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px soli
   border: 1px solid var(--border); border-radius: 999px; text-decoration: none;
 }
 .button:hover { border-color: var(--accent); }
+.button[hidden] { display: none; }
+button.button { font: inherit; font-size: 14px; background: none; color: var(--accent); cursor: pointer; }
+/* PDF-Button im Lebenslauf: rechts im Kopfbereich, auf dem Handy darunter */
+.print-button { margin: 0 0 0 auto; }
+@media (max-width: 520px) {
+  .header:has(.print-button) > div { flex-basis: calc(100% - 80px); }
+  .print-button { margin-left: 80px; }
+}
 /* Hervorgehobener Button (z. B. Lebenslauf auf der Startseite) */
 .button.primary { margin-top: 12px; background: var(--text); border-color: var(--text); color: var(--bg); font-weight: 500; }
 .button.primary:hover { opacity: 0.85; }
@@ -148,9 +172,25 @@ footer a { color: var(--muted); }
 .theme button[aria-pressed="true"] { background: var(--tag-bg); color: var(--text); }
 .theme svg { width: 16px; height: 16px; }
 
+/* ---------- Druck / PDF (v. a. Lebenslauf) ---------- */
+@page { margin: 16mm 16mm 14mm; }
 @media print {
-  .back, .socials, .lang, footer { display: none; }
-  main { padding-top: 0; }
+  /* Immer helle Farben, auch wenn das dunkle Design aktiv ist (:root dreifach für höhere Spezifität) */
+  :root:root:root {
+    color-scheme: light;
+    --bg: #ffffff; --text: #1a1a1a; --muted: #555555; --border: #dddddd; --accent: #1a1a1a; --tag-bg: #f1f0ed;
+  }
+  body { font-size: 10.5pt; line-height: 1.45; }
+  main { max-width: none; padding: 0; }
+  .back, .socials, .lang, .print-button, footer { display: none !important; }
+  .header { margin-bottom: 12pt; }
+  section { margin-top: 16pt; }
+  h2 { break-after: avoid; margin-bottom: 6pt; }
+  .item { padding: 6pt 0; break-inside: avoid; }
+  a { text-decoration: none; }
+  /* LinkedIn-Adresse im PDF ausschreiben */
+  .header .meta a[href^="http"]::after { content: " (" attr(href) ")"; }
+  .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
 /* ---------- RSS-Link neben "Blog" ---------- */
