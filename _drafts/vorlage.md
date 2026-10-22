@@ -36,6 +36,18 @@ Bilder legst du in `images/blog/` ab und bindest sie so ein:
 
 ![Beschreibung des Bildes](/images/blog/beispiel.jpg)
 
+Formeln (LaTeX) inline mit einfachem Dollar: $\sigma = \frac{N}{A}$, und als eigener Absatz mit doppeltem Dollar:
+
+$$M_{max} = \frac{q \cdot l^2}{8}$$
+
+Hinweise zu Formeln:
+
+- Enthält eine Inline-Formel `\{`, `\}`, `\\` oder `*`, schreibe sie mit doppeltem Dollar im Fliesstext,
+  z. B. `die Menge $$\{1, 2, 3\}$$ ist …`. Sie wird trotzdem inline dargestellt.
+- Für ein normales Dollarzeichen im Text: `<span class="nomath">$</span>`.
+- Stehen in einer Formel zwei geschweifte Klammern direkt nacheinander (öffnend), Leerzeichen dazwischen setzen,
+  sonst hält Jekyll sie für eigenen Code.
+
 Code:
 
 ```python

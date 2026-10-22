@@ -44,3 +44,29 @@ layout: default
     {%- endif %}
   </nav>
   {%- endif %}
+
+  {%- comment -%}
+    LaTeX-Formeln mit KaTeX (lokal in /assets/katex/, kein externer Dienst).
+    Wird nur geladen, wenn der Beitrag Formeln enthalten könnte.
+    $…$ = inline, $$…$$ = Block (eigener Absatz) oder inline (im Fliesstext).
+    GitHub Pages (kramdown) macht aus $$…$$ bereits \(…\) bzw. \[…\]; einzelne $…$ bleiben stehen.
+  {%- endcomment -%}
+  {%- if content contains "$" or content contains "\(" or content contains "\[" %}
+  <link rel="stylesheet" href="/assets/katex/katex.min.css">
+  <script defer src="/assets/katex/katex.min.js"></script>
+  <script defer src="/assets/katex/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      renderMathInElement(document.querySelector("article"), {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "\\[", right: "\\]", display: true },
+          { left: "$", right: "$", display: false },
+          { left: "\\(", right: "\\)", display: false }
+        ],
+        ignoredClasses: ["nomath"],
+        throwOnError: false
+      });
+    });
+  </script>
+  {%- endif %}

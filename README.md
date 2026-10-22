@@ -16,6 +16,7 @@ Persönliche Website von **Josija Nydegger**: Bauingenieurwesen, BIM und Digital
 
 Bewusst schlicht: reines HTML und CSS mit [Jekyll](https://jekyllrb.com/), gebaut und gehostet von GitHub Pages.
 Keine Frameworks, kein Build-Tool, keine Tracker und kein externes JavaScript.
+Formeln in Blogbeiträgen (LaTeX mit `$…$` und `$$…$$`) setzt [KaTeX](https://katex.org), lokal eingebunden in `assets/katex/`.
 
 | Pfad | Inhalt |
 |---|---|

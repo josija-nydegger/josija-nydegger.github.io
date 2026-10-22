@@ -6,7 +6,7 @@ Live: <https://josija-nydegger.github.io> · gehostet mit GitHub Pages (Jekyll, 
 ## Grundsätze
 
 - **Schlicht bleiben:** eine Spalte, viel Weissraum, keine Animationen, keine Frameworks (kein React, Tailwind, Bootstrap), kein Build-Tool. Nur HTML, CSS, Jekyll/Liquid und Markdown.
-- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme sind die kleinen eigenen Inline-Skripte in `_layouts/default.html`: der Hell/Dunkel/System-Umschalter (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet), das Einsetzen der E-Mail-Adresse und der Button "Als PDF speichern" im Lebenslauf (öffnet den Druckdialog, ohne JavaScript ausgeblendet).
+- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme sind die kleinen eigenen Inline-Skripte in `_layouts/default.html`: der Hell/Dunkel/System-Umschalter (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet), das Einsetzen der E-Mail-Adresse und der Button "Als PDF speichern" im Lebenslauf (öffnet den Druckdialog, ohne JavaScript ausgeblendet). Dazu KaTeX für Formeln in Blogbeiträgen, **lokal** in `assets/katex/` (kein CDN), nur auf Beiträgen geladen, die `$`, `\(` oder `\[` enthalten.
 - **Sprache:** Deutsch (Hauptsprache, Schweizer Rechtschreibung, immer `ss`, nie `ß`) und Englisch (amerikanische Schreibweise, `en_US`). Arbeitstitel in Originalsprache belassen.
 - **Datenschutz:** Keine Wohnadresse (Strasse), Telefonnummer und kein Geburtsdatum auf der Seite. Auf Wunsch veröffentlicht: Wohnort Lyss und "seit 2024 verheiratet mit Prisca" (Lebenslauf, Abschnitt Persönliches, und erster Satz der Startseite). Kontakt über LinkedIn und E-Mail.
 - **E-Mail nie im Klartext** in HTML oder Repo schreiben (das Repo ist öffentlich). Sie steht nur Base64-kodiert als `email_b64` in `_config.yml` und wird per Inline-Skript in `_layouts/default.html` in alle `<a class="email">` eingesetzt. Umgebende Texte stehen in `<span class="email-wrap" hidden>` und bleiben ohne JavaScript ausgeblendet. Aktuell: Kontakt-Abschnitt beider Startseiten und Kopf beider Lebensläufe.
@@ -33,6 +33,7 @@ en/cv.html           Lebenslauf EN (/en/cv.html)
 en/feed.xml          RSS-Feed EN
 404.html             Fehlerseite "PAGE NOT FOUND" (Englisch, eine für die ganze Seite)
 style.css            Gesamtes Design; Farben als CSS-Variablen inkl. Dark Mode (System + data-theme)
+assets/katex/        KaTeX 0.16.11 (MIT) für LaTeX-Formeln im Blog, nur .woff2-Schriften
 images/              profil.jpg, og-image.jpg (Link-Vorschau 1200×630), projekte/ für Projekt-Icons, blog/ für Beitragsbilder
 arbeiten/            PDFs von Arbeiten (Projekt-, Bachelorarbeiten), nur im Original
 favicon.svg, favicon-32.png, apple-touch-icon.png
@@ -61,6 +62,7 @@ Alle Seiten beginnen mit Front Matter (`---`) mit `layout: default` und `ref:`. 
 - Englische Übersetzung: `_posts/en/JJJJ-MM-TT-english-title.md` mit **derselben `ref`**. Ohne Gegenstück führt der Sprachumschalter zur Blog-Liste der anderen Sprache.
 - Optional `image: /images/blog/bild.jpg` für eine eigene Link-Vorschau.
 - Layout wird automatisch gesetzt (`defaults` in `_config.yml`). Es zeigt automatisch die Lesezeit (ca. 200 Wörter/Minute) und Links zum vorherigen/nächsten Beitrag derselben Sprache (nur falls vorhanden).
+- **Formeln (LaTeX):** inline `$…$`, als Block `$$…$$` in einem eigenen Absatz. kramdown wandelt `$$…$$` selbst in `\(…\)` bzw. `\[…\]` um und schützt den Inhalt; einzelne `$…$` bleiben unverändert und werden erst im Browser von KaTeX gesetzt. Deshalb gilt bei `$…$`: Markdown verarbeitet den Inhalt mit (`\{`, `\}`, `\\` verlieren den Backslash, `*` kann kursiv machen). Solche Formeln inline als `$$…$$` schreiben. Dollarzeichen als Text: `<span class="nomath">$</span>`. `{{`/`{%` in Formeln mit `{% raw %}` schützen.
 - Beiträge werden teils in Obsidian geschrieben: Wikilinks `[[...]]` in normale Markdown-Links umwandeln, Bilder nach `images/blog/` verschieben und mit absolutem Pfad (`/images/blog/...`) einbinden.
 
 ### Arbeiten (index.html, Abschnitt "Arbeiten")
@@ -101,7 +103,7 @@ Status: **umgesetzt** (Oktober 2026).
 ## Später vielleicht
 - **Baukontrolle-Web-App einbinden, sobald sie fertig ist:** als eigenständige Datei unter `projekte/baukontrolle/index.html` (ohne Front Matter, damit Jekyll sie unverändert kopiert) und als erstes Projekt im Abschnitt "Projekte" mit Demo-Button (`target="_blank"`). Nur Beispielmodelle wie das FZK-Haus, nie Kundendaten. Google Fonts möglichst lokal einbinden.
 - Newsletter über Buttondown (Gratis-Plan, manueller Versand). Erfordert Anmeldeformular, Double Opt-in und eine Datenschutzseite.
-- Eigene Domain, Tags im Blog, KaTeX für Formeln, IFC-Viewer (That Open Engine), kleine Ingenieur-Tools.
+- Eigene Domain, Tags im Blog, IFC-Viewer (That Open Engine), kleine Ingenieur-Tools.
 
 ## Prüfen
 

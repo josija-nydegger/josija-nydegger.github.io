@@ -114,6 +114,8 @@ article h2 { font-size: 18px; margin-top: 32px; }
 article img { max-width: 100%; border-radius: 8px; }
 article pre { background: var(--tag-bg); padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
 article code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+/* Formeln (KaTeX): breite Block-Formeln horizontal scrollbar statt über den Rand */
+article .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
 article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid var(--border); color: var(--muted); }
 
 /* Vorheriger / nächster Beitrag */
