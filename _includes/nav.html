@@ -1,0 +1,18 @@
+{%- comment -%}
+  Menü oben links (CV, Tools, Blog), Gegenstück zum Sprachumschalter oben rechts.
+  Eingebunden in _layouts/default.html. Links folgen der Sprache der Seite (/ bzw. /en/).
+{%- endcomment -%}
+{%- assign nav_lang = page.lang | default: site.lang -%}
+{%- if nav_lang == "en" -%}
+  {%- assign nav_base = "/en" -%}
+  {%- assign nav_label = "Main menu" -%}
+{%- else -%}
+  {%- assign nav_base = "" -%}
+  {%- assign nav_label = "Hauptmenü" -%}
+{%- endif -%}
+{%- assign nav_home = site.data.i18n[nav_lang].home_url -%}
+<nav class="nav" aria-label="{{ nav_label }}">
+    <a href="{{ nav_base }}/cv.html"{% if page.ref == "cv" %} aria-current="page"{% endif %}>CV</a>
+    <a href="{{ nav_base }}/tools/"{% if page.ref == "tools" %} aria-current="page"{% endif %}>Tools</a>
+    <a href="{{ nav_home }}#blog"{% if page.collection == "posts" %} aria-current="page"{% endif %}>Blog</a>
+  </nav>

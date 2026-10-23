@@ -1,0 +1,29 @@
+---
+layout: default
+title: Tools
+description: Small web tools for structural design, structural analysis and BIM. They run in the browser; inputs never leave your computer.
+lang: en
+ref: tools
+permalink: /en/tools/
+---
+<h1 class="page-title">Tools</h1>
+<p class="page-intro">Small web tools for structural design, structural analysis and BIM that I build for my studies and work. They run in the browser; inputs never leave your computer. The tools are currently available in German only.</p>
+
+<section>
+  <ul class="list">
+    {%- for tool in site.data.tools %}
+    <li class="item">
+      <div class="item-head">
+        <p class="item-title"><a href="{{ tool.url | relative_url }}">{{ tool.title.en }}</a></p>
+        <span class="item-year">{{ tool.year }}</span>
+      </div>
+      <p class="item-sub">{{ tool.description.en }}</p>
+      {%- if tool.tags.en %}
+      <div class="tags">{% for tag in tool.tags.en %}<span class="tag">{{ tag }}</span>{% endfor %}</div>
+      {%- endif %}
+    </li>
+    {%- endfor %}
+  </ul>
+</section>
+
+<p class="page-note"><strong>Note:</strong> Aids for studies and preliminary design. They do not replace a check by a qualified engineer.</p>

@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>Querschnittswerte</title>
+<meta name="description" content="Querschnittswerte berechnen: Fläche, Schwerpunkt, Flächenträgheitsmomente, Widerstandsmomente und Trägheitsradien für Standard- und zusammengesetzte Querschnitte, mit Rechenweg.">
+<style>
+  /* Farben und Typografie wie style.css der Website (josija-nydegger.github.io).
+     Zusätzliche Farben nur für die Zeichnung und Fehlermeldungen. */
+  :root {
+    color-scheme: light dark;
+    --bg: #fcfcfb;
+    --text: #1a1a1a;
+    --muted: #6b6a66;
+    --border: #e7e6e2;
+    --accent: #1a1a1a;
+    --tag-bg: #f1f0ed;
+    --fill: #e9e8e4;
+    --fill-stroke: #1a1a1a;
+    --hole-stroke: #9e9c97;
+    --axis: #c0392b;
+    --principal: #2e7d4f;
+    --error-bg: #fbeceb;
+    --error-fg: #8a1f11;
+    --field: #ffffff;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+      --fill: #2a2a29; --fill-stroke: #e5e3de; --hole-stroke: #6b6a66; --axis: #ff7a6b; --principal: #6fd39a;
+      --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+    --fill: #2a2a29; --fill-stroke: #e5e3de; --hole-stroke: #6b6a66; --axis: #ff7a6b; --principal: #6fd39a;
+    --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+
+  /* ---------- Grundlayout wie Website ---------- */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 56px 20px 40px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border); }
+  a:hover { text-decoration-color: var(--accent); }
+  .back { display: inline-block; margin-bottom: 28px; color: var(--muted); text-decoration: none; font-size: 14px; }
+  .back:hover { color: var(--text); }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 16px; margin: 44px 0 16px; }
+  h3 { font-size: 15px; margin: 24px 0 4px; }
+  p { margin: 0 0 14px; }
+  .lead { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+  sub, sup { font-size: 0.72em; line-height: 0; }
+
+  /* ---------- Auswahl Querschnitt (wie Social-Links / Buttons der Website) ---------- */
+  .shapes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .shapes button {
+    font: inherit; font-size: 14px; line-height: 1.5;
+    padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--text); cursor: pointer;
+  }
+  .shapes button:hover { border-color: var(--accent); }
+  .shapes button[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--bg); font-weight: 500; }
+
+  /* ---------- Eingaben ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px 16px; }
+  label { display: block; font-size: 13px; color: var(--muted); }
+  label .sym { color: var(--text); font-style: italic; }
+  input, select {
+    width: 100%; margin-top: 4px;
+    font: inherit; font-size: 15px;
+    padding: 6px 9px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text);
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  input:disabled { background: var(--tag-bg); }
+  /* Zahlenfelder: Einheit im Feld, Zahlen rechtsbündig in Monospace */
+  .inp {
+    display: flex; align-items: center; margin-top: 4px; height: 36px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--field); padding-right: 9px; min-width: 0;
+  }
+  .inp:focus-within { border-color: var(--accent); }
+  .inp input {
+    flex: 1; min-width: 0; height: 100%; margin: 0; border: 0; border-radius: 8px; background: transparent;
+    padding: 0 6px 0 9px; font-family: var(--mono); font-size: 14px; text-align: right;
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  .inp input::-webkit-inner-spin-button, .inp input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .inp input:focus { border: 0; }
+  .inp span { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: 3px; white-space: nowrap; }
+  .custom input[type="number"] {
+    font-family: var(--mono); font-size: 13.5px; text-align: right; background: var(--field);
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  .custom input[type="number"]:disabled { background: var(--tag-bg); }
+  .custom input[type="number"]::-webkit-inner-spin-button, .custom input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .error {
+    background: var(--error-bg); color: var(--error-fg);
+    padding: 10px 12px; border-radius: 8px; margin: 16px 0 0; font-size: 14px;
+  }
+
+  /* ---------- Zeichnung ---------- */
+  .figure { border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+  .figure svg { display: block; width: 100%; height: auto; max-height: 360px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--muted); margin-top: 6px; padding: 0 4px; }
+  .legend span::before { content: ""; display: inline-block; width: 14px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+  .legend .l-axis::before { border-color: var(--axis); }
+  .legend .l-principal::before { border-color: var(--principal); border-top-style: dashed; }
+  .legend .l-hole::before { border-color: var(--hole-stroke); border-top-style: dashed; }
+  .legend .l-plastic::before { border-color: var(--muted); border-top-style: dotted; }
+
+  /* ---------- Tabellen ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
+  th { font-weight: 600; font-size: 13px; color: var(--muted); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.unit { color: var(--muted); white-space: nowrap; font-size: 14px; }
+  td.sym { white-space: nowrap; }
+  .results tr:first-child td { border-top: 1px solid var(--border); }
+  .results td:first-child { color: var(--muted); white-space: normal; }
+  @media (max-width: 560px) {
+    /* Auf schmalen Bildschirmen nur mm-Einheiten zeigen */
+    .results td:nth-child(4), .results td:nth-child(5) { display: none; }
+    .results td { padding: 7px 4px; }
+  }
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .steps table { font-size: 13px; min-width: 640px; }
+  .steps td, .steps th { padding: 5px 6px; }
+  .steps tr.sum td { font-weight: 600; border-top: 2px solid var(--border); }
+
+  /* ---------- Rechenweg (Formeln wie Codeblöcke der Website) ---------- */
+  details { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 14px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .formula {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    background: var(--tag-bg); padding: 14px; border-radius: 8px; line-height: 1.8; overflow-x: auto;
+  }
+  .steps .formula { margin-top: 10px; }
+
+  /* ---------- Zusammengesetzter Querschnitt ---------- */
+  .custom table { min-width: 560px; font-size: 14px; }
+  .custom td { padding: 4px; border-bottom: none; }
+  .custom input, .custom select { margin-top: 0; padding: 5px 6px; font-size: 14px; }
+  .custom input[type="checkbox"] { width: auto; accent-color: var(--text); }
+  .custom select { min-width: 110px; }
+  .row-actions { display: flex; gap: 8px; margin: 10px 0 20px; flex-wrap: wrap; }
+
+  /* ---------- Buttons wie .button der Website ---------- */
+  .btn {
+    font: inherit; font-size: 14px; line-height: 1.5; padding: 6px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--accent); cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-x { padding: 2px 10px; }
+  .tools { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+
+  /* ---------- Fusszeile wie Website ---------- */
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  footer p { margin: 0 0 8px; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--text); }
+  .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .foot-row p { margin: 0; }
+  .theme { display: flex; gap: 2px; }
+  .theme[hidden] { display: none; }
+  .theme button {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
+    background: none; color: var(--muted); cursor: pointer;
+  }
+  .theme button:hover { color: var(--text); }
+  .theme button[aria-pressed="true"] { background: var(--tag-bg); color: var(--text); }
+  .theme svg { width: 16px; height: 16px; }
+
+  /* ---------- Druck / PDF ---------- */
+  @media print {
+    :root:root:root {
+      color-scheme: light;
+      --bg: #ffffff; --text: #1a1a1a; --muted: #555555; --border: #dddddd; --accent: #1a1a1a; --tag-bg: #f1f0ed;
+      --fill: #eeeeee; --fill-stroke: #1a1a1a; --axis: #c0392b; --principal: #2e7d4f;
+    }
+    body { font-size: 10.5pt; line-height: 1.45; }
+    main { max-width: none; padding: 0; }
+    .back, .shapes, .row-actions, .tools, .btn-x, .theme { display: none !important; }
+    .figure, table, .formula { break-inside: avoid; }
+    .steps table, .custom table { min-width: 0; }
+    .scroll { overflow: visible; }
+    a { text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/tools/">← Tools</a>
+  <h1>Querschnittswerte</h1>
+  <p class="lead">Fläche, Schwerpunkt, Flächenträgheits&shy;momente, Widerstands&shy;momente und Trägheitsradien. Eingaben in mm.</p>
+
+  <div class="shapes" id="shapes" role="group" aria-label="Querschnitt wählen"></div>
+
+  <section id="params"></section>
+  <div class="error" id="error" hidden></div>
+
+  <h2>Querschnitt</h2>
+  <div class="figure">
+    <svg id="figure" role="img" aria-label="Skizze des Querschnitts mit Schwerpunkt und Achsen"></svg>
+    <div class="legend">
+      <span class="l-axis">Schwerachsen y, z</span>
+      <span class="l-principal" id="legend-principal" hidden>Hauptachse 1</span>
+      <span class="l-plastic" id="legend-plastic" hidden>plastische Nulllinie</span>
+      <span class="l-hole" id="legend-hole" hidden>Aussparung</span>
+    </div>
+  </div>
+
+  <h2>Ergebnisse</h2>
+  <table class="results" id="results"></table>
+  <p class="note">y horizontal, z vertikal nach oben, beide durch den Schwerpunkt S. I<sub>y</sub> gehört zur Biegung um die y-Achse. Widerstandsmomente für die Randfasern oben/unten bzw. links/rechts, bezogen auf die y- und z-Achse.</p>
+
+  <details class="steps" id="steps-wrap">
+    <summary>Rechenweg</summary>
+    <p class="note">Der Querschnitt wird in Rechtecke und Kreise zerlegt. Aussparungen zählen negativ. Trägheitsmomente mit dem Satz von Steiner.</p>
+    <div class="scroll"><table id="steps"></table></div>
+    <div class="formula" id="formulas"></div>
+    <h3>Plastische Widerstandsmomente</h3>
+    <p class="note">Voll plastizierter Querschnitt: Ober- und unterhalb der plastischen Nulllinie liegt je die halbe Fläche. W<sub>pl</sub> ist die Summe der statischen Momente beider Hälften um diese Linie.</p>
+    <div class="scroll"><table id="steps-pl"></table></div>
+    <div class="formula" id="formulas-pl"></div>
+  </details>
+
+  <div class="tools">
+    <button class="btn" type="button" id="reset">Zurücksetzen</button>
+  </div>
+  <p class="note">Die Eingaben stehen in der Adresszeile. Ein kopierter Link öffnet den Rechner mit denselben Werten.</p>
+
+  <h2>Annahmen und Grenzen</h2>
+  <p class="note">Profile ohne Ausrundungsradien; Werte von Walzprofilen weichen daher leicht von Tabellenwerten ab. Plastische Widerstandsmomente gelten für Biegung um die y- bzw. z-Achse; bei unsymmetrischen Querschnitten wie dem Winkel ist die plastische Biegung um diese Achsen nur eine Näherung. Torsionswerte sind nicht enthalten.</p>
+  <p class="note">Grundlagen: Standardformeln der Festigkeitslehre für Rechteck und Kreis, Satz von Steiner, Hauptachsentransformation, plastische Nulllinie als Flächenhalbierende.</p>
+
+  <footer>
+    <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
+    <div class="foot-row">
+      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.github.io/">Website</a></p>
+      <div class="theme" role="group" aria-label="Farbschema" hidden>
+        <button type="button" data-theme="light" aria-label="Hell" title="Hell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" data-theme="dark" aria-label="Dunkel" title="Dunkel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <button type="button" data-theme="system" aria-label="System" title="System">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Elemente ----------
+  const R = (b, h, y, z, s, name) => ({ t: "r", b, h, y, z, s: s || 1, name: name || "Rechteck" });
+  const C = (d, y, z, s, name) => ({ t: "c", d, y, z, s: s || 1, name: name || "Kreis" });
+
+  // Koordinaten der Standardquerschnitte: Ursprung in der linken unteren Ecke.
+  const SHAPES = {
+    rect: {
+      name: "Rechteck",
+      params: [["b", "Breite", 200], ["h", "Höhe", 400]],
+      build: p => [R(p.b, p.h, p.b / 2, p.h / 2, 1, "Rechteck")]
+    },
+    circle: {
+      name: "Kreis",
+      params: [["D", "Durchmesser", 300]],
+      build: p => [C(p.D, p.D / 2, p.D / 2, 1, "Kreis")]
+    },
+    tube: {
+      name: "Kreisrohr",
+      params: [["D", "Aussendurchmesser", 168.3], ["t", "Wanddicke", 8]],
+      check: p => 2 * p.t < p.D || "Die Wanddicke muss kleiner als D/2 sein.",
+      build: p => [
+        C(p.D, p.D / 2, p.D / 2, 1, "Kreis aussen"),
+        C(p.D - 2 * p.t, p.D / 2, p.D / 2, -1, "Kreis innen")
+      ]
+    },
+    rhs: {
+      name: "Rechteckrohr",
+      params: [["b", "Breite", 200], ["h", "Höhe", 300], ["t", "Wanddicke", 10]],
+      check: p => (2 * p.t < p.b && 2 * p.t < p.h) || "Die Wanddicke muss kleiner als b/2 und h/2 sein.",
+      build: p => [
+        R(p.b, p.h, p.b / 2, p.h / 2, 1, "Rechteck aussen"),
+        R(p.b - 2 * p.t, p.h - 2 * p.t, p.b / 2, p.h / 2, -1, "Rechteck innen")
+      ]
+    },
+    ibeam: {
+      name: "I-Profil",
+      params: [["b", "Flanschbreite", 200], ["h", "Höhe", 400], ["tw", "Stegdicke", 8.6], ["tf", "Flanschdicke", 13.5]],
+      check: p => !(p.tw < p.b) ? "Die Stegdicke muss kleiner als die Flanschbreite sein." :
+                  !(2 * p.tf < p.h) ? "Die Flansche sind zusammen dicker als die Höhe." : true,
+      build: p => [
+        R(p.b, p.tf, p.b / 2, p.h - p.tf / 2, 1, "Flansch oben"),
+        R(p.tw, p.h - 2 * p.tf, p.b / 2, p.h / 2, 1, "Steg"),
+        R(p.b, p.tf, p.b / 2, p.tf / 2, 1, "Flansch unten")
+      ]
+    },
+    tbeam: {
+      name: "T-Profil",
+      params: [["b", "Flanschbreite", 1000], ["h", "Höhe", 600], ["tw", "Stegbreite", 300], ["tf", "Flanschdicke", 200]],
+      check: p => !(p.tw <= p.b) ? "Die Stegbreite darf nicht grösser als die Flanschbreite sein." :
+                  !(p.tf < p.h) ? "Die Flanschdicke muss kleiner als die Höhe sein." : true,
+      build: p => [
+        R(p.b, p.tf, p.b / 2, p.h - p.tf / 2, 1, "Flansch"),
+        R(p.tw, p.h - p.tf, p.b / 2, (p.h - p.tf) / 2, 1, "Steg")
+      ]
+    },
+    angle: {
+      name: "Winkel (L)",
+      params: [["h", "Schenkelhöhe", 100], ["b", "Schenkelbreite", 100], ["t", "Schenkeldicke", 10]],
+      check: p => (p.t < p.b && p.t < p.h) || "Die Schenkeldicke muss kleiner als beide Schenkel sein.",
+      build: p => [
+        R(p.t, p.h, p.t / 2, p.h / 2, 1, "Schenkel senkrecht"),
+        R(p.b - p.t, p.t, p.t + (p.b - p.t) / 2, p.t / 2, 1, "Schenkel waagrecht")
+      ]
+    },
+    custom: { name: "Zusammengesetzt", params: [] }
+  };
+
+  const SYM = { b: "b", h: "h", D: "D", t: "t", tw: "t<sub>w</sub>", tf: "t<sub>f</sub>" };
+
+  // Geschlossene Formeln für W_pl (Kontrolle im Rechenweg)
+  const TF = "t<sub>f</sub>", TW = "t<sub>w</sub>";
+  const WPL = {
+    rect: p => ({ y: p.b * p.h * p.h / 4, fy: "b·h²/4", z: p.h * p.b * p.b / 4, fz: "h·b²/4" }),
+    circle: p => ({ y: Math.pow(p.D, 3) / 6, fy: "D³/6", z: Math.pow(p.D, 3) / 6, fz: "D³/6" }),
+    tube: p => {
+      const d = p.D - 2 * p.t, v = (Math.pow(p.D, 3) - Math.pow(d, 3)) / 6;
+      return { y: v, fy: "(D³ − d³)/6 mit d = D − 2t", z: v, fz: "(D³ − d³)/6" };
+    },
+    rhs: p => ({
+      y: (p.b * p.h * p.h - (p.b - 2 * p.t) * Math.pow(p.h - 2 * p.t, 2)) / 4, fy: "[b·h² − (b−2t)·(h−2t)²]/4",
+      z: (p.h * p.b * p.b - (p.h - 2 * p.t) * Math.pow(p.b - 2 * p.t, 2)) / 4, fz: "[h·b² − (h−2t)·(b−2t)²]/4"
+    }),
+    ibeam: p => ({
+      y: p.b * p.tf * (p.h - p.tf) + p.tw * Math.pow(p.h - 2 * p.tf, 2) / 4,
+      fy: "b·" + TF + "·(h−" + TF + ") + " + TW + "·(h−2" + TF + ")²/4",
+      z: p.tf * p.b * p.b / 2 + (p.h - 2 * p.tf) * p.tw * p.tw / 4,
+      fz: TF + "·b²/2 + (h−2" + TF + ")·" + TW + "²/4"
+    })
+  };
+
+  const DEFAULT_CUSTOM = [
+    { t: "r", b: 1000, h: 200, d: 0, y: 0, z: 500, hole: false },
+    { t: "r", b: 300, h: 400, d: 0, y: 0, z: 200, hole: false }
+  ];
+
+  function defaults() {
+    const p = {};
+    for (const k in SHAPES) {
+      p[k] = {};
+      for (const [key, , v] of SHAPES[k].params) p[k][key] = v;
+    }
+    return { shape: "ibeam", p, custom: DEFAULT_CUSTOM.map(e => Object.assign({}, e)), gamma: "" };
+  }
+
+  // ---------- Zustand (in der Adresszeile) ----------
+  let state = defaults();
+  try {
+    if (location.hash.length > 1) {
+      const s = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+      if (s && SHAPES[s.shape]) {
+        const d = defaults();
+        state.shape = s.shape;
+        for (const k in d.p) state.p[k] = Object.assign(d.p[k], (s.p && s.p[k]) || {});
+        if (Array.isArray(s.custom) && s.custom.length) state.custom = s.custom;
+        if (s.gamma !== undefined) state.gamma = s.gamma;
+      }
+    }
+  } catch (e) { /* ungültiger Link: Standardwerte */ }
+
+  function save() {
+    try {
+      history.replaceState(null, "", "#" + encodeURIComponent(JSON.stringify(state)));
+    } catch (e) { /* z. B. in eingebetteten Vorschauen */ }
+  }
+
+  // ---------- Rechnen ----------
+  function elementProps(e) {
+    if (e.t === "r") {
+      return {
+        A: e.b * e.h, Iy0: e.b * Math.pow(e.h, 3) / 12, Iz0: e.h * Math.pow(e.b, 3) / 12,
+        ymin: e.y - e.b / 2, ymax: e.y + e.b / 2, zmin: e.z - e.h / 2, zmax: e.z + e.h / 2
+      };
+    }
+    const I = Math.PI * Math.pow(e.d, 4) / 64;
+    return {
+      A: Math.PI * e.d * e.d / 4, Iy0: I, Iz0: I,
+      ymin: e.y - e.d / 2, ymax: e.y + e.d / 2, zmin: e.z - e.d / 2, zmax: e.z + e.d / 2
+    };
+  }
+
+  function compute(els) {
+    const rows = els.map(e => Object.assign({ e }, elementProps(e)));
+    let A = 0, Sy = 0, Sz = 0;
+    for (const r of rows) { A += r.e.s * r.A; Sz += r.e.s * r.A * r.e.y; Sy += r.e.s * r.A * r.e.z; }
+    if (!(A > 0)) return { error: "Die Gesamtfläche ist nicht positiv. Sind die Aussparungen grösser als die Elemente?" };
+    const ys = Sz / A, zs = Sy / A;
+    let Iy = 0, Iz = 0, Iyz = 0;
+    for (const r of rows) {
+      const dy = r.e.y - ys, dz = r.e.z - zs, s = r.e.s;
+      r.dy = dy; r.dz = dz;
+      r.Ady2 = r.A * dy * dy; r.Adz2 = r.A * dz * dz;
+      Iy += s * (r.Iy0 + r.Adz2);
+      Iz += s * (r.Iz0 + r.Ady2);
+      Iyz += s * r.A * dy * dz;
+    }
+    // Randfasern aus den positiven Elementen
+    let ymin = Infinity, ymax = -Infinity, zmin = Infinity, zmax = -Infinity;
+    for (const r of rows) {
+      if (r.e.s < 0) continue;
+      ymin = Math.min(ymin, r.ymin); ymax = Math.max(ymax, r.ymax);
+      zmin = Math.min(zmin, r.zmin); zmax = Math.max(zmax, r.zmax);
+    }
+    const res = { rows, A, Sy, Sz, ys, zs, Iy, Iz, Iyz, ymin, ymax, zmin, zmax };
+    if (Math.abs(Iyz) > 1e-9 * (Iy + Iz)) {
+      const m = (Iy + Iz) / 2, rr = Math.hypot((Iy - Iz) / 2, Iyz);
+      res.I1 = m + rr; res.I2 = m - rr;
+      res.alpha = 0.5 * Math.atan2(-2 * Iyz, Iy - Iz); // Winkel von y zur Hauptachse 1, Gegenuhrzeigersinn
+    }
+    res.ply = plastic(els, A, "y");
+    res.plz = plastic(els, A, "z");
+    return res;
+  }
+
+  // ---------- Plastisch ----------
+  // Biegung um y: Koordinate z, Nulllinie waagrecht. Biegung um z: Koordinate y, Nulllinie senkrecht.
+  // "oben" bedeutet: Koordinate grösser als die Nulllinie (bei z-Biegung also rechts).
+  const segArea = (r, a) => r * r * Math.acos(a / r) - a * Math.sqrt(Math.max(r * r - a * a, 0)); // Kreisfläche oberhalb u = a
+  const clamp = (x, lo, hi) => Math.min(Math.max(x, lo), hi);
+
+  function toParts(els, dir) {
+    return els.map(e => {
+      const c = dir === "y" ? e.z : e.y;
+      if (e.t === "r") return { t: "r", c, len: dir === "y" ? e.h : e.b, w: dir === "y" ? e.b : e.h, s: e.s, e };
+      return { t: "c", c, r: e.d / 2, s: e.s, e };
+    });
+  }
+  function extent(p) { return p.t === "r" ? p.len / 2 : p.r; }
+
+  function areaAbove(p, t) {
+    if (p.t === "r") return p.w * clamp(p.c + p.len / 2 - t, 0, p.len);
+    return segArea(p.r, clamp(t - p.c, -p.r, p.r));
+  }
+
+  // ∫|u − t| dA, getrennt in den Teil oberhalb und unterhalb der Linie t
+  function absMoment(p, t) {
+    if (p.t === "r") {
+      const lo = p.c - p.len / 2, hi = p.c + p.len / 2;
+      const a = Math.max(t, lo), c = Math.min(t, hi);
+      const up = a < hi ? p.w * (Math.pow(hi - t, 2) - Math.pow(a - t, 2)) / 2 : 0;
+      const down = c > lo ? p.w * (Math.pow(t - lo, 2) - Math.pow(t - c, 2)) / 2 : 0;
+      return { up, down };
+    }
+    const r = p.r, u0 = t - p.c, a = clamp(u0, -r, r);
+    const k = 2 / 3 * Math.pow(Math.max(r * r - a * a, 0), 1.5);
+    return { up: k - u0 * segArea(r, a), down: k + u0 * segArea(r, -a) };
+  }
+
+  function plastic(els, A, dir) {
+    const parts = toParts(els, dir);
+    let lo = Infinity, hi = -Infinity;
+    for (const p of parts) { lo = Math.min(lo, p.c - extent(p)); hi = Math.max(hi, p.c + extent(p)); }
+    const f = t => parts.reduce((s, p) => s + p.s * areaAbove(p, t), 0) - A / 2;
+    // Fläche oberhalb nimmt mit t ab: Halbierung
+    for (let i = 0; i < 200 && hi - lo > 1e-10 * (Math.abs(hi) + 1); i++) {
+      const mid = (lo + hi) / 2;
+      if (f(mid) > 0) lo = mid; else hi = mid;
+    }
+    const t = (lo + hi) / 2;
+    let up = 0, down = 0;
+    const rows = parts.map(p => {
+      const m = absMoment(p, t);
+      up += p.s * m.up; down += p.s * m.down;
+      return { e: p.e, up: p.s * m.up, down: p.s * m.down, Aup: p.s * areaAbove(p, t) };
+    });
+    return { t, up, down, W: up + down, rows };
+  }
+
+  // ---------- Formatierung ----------
+  const clean = x => (Math.abs(x) < 1e-9 ? 0 : x);
+  const sig = (x, d) => clean(x).toLocaleString("de-CH", { maximumSignificantDigits: d || 4 });
+  const fix = (x, d) => clean(x).toLocaleString("de-CH", { minimumFractionDigits: 0, maximumFractionDigits: d === undefined ? 1 : d });
+
+  // ---------- Oberfläche ----------
+  const $ = id => document.getElementById(id);
+
+  function renderShapeButtons() {
+    const box = $("shapes");
+    box.innerHTML = "";
+    for (const k in SHAPES) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = SHAPES[k].name;
+      btn.setAttribute("aria-pressed", String(state.shape === k));
+      btn.addEventListener("click", () => { state.shape = k; renderShapeButtons(); renderParams(); update(); });
+      box.appendChild(btn);
+    }
+  }
+
+  function numInput(value, onInput, attrs, unit) {
+    const inp = document.createElement("input");
+    inp.type = "number"; inp.step = "any"; inp.inputMode = "decimal";
+    inp.value = value;
+    if (attrs) for (const a in attrs) inp.setAttribute(a, attrs[a]);
+    inp.addEventListener("input", () => onInput(inp.value === "" ? NaN : parseFloat(inp.value)));
+    if (!unit) return inp;
+    // Feld mit Einheit rechts im Rahmen (wie im Balken-Tool)
+    const box = document.createElement("span");
+    box.className = "inp";
+    const u = document.createElement("span");
+    u.innerHTML = unit;
+    box.appendChild(inp); box.appendChild(u);
+    return box;
+  }
+
+  function renderParams() {
+    const sec = $("params");
+    sec.innerHTML = "";
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    if (state.shape === "custom") {
+      sec.appendChild(renderCustom());
+    } else {
+      const sh = SHAPES[state.shape];
+      for (const [key, label] of sh.params) {
+        const lab = document.createElement("label");
+        lab.innerHTML = label + ' <span class="sym">' + SYM[key] + "</span>";
+        lab.appendChild(numInput(state.p[state.shape][key], v => { state.p[state.shape][key] = v; update(); }, { min: "0" }, "mm"));
+        grid.appendChild(lab);
+      }
+    }
+
+    const lg = document.createElement("label");
+    lg.innerHTML = 'Wichte <span class="sym">γ</span>, optional (Stahl 78.5)';
+    lg.appendChild(numInput(state.gamma, v => { state.gamma = isNaN(v) ? "" : v; update(); }, { min: "0", placeholder: "–" }, "kN/m³"));
+    grid.appendChild(lg);
+    sec.appendChild(grid);
+
+    if (state.shape === "custom") {
+      const n = document.createElement("p");
+      n.className = "note";
+      n.textContent = "y, z: Lage des Elementschwerpunkts, Bezugspunkt frei wählbar. Neue Elemente werden bündig unter dem untersten Element angehängt, mittig unter dem zuletzt eingefügten; danach lassen sich y und z frei ändern. Elemente dürfen sich nicht überlappen; Aussparungen müssen innerhalb eines Elements liegen.";
+      sec.appendChild(n);
+    }
+  }
+
+  function renderCustom() {
+    const wrap = document.createElement("div");
+    wrap.className = "custom";
+    const sc = document.createElement("div");
+    sc.className = "scroll";
+    const tbl = document.createElement("table");
+    tbl.innerHTML = "<thead><tr><th>#</th><th>Form</th><th>b bzw. D [mm]</th><th>h [mm]</th><th>y [mm]</th><th>z [mm]</th><th>Aussparung</th><th></th></tr></thead>";
+    const tb = document.createElement("tbody");
+
+    state.custom.forEach((el, i) => {
+      const tr = document.createElement("tr");
+      const td = c => { const x = document.createElement("td"); if (c) x.appendChild(c); tr.appendChild(x); return x; };
+      td().textContent = String(i + 1);
+
+      const sel = document.createElement("select");
+      sel.innerHTML = '<option value="r">Rechteck</option><option value="c">Kreis</option>';
+      sel.value = el.t;
+      sel.setAttribute("aria-label", "Form Element " + (i + 1));
+      sel.addEventListener("change", () => {
+        el.t = sel.value;
+        if (el.t === "c" && !(el.d > 0)) el.d = el.b > 0 ? el.b : 100;
+        if (el.t === "r" && !(el.b > 0)) el.b = el.d > 0 ? el.d : 100;
+        renderParams(); update();
+      });
+      td(sel);
+
+      const sizeKey = el.t === "c" ? "d" : "b";
+      td(numInput(el[sizeKey], v => { el[sizeKey] = v; update(); }, { min: "0", "aria-label": (el.t === "c" ? "D" : "b") + " Element " + (i + 1) }));
+      const hIn = numInput(el.t === "c" ? "" : el.h, v => { el.h = v; update(); }, { min: "0", "aria-label": "h Element " + (i + 1) });
+      if (el.t === "c") { hIn.disabled = true; hIn.placeholder = "–"; }
+      td(hIn);
+      td(numInput(el.y, v => { el.y = v; update(); }, { "aria-label": "y Element " + (i + 1) }));
+      td(numInput(el.z, v => { el.z = v; update(); }, { "aria-label": "z Element " + (i + 1) }));
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = !!el.hole;
+      cb.setAttribute("aria-label", "Element " + (i + 1) + " ist Aussparung");
+      cb.addEventListener("change", () => { el.hole = cb.checked; update(); });
+      td(cb);
+
+      const del = document.createElement("button");
+      del.type = "button"; del.className = "btn btn-x"; del.textContent = "×";
+      del.title = "Element entfernen";
+      del.setAttribute("aria-label", "Element " + (i + 1) + " entfernen");
+      del.disabled = state.custom.length <= 1;
+      del.addEventListener("click", () => { state.custom.splice(i, 1); renderParams(); update(); });
+      td(del);
+
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    sc.appendChild(tbl);
+    wrap.appendChild(sc);
+
+    const act = document.createElement("div");
+    act.className = "row-actions";
+    const addR = document.createElement("button");
+    addR.type = "button"; addR.className = "btn"; addR.textContent = "+ Rechteck";
+    addR.addEventListener("click", () => { appendBelow("r"); renderParams(); update(); });
+    const addC = document.createElement("button");
+    addC.type = "button"; addC.className = "btn"; addC.textContent = "+ Kreis";
+    addC.addEventListener("click", () => { appendBelow("c"); renderParams(); update(); });
+    act.appendChild(addR); act.appendChild(addC);
+    wrap.appendChild(act);
+    return wrap;
+  }
+
+  // Neues Element bündig unter das tiefste bestehende Element setzen,
+  // horizontal mittig unter dem zuletzt eingefügten Element.
+  function appendBelow(t) {
+    const size = 100;
+    let bottom = Infinity;
+    for (const c of state.custom) {
+      if (c.hole) continue;
+      const half = c.t === "c" ? c.d / 2 : c.h / 2;
+      if (isFinite(c.z) && half > 0) bottom = Math.min(bottom, c.z - half);
+    }
+    const last = state.custom[state.custom.length - 1];
+    const y = last && isFinite(last.y) ? last.y : 0;
+    const z = isFinite(bottom) ? Math.round((bottom - size / 2) * 1000) / 1000 : 0;
+    state.custom.push(t === "c"
+      ? { t: "c", b: 0, h: 0, d: size, y, z, hole: false }
+      : { t: "r", b: size, h: size, d: 0, y, z, hole: false });
+  }
+
+  function buildElements() {
+    if (state.shape === "custom") {
+      const els = [];
+      for (let i = 0; i < state.custom.length; i++) {
+        const c = state.custom[i], n = i + 1;
+        if (!isFinite(c.y) || !isFinite(c.z)) return { error: "Element " + n + ": Lage y und z angeben." };
+        if (c.t === "c") {
+          if (!(c.d > 0)) return { error: "Element " + n + ": Durchmesser muss grösser als 0 sein." };
+          els.push(C(c.d, c.y, c.z, c.hole ? -1 : 1, "Element " + n + (c.hole ? " (Aussparung)" : "")));
+        } else {
+          if (!(c.b > 0 && c.h > 0)) return { error: "Element " + n + ": b und h müssen grösser als 0 sein." };
+          els.push(R(c.b, c.h, c.y, c.z, c.hole ? -1 : 1, "Element " + n + (c.hole ? " (Aussparung)" : "")));
+        }
+      }
+      if (!els.some(e => e.s > 0)) return { error: "Mindestens ein Element darf keine Aussparung sein." };
+      return { els };
+    }
+    const sh = SHAPES[state.shape], p = state.p[state.shape];
+    for (const [key, label] of sh.params) {
+      if (!(p[key] > 0)) return { error: label + " muss grösser als 0 sein." };
+    }
+    if (sh.check) {
+      const ok = sh.check(p);
+      if (ok !== true) return { error: ok };
+    }
+    return { els: sh.build(p) };
+  }
+
+  // ---------- Zeichnung ----------
+  const SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent) {
+    const n = document.createElementNS(SVGNS, tag);
+    for (const a in attrs) n.setAttribute(a, attrs[a]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  function draw(els, res) {
+    const svg = $("figure");
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    let ymin = Infinity, ymax = -Infinity, zmin = Infinity, zmax = -Infinity;
+    for (const r of res.rows) {
+      ymin = Math.min(ymin, r.ymin); ymax = Math.max(ymax, r.ymax);
+      zmin = Math.min(zmin, r.zmin); zmax = Math.max(zmax, r.zmax);
+    }
+    const W = ymax - ymin, H = zmax - zmin, L = Math.max(W, H);
+    const m = 0.16 * L;
+    svg.setAttribute("viewBox", [ymin - m, -(zmax + m), W + 2 * m, H + 2 * m].join(" "));
+    const fs = 0.055 * L;
+
+    const shape = (e, isHole) => {
+      const common = {
+        fill: isHole ? "var(--bg)" : "var(--fill)",
+        stroke: isHole ? "var(--hole-stroke)" : "var(--fill-stroke)",
+        "stroke-width": "1.5",
+        "vector-effect": "non-scaling-stroke"
+      };
+      if (isHole) common["stroke-dasharray"] = "4 3";
+      if (e.t === "r") el("rect", Object.assign({ x: e.y - e.b / 2, y: -(e.z + e.h / 2), width: e.b, height: e.h }, common), svg);
+      else el("circle", Object.assign({ cx: e.y, cy: -e.z, r: e.d / 2 }, common), svg);
+    };
+    els.filter(e => e.s > 0).forEach(e => shape(e, false));
+    els.filter(e => e.s < 0).forEach(e => shape(e, true));
+    $("legend-hole").hidden = !els.some(e => e.s < 0);
+
+    // Schwerachsen
+    const ax = { stroke: "var(--axis)", "stroke-width": "1.2", "vector-effect": "non-scaling-stroke" };
+    el("line", Object.assign({ x1: ymin - 0.7 * m, y1: -res.zs, x2: ymax + 0.7 * m, y2: -res.zs }, ax), svg);
+    el("line", Object.assign({ x1: res.ys, y1: -(zmin - 0.7 * m), x2: res.ys, y2: -(zmax + 0.7 * m) }, ax), svg);
+    const lab = (txt, x, y, color, anchor) => {
+      const t = el("text", { x, y, fill: color, "font-size": fs, "font-style": "italic", "text-anchor": anchor || "start", "dominant-baseline": "middle", "font-family": "system-ui, sans-serif" }, svg);
+      t.textContent = txt;
+    };
+    lab("y", ymax + 0.78 * m, -res.zs, "var(--axis)");
+    lab("z", res.ys + 0.04 * L, -(zmax + 0.75 * m), "var(--axis)");
+
+    // Hauptachse
+    $("legend-principal").hidden = res.alpha === undefined;
+    if (res.alpha !== undefined) {
+      const c = Math.cos(res.alpha), s = Math.sin(res.alpha), len = 0.62 * L;
+      el("line", {
+        x1: res.ys - c * len, y1: -(res.zs - s * len), x2: res.ys + c * len, y2: -(res.zs + s * len),
+        stroke: "var(--principal)", "stroke-width": "1.2", "stroke-dasharray": "6 4", "vector-effect": "non-scaling-stroke"
+      }, svg);
+      lab("1", res.ys + c * (len + 0.04 * L), -(res.zs + s * (len + 0.04 * L)), "var(--principal)", "middle");
+    }
+
+    // Plastische Nulllinien, nur wenn sie sichtbar von den Schwerachsen abweichen
+    const pl = { stroke: "var(--muted)", "stroke-width": "1.2", "stroke-dasharray": "1.5 3", "vector-effect": "non-scaling-stroke" };
+    let showPl = false;
+    if (Math.abs(res.ply.t - res.zs) > 0.005 * L) {
+      el("line", Object.assign({ x1: ymin - 0.7 * m, y1: -res.ply.t, x2: ymax + 0.7 * m, y2: -res.ply.t }, pl), svg);
+      lab("pl", ymin - 0.72 * m, -res.ply.t, "var(--muted)", "end");
+      showPl = true;
+    }
+    if (Math.abs(res.plz.t - res.ys) > 0.005 * L) {
+      el("line", Object.assign({ x1: res.plz.t, y1: -(zmin - 0.7 * m), x2: res.plz.t, y2: -(zmax + 0.7 * m) }, pl), svg);
+      lab("pl", res.plz.t, -(zmin - 0.78 * m), "var(--muted)", "middle");
+      showPl = true;
+    }
+    $("legend-plastic").hidden = !showPl;
+
+    // Schwerpunkt
+    el("circle", { cx: res.ys, cy: -res.zs, r: 0.014 * L, fill: "var(--axis)" }, svg);
+    lab("S", res.ys + 0.03 * L, -(res.zs + 0.045 * L), "var(--axis)");
+  }
+
+  // ---------- Ausgabe ----------
+  function rowsHtml(list) {
+    return list.map(r => "<tr><td class='sym'>" + r[0] + "</td><td class='num'>" + r[1] + "</td><td class='unit'>" + r[2] +
+      "</td><td class='num'>" + (r[3] || "") + "</td><td class='unit'>" + (r[4] || "") + "</td></tr>").join("");
+  }
+
+  function renderResults(res) {
+    const zo = res.zmax - res.zs, zu = res.zs - res.zmin, yl = res.ys - res.ymin, yr = res.ymax - res.ys;
+    const list = [
+      ["Fläche A", sig(res.A), "mm²", sig(res.A / 100), "cm²"],
+      ["Schwerpunkt y<sub>s</sub>", fix(res.ys), "mm"],
+      ["Schwerpunkt z<sub>s</sub>", fix(res.zs), "mm"],
+      ["I<sub>y</sub>", sig(res.Iy / 1e6), "· 10⁶ mm⁴", sig(res.Iy / 1e4), "cm⁴"],
+      ["I<sub>z</sub>", sig(res.Iz / 1e6), "· 10⁶ mm⁴", sig(res.Iz / 1e4), "cm⁴"]
+    ];
+    if (res.alpha !== undefined) {
+      list.push(["I<sub>yz</sub> (Deviationsmoment)", sig(res.Iyz / 1e6), "· 10⁶ mm⁴", sig(res.Iyz / 1e4), "cm⁴"]);
+      list.push(["I<sub>1</sub> (Hauptachse)", sig(res.I1 / 1e6), "· 10⁶ mm⁴", sig(res.I1 / 1e4), "cm⁴"]);
+      list.push(["I<sub>2</sub> (Hauptachse)", sig(res.I2 / 1e6), "· 10⁶ mm⁴", sig(res.I2 / 1e4), "cm⁴"]);
+      list.push(["Winkel α von y zu Achse 1", fix(res.alpha * 180 / Math.PI, 2), "°"]);
+    }
+    list.push(
+      ["W<sub>y,oben</sub> = I<sub>y</sub> / " + fix(zo), sig(res.Iy / zo / 1e3), "· 10³ mm³", sig(res.Iy / zo / 1e3), "cm³"],
+      ["W<sub>y,unten</sub> = I<sub>y</sub> / " + fix(zu), sig(res.Iy / zu / 1e3), "· 10³ mm³", sig(res.Iy / zu / 1e3), "cm³"],
+      ["W<sub>z,links</sub> = I<sub>z</sub> / " + fix(yl), sig(res.Iz / yl / 1e3), "· 10³ mm³", sig(res.Iz / yl / 1e3), "cm³"],
+      ["W<sub>z,rechts</sub> = I<sub>z</sub> / " + fix(yr), sig(res.Iz / yr / 1e3), "· 10³ mm³", sig(res.Iz / yr / 1e3), "cm³"],
+      ["W<sub>pl,y</sub> (plastisch)", sig(res.ply.W / 1e3), "· 10³ mm³", sig(res.ply.W / 1e3), "cm³"],
+      ["W<sub>pl,z</sub> (plastisch)", sig(res.plz.W / 1e3), "· 10³ mm³", sig(res.plz.W / 1e3), "cm³"],
+      ["Formfaktor W<sub>pl,y</sub> / W<sub>y,min</sub>", fix(res.ply.W / (res.Iy / Math.max(zo, zu)), 3), "–"],
+      ["Formfaktor W<sub>pl,z</sub> / W<sub>z,min</sub>", fix(res.plz.W / (res.Iz / Math.max(yl, yr)), 3), "–"],
+      ["Trägheitsradius i<sub>y</sub>", fix(Math.sqrt(res.Iy / res.A)), "mm"],
+      ["Trägheitsradius i<sub>z</sub>", fix(Math.sqrt(res.Iz / res.A)), "mm"]
+    );
+    if (state.gamma !== "" && state.gamma > 0) {
+      list.push(["Eigengewicht g = A · γ", sig(res.A * 1e-6 * state.gamma, 3), "kN/m"]);
+    }
+    $("results").innerHTML = rowsHtml(list);
+  }
+
+  function renderSteps(res) {
+    let h = "<thead><tr><th>Element</th><th>A<sub>i</sub> [mm²]</th><th>y<sub>i</sub></th><th>z<sub>i</sub></th>" +
+      "<th>I<sub>y,i</sub></th><th>A<sub>i</sub>·(z<sub>i</sub>−z<sub>s</sub>)²</th>" +
+      "<th>I<sub>z,i</sub></th><th>A<sub>i</sub>·(y<sub>i</sub>−y<sub>s</sub>)²</th></tr></thead><tbody>";
+    for (const r of res.rows) {
+      const s = r.e.s < 0 ? "−" : "";
+      h += "<tr><td>" + r.e.name + "</td><td class='num'>" + s + sig(r.A, 5) + "</td><td class='num'>" + fix(r.e.y) +
+        "</td><td class='num'>" + fix(r.e.z) + "</td><td class='num'>" + s + sig(r.Iy0 / 1e6) +
+        "</td><td class='num'>" + s + sig(r.Adz2 / 1e6) + "</td><td class='num'>" + s + sig(r.Iz0 / 1e6) +
+        "</td><td class='num'>" + s + sig(r.Ady2 / 1e6) + "</td></tr>";
+    }
+    let sIy0 = 0, sAdz = 0, sIz0 = 0, sAdy = 0;
+    for (const r of res.rows) { sIy0 += r.e.s * r.Iy0; sAdz += r.e.s * r.Adz2; sIz0 += r.e.s * r.Iz0; sAdy += r.e.s * r.Ady2; }
+    h += "<tr class='sum'><td>Summe</td><td class='num'>" + sig(res.A, 5) + "</td><td></td><td></td><td class='num'>" + sig(sIy0 / 1e6) +
+      "</td><td class='num'>" + sig(sAdz / 1e6) + "</td><td class='num'>" + sig(sIz0 / 1e6) + "</td><td class='num'>" + sig(sAdy / 1e6) + "</td></tr></tbody>";
+    $("steps").innerHTML = h;
+
+    let f = "Trägheitsmomente in der Tabelle in 10⁶ mm⁴, Koordinaten in mm.<br>" +
+      "y<sub>s</sub> = Σ A<sub>i</sub>·y<sub>i</sub> / Σ A<sub>i</sub> = " + sig(res.Sz, 5) + " / " + sig(res.A, 5) + " = " + fix(res.ys, 2) + " mm<br>" +
+      "z<sub>s</sub> = Σ A<sub>i</sub>·z<sub>i</sub> / Σ A<sub>i</sub> = " + sig(res.Sy, 5) + " / " + sig(res.A, 5) + " = " + fix(res.zs, 2) + " mm<br>" +
+      "I<sub>y</sub> = Σ [ I<sub>y,i</sub> + A<sub>i</sub>·(z<sub>i</sub>−z<sub>s</sub>)² ] = " + sig(sIy0 / 1e6) + " + " + sig(sAdz / 1e6) + " = " + sig(res.Iy / 1e6) + " · 10⁶ mm⁴<br>" +
+      "I<sub>z</sub> = Σ [ I<sub>z,i</sub> + A<sub>i</sub>·(y<sub>i</sub>−y<sub>s</sub>)² ] = " + sig(sIz0 / 1e6) + " + " + sig(sAdy / 1e6) + " = " + sig(res.Iz / 1e6) + " · 10⁶ mm⁴<br>" +
+      "Rechteck: I<sub>y,i</sub> = b·h³/12, I<sub>z,i</sub> = h·b³/12 &nbsp;·&nbsp; Kreis: I<sub>i</sub> = π·D⁴/64";
+    if (res.alpha !== undefined) {
+      f += "<br>I<sub>yz</sub> = Σ A<sub>i</sub>·(y<sub>i</sub>−y<sub>s</sub>)·(z<sub>i</sub>−z<sub>s</sub>) = " + sig(res.Iyz / 1e6) + " · 10⁶ mm⁴" +
+        "<br>I<sub>1,2</sub> = (I<sub>y</sub>+I<sub>z</sub>)/2 ± √[ ((I<sub>y</sub>−I<sub>z</sub>)/2)² + I<sub>yz</sub>² ]" +
+        "<br>tan 2α = −2·I<sub>yz</sub> / (I<sub>y</sub>−I<sub>z</sub>)";
+    }
+    $("formulas").innerHTML = f;
+    renderPlasticSteps(res);
+  }
+
+  function renderPlasticSteps(res) {
+    const py = res.ply, pz = res.plz;
+    let h = "<thead><tr><th>Element</th>" +
+      "<th>∫|z−z<sub>pl</sub>| dA<br>oberhalb</th><th>∫|z−z<sub>pl</sub>| dA<br>unterhalb</th>" +
+      "<th>∫|y−y<sub>pl</sub>| dA<br>rechts</th><th>∫|y−y<sub>pl</sub>| dA<br>links</th></tr></thead><tbody>";
+    py.rows.forEach((r, i) => {
+      const q = pz.rows[i];
+      h += "<tr><td>" + r.e.name + "</td><td class='num'>" + sig(r.up / 1e3) + "</td><td class='num'>" + sig(r.down / 1e3) +
+        "</td><td class='num'>" + sig(q.up / 1e3) + "</td><td class='num'>" + sig(q.down / 1e3) + "</td></tr>";
+    });
+    h += "<tr class='sum'><td>Summe</td><td class='num'>" + sig(py.up / 1e3) + "</td><td class='num'>" + sig(py.down / 1e3) +
+      "</td><td class='num'>" + sig(pz.up / 1e3) + "</td><td class='num'>" + sig(pz.down / 1e3) + "</td></tr></tbody>";
+    $("steps-pl").innerHTML = h;
+
+    let f = "Werte in der Tabelle in 10³ mm³.<br>" +
+      "<b>Biegung um y:</b> Die plastische Nulllinie teilt die Fläche in zwei gleich grosse Hälften:<br>" +
+      "A<sub>oben</sub> = A<sub>unten</sub> = A/2 = " + sig(res.A / 2, 5) + " mm² &nbsp;→&nbsp; z<sub>pl</sub> = " + fix(py.t, 2) + " mm" +
+      " (elastisch z<sub>s</sub> = " + fix(res.zs, 2) + " mm)<br>" +
+      "W<sub>pl,y</sub> = ∫|z − z<sub>pl</sub>| dA = S<sub>oben</sub> + S<sub>unten</sub> = " + sig(py.up / 1e3) + " + " + sig(py.down / 1e3) +
+      " = " + sig(py.W / 1e3) + " · 10³ mm³<br>" +
+      "<b>Biegung um z:</b> A<sub>links</sub> = A<sub>rechts</sub> = A/2 &nbsp;→&nbsp; y<sub>pl</sub> = " + fix(pz.t, 2) + " mm" +
+      " (elastisch y<sub>s</sub> = " + fix(res.ys, 2) + " mm)<br>" +
+      "W<sub>pl,z</sub> = ∫|y − y<sub>pl</sub>| dA = S<sub>rechts</sub> + S<sub>links</sub> = " + sig(pz.up / 1e3) + " + " + sig(pz.down / 1e3) +
+      " = " + sig(pz.W / 1e3) + " · 10³ mm³<br>" +
+      "S = statisches Moment einer Hälfte bezüglich der plastischen Nulllinie = Teilfläche · Abstand ihres Schwerpunkts.<br>" +
+      "Rechteckteil der Breite w zwischen den Abständen a₁ und a₂ von der Nulllinie: S = w·(a₂² − a₁²)/2<br>" +
+      "Kreisteil (Radius r, Mittelpunkt im Abstand u₀ unter der Nulllinie, Segment oberhalb): S = ⅔·(r² − u₀²)<sup>3/2</sup> − u₀·A<sub>Segment</sub>";
+    const ctrl = WPL[state.shape];
+    if (ctrl) {
+      const k = ctrl(state.p[state.shape]);
+      f += "<br><b>Kontrolle mit geschlossener Formel:</b><br>" +
+        "W<sub>pl,y</sub> = " + k.fy + " = " + sig(k.y / 1e3) + " · 10³ mm³<br>" +
+        "W<sub>pl,z</sub> = " + k.fz + " = " + sig(k.z / 1e3) + " · 10³ mm³";
+    }
+    $("formulas-pl").innerHTML = f;
+  }
+
+  function update() {
+    save();
+    const err = $("error");
+    const b = buildElements();
+    const res = b.error ? b : compute(b.els);
+    if (res.error) {
+      err.textContent = res.error;
+      err.hidden = false;
+      return; // letzte gültige Ausgabe bleibt stehen
+    }
+    err.hidden = true;
+    draw(b.els, res);
+    renderResults(res);
+    renderSteps(res);
+  }
+
+  $("reset").addEventListener("click", () => {
+    state = defaults();
+    renderShapeButtons(); renderParams(); update();
+  });
+
+  renderShapeButtons();
+  renderParams();
+  update();
+
+  window.addEventListener("beforeprint", () => { $("steps-wrap").open = true; });
+
+  // Hell / Dunkel / System: wie in _layouts/default.html, gleicher Speicherschlüssel "theme".
+  (function () {
+    const root = document.documentElement;
+    const group = document.querySelector(".theme");
+    const buttons = group.querySelectorAll("button");
+    function apply(theme) {
+      if (theme === "light" || theme === "dark") root.dataset.theme = theme;
+      else { delete root.dataset.theme; theme = "system"; }
+      try {
+        if (theme === "system") localStorage.removeItem("theme");
+        else localStorage.setItem("theme", theme);
+      } catch (e) {}
+      buttons.forEach(b => b.setAttribute("aria-pressed", b.dataset.theme === theme));
+    }
+    buttons.forEach(b => b.addEventListener("click", () => apply(b.dataset.theme)));
+    apply(root.dataset.theme);
+    group.hidden = false;
+  })();
+
+  // Für Tests: Rechenkern von aussen erreichbar
+  window.__qs = { compute, SHAPES };
+})();
+</script>
+</body>
+</html>

@@ -50,6 +50,7 @@
 </head>
 <body>
 <main>
+  {% include nav.html %}
   <nav class="lang" aria-label="{{ t.lang_label }}">
     {%- if lang == "de" %}
     <span aria-current="true">DE</span> | <a href="{{ other_url }}" hreflang="en" lang="en" title="{{ t_other.name }}">EN</a>
