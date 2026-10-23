@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>Balken mit Auskragung</title>
+<meta name="description" content="Biegemomente, Stützmomente und Auflagerkräfte für Einfeld- und Durchlaufträger mit Kragarmen, Punkt- und Linienlasten, mit Rechenweg.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+/* Layout: ruhige Seite im Stil von josija-nydegger.github.io. Tabs oben, darunter Eingaben links,
+   Zeichnung und Ergebnisse rechts; auf dem Handy untereinander. Trennung durch Linien statt Karten. */
+:root{
+  --bg:#fcfcfb; --text:#1a1a1a; --muted:#6b6a66; --border:#e7e6e2; --accent:#1a1a1a; --tag-bg:#f1f0ed;
+  --field:#ffffff; --load-fill:#efeeea;
+  --sag:#2c6aa6; --sag-fill:rgba(44,106,166,.16);
+  --hog:#b5552a; --hog-fill:rgba(181,85,42,.16);
+  --warn:#b3261e;
+  --f-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151515; --text:#e5e3de; --muted:#9e9c97; --border:#2b2b2a; --accent:#e5e3de; --tag-bg:#222221;
+    --field:#1b1b1a; --load-fill:#232322;
+    --sag:#6aa6dd; --sag-fill:rgba(106,166,221,.2);
+    --hog:#e48a5a; --hog-fill:rgba(228,138,90,.2);
+    --warn:#ff8a80;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151515; --text:#e5e3de; --muted:#9e9c97; --border:#2b2b2a; --accent:#e5e3de; --tag-bg:#222221;
+  --field:#1b1b1a; --load-fill:#232322;
+  --sag:#6aa6dd; --sag-fill:rgba(106,166,221,.2);
+  --hog:#e48a5a; --hog-fill:rgba(228,138,90,.2);
+  --warn:#ff8a80;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--f-sans);font-size:15px;line-height:1.65;
+}
+main{
+  max-width:1080px;margin:0 auto;
+  padding-block:48px 40px;
+  padding-left:max(20px,env(safe-area-inset-left,0px));
+  padding-right:max(20px,env(safe-area-inset-right,0px));
+}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--border)}
+a:hover{text-decoration-color:var(--accent)}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.intro h1{font-size:26px;line-height:1.25;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--muted);font-size:14px;margin:0 0 28px;max-width:72ch}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
+.tabs button{
+  font:inherit;font-size:14px;padding:4px 14px;border:1px solid var(--border);border-radius:999px;
+  background:none;color:var(--muted);cursor:pointer;line-height:1.65;
+}
+.tabs button:hover{border-color:var(--accent);color:var(--text)}
+.tabs button[aria-selected="true"]{background:var(--text);border-color:var(--text);color:var(--bg);font-weight:500}
+.tabdesc{color:var(--muted);font-size:14px;margin:0 0 8px}
+
+.app{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:40px;align-items:start;margin-top:12px}
+@media (max-width:880px){.app{grid-template-columns:minmax(0,1fr);gap:28px}}
+.col{min-width:0}
+
+.sec{padding:16px 0 18px;border-top:1px solid var(--border)}
+.sec:first-child{border-top:0;padding-top:0}
+h2{font-size:16px;margin:0 0 12px}
+.hint{margin:8px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+
+.inp{display:flex;align-items:center;height:34px;border:1px solid var(--border);background:var(--field);border-radius:8px;padding-right:9px;min-width:0}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{flex:1;min-width:0;height:100%;border:0;background:transparent;color:var(--text);font:14px var(--f-mono);padding:0 6px 0 9px;outline:0;text-align:right;-moz-appearance:textfield;appearance:textfield}
+.inp input::-webkit-inner-spin-button,.inp input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.inp span{font:12px var(--f-mono);color:var(--muted);margin-left:3px;white-space:nowrap}
+select{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;background:var(--field);color:var(--text);font:14px var(--f-sans);padding:0 6px;min-width:0}
+
+.segs{display:grid;gap:6px}
+.seghead,.segrow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.1fr) 30px;gap:8px;align-items:center}
+.seghead{font-size:12.5px;color:var(--muted);line-height:1.2}
+.segrow .nm{font-size:14px}
+.segrow .nm small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
+.total{margin-top:10px;font-size:13px;color:var(--muted)}
+.total b{font:500 13px var(--f-mono);color:var(--text)}
+
+.plist{display:grid;gap:0}
+.prow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) 30px;gap:8px;align-items:end;padding:10px 0;border-top:1px solid var(--border)}
+.prow:first-child{border-top:0;padding-top:0}
+.cap{display:block;font-size:12.5px;color:var(--muted);margin-bottom:3px;line-height:1.2}
+.cap b{font:600 12px var(--f-mono);color:var(--text);margin-right:4px}
+@media (max-width:420px){
+  .prow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 30px}
+  .prow .fsel{grid-column:1/-1}
+}
+.oor .inp{border-color:var(--warn)}
+.del{height:34px;width:30px;padding:0;border:0;border-radius:8px;background:none;color:var(--muted);font:18px/1 var(--f-sans);cursor:pointer}
+.del:hover{background:var(--tag-bg);color:var(--warn)}
+.del[disabled]{visibility:hidden}
+.btn{
+  display:inline-block;margin-top:12px;font:inherit;font-size:14px;padding:4px 14px;line-height:1.65;
+  border:1px solid var(--border);border-radius:999px;background:none;color:var(--accent);cursor:pointer;
+}
+.btn:hover{border-color:var(--accent)}
+.empty{font-size:14px;color:var(--muted);margin:0}
+
+.chart{border:1px solid var(--border);border-radius:8px;padding:12px 8px 10px;background:var(--bg)}
+.wrap{width:100%;min-width:0}
+.wrap svg{display:block;max-width:100%}
+.wrap svg text{font-family:var(--f-mono)}
+.legend{margin:6px 8px 0;font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 16px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:0}
+.err{padding:28px 12px;color:var(--warn);font-size:14px}
+
+.ln{stroke:var(--text);fill:none;stroke-width:1.5}
+.ln2{stroke:var(--muted);fill:none;stroke-width:1}
+.fi{fill:var(--text)}
+.fp{fill:var(--bg)}
+.fl{fill:var(--load-fill)}
+.guide{stroke:var(--border);stroke-width:1;stroke-dasharray:3 4}
+.t{fill:var(--text);font-size:12px}
+.t2{fill:var(--muted);font-size:12px}
+.tb{fill:var(--text);font-size:12px;font-weight:600}
+.sag-f{fill:var(--sag-fill)}
+.hog-f{fill:var(--hog-fill)}
+.sag-d{fill:var(--sag);stroke:var(--bg);stroke-width:1.5}
+.hog-d{fill:var(--hog);stroke:var(--bg);stroke-width:1.5}
+.curve{fill:none;stroke:var(--text);stroke-width:1.5;stroke-linejoin:round}
+
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px;margin-top:24px}
+@media (max-width:480px){.stats{grid-template-columns:minmax(0,1fr)}}
+.stat .k{font-size:13px;color:var(--muted);display:flex;align-items:center}
+.stat .v{font:500 30px/1.15 var(--f-mono);margin-top:4px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat .v small{font-size:13px;color:var(--muted);margin-left:6px}
+.stat .w{font-size:13.5px;color:var(--muted)}
+.warn{color:var(--warn);font-size:14px;margin:16px 0 0}
+
+.tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:24px}
+@media (max-width:640px){.tables{grid-template-columns:minmax(0,1fr)}}
+.tbl{min-width:0;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+caption{text-align:left;font-weight:600;font-size:15px;padding-bottom:6px}
+th{font-weight:400;color:var(--muted);font-size:12.5px;text-align:right;padding:6px 0 6px 10px;border-bottom:1px solid var(--border)}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+td{padding:6px 0 6px 10px;border-bottom:1px solid var(--border);text-align:right;font-family:var(--f-mono);font-size:13.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+td:first-child{font-family:var(--f-sans);font-size:14px}
+
+.note{margin:32px 0 0;padding-left:14px;border-left:3px solid var(--border);color:var(--muted);max-width:72ch}
+.note strong{color:var(--text)}
+
+.back{display:inline-block;margin-bottom:28px;color:var(--muted);text-decoration:none;font-size:14px}
+.back:hover{color:var(--text)}
+
+/* Rechenweg (Formeln wie Codeblöcke der Website) */
+details{margin-top:40px;border-top:1px solid var(--border);padding-top:14px}
+summary{cursor:pointer;font-weight:600}
+h3{font-size:15px;margin:24px 0 6px}
+.rw p{margin:0 0 10px;font-size:13px;color:var(--muted);max-width:80ch}
+.formula{font-family:var(--f-mono);font-size:13px;background:var(--tag-bg);padding:14px;border-radius:8px;line-height:1.8;overflow-x:auto;white-space:nowrap}
+.rw .tbl{margin:0 0 12px}
+.rw table{font-size:13px;max-width:720px}
+.rw tr.sum td{font-weight:600;border-top:2px solid var(--border)}
+.rw td:nth-child(2),.rw th:nth-child(2){text-align:left}
+sub,sup{font-size:.72em;line-height:0}
+
+.actions{display:flex;gap:8px;margin-top:28px;flex-wrap:wrap}
+.actions .btn{margin-top:0}
+.small{font-size:13px;color:var(--muted);margin:10px 0 0;max-width:80ch}
+h2.big{margin:44px 0 12px}
+
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+footer p{margin:0 0 8px}
+footer a{color:var(--muted)}
+footer a:hover{color:var(--text)}
+.foot-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot-row p{margin:0}
+.theme{display:flex;gap:2px}
+.theme[hidden]{display:none}
+.theme button{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:none;color:var(--muted);cursor:pointer}
+.theme button:hover{color:var(--text)}
+.theme button[aria-pressed="true"]{background:var(--tag-bg);color:var(--text)}
+.theme svg{width:16px;height:16px}
+
+/* Druck / PDF */
+@media print{
+  :root:root:root{color-scheme:light;--bg:#ffffff;--text:#1a1a1a;--muted:#555555;--border:#dddddd;--accent:#1a1a1a;--tag-bg:#f1f0ed;--field:#ffffff;--load-fill:#eeeeee;--sag:#2c6aa6;--sag-fill:rgba(44,106,166,.16);--hog:#b5552a;--hog-fill:rgba(181,85,42,.16);--warn:#b3261e}
+  body{font-size:10.5pt;line-height:1.45}
+  main{max-width:none;padding:0}
+  .back,.tabs,.btn,.del,.actions,.theme,.small.link{display:none!important}
+  .app{grid-template-columns:minmax(0,1fr);gap:16px}
+  .chart,table,.formula{break-inside:avoid}
+  .formula{white-space:normal}
+  a{text-decoration:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/tools/">← Tools</a>
+  <div class="intro">
+    <h1>Balken mit Auskragung</h1>
+    <p class="lead">Biegemomente, Stützmomente und Auflagerkräfte für Einfeld- und Durchlaufträger mit Kragarmen. Eingaben in m, kN und kN/m.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Trägertyp">
+    <button type="button" role="tab" id="tab-einfeld" aria-controls="panel-einfeld" aria-selected="true">Einfeldträger</button>
+    <button type="button" role="tab" id="tab-durchlauf" aria-controls="panel-durchlauf" aria-selected="false" tabindex="-1">Durchlaufträger</button>
+  </div>
+
+  <section role="tabpanel" id="panel-einfeld" aria-labelledby="tab-einfeld">
+    <p class="tabdesc">Zwei Auflager, statisch bestimmt.</p>
+    <div id="tool-einfeld"></div>
+  </section>
+  <section role="tabpanel" id="panel-durchlauf" aria-labelledby="tab-durchlauf" hidden>
+    <p class="tabdesc">Zwei bis acht Felder, statisch unbestimmt. Gerechnet mit der Dreimomentengleichung bei konstanter Biegesteifigkeit EI und starren Auflagern.</p>
+    <div id="tool-durchlauf"></div>
+  </section>
+
+  <div class="actions">
+    <button class="btn" type="button" id="reset">Zurücksetzen</button>
+  </div>
+  <p class="small link">Die Eingaben stehen in der Adresszeile. Ein kopierter Link öffnet den Rechner mit denselben Werten.</p>
+
+  <h2 class="big">Annahmen und Grenzen</h2>
+  <p class="small">Linear-elastisches Verhalten nach Theorie 1. Ordnung. Die Biegesteifigkeit EI ist über die ganze Trägerlänge konstant, Schubverformungen sind vernachlässigt. Alle Auflager sind gelenkig und starr, also ohne Setzungen und ohne Einspannung. Die Lasten wirken senkrecht nach unten; das Eigengewicht ist nicht automatisch enthalten. Ausgegeben werden Biegemomente und Auflagerkräfte, keine Querkraft- und Durchbiegungsverläufe.</p>
+  <p class="small">Grundlagen: Gleichgewichtsbedingungen, Superposition und die Dreimomentengleichung nach Clapeyron mit den Belastungsgliedern für Gleich- und Einzellasten.</p>
+  <p class="small">Geprüft gegen Tabellenwerte: Zweifeldträger mit Gleichlast M<sub>B</sub> = −qL²/8 und max M<sub>F</sub> = 9/128·qL²; Dreifeldträger mit Gleichlast M<sub>B</sub> = M<sub>C</sub> = −0.1·qL², Endfeld 0.08·qL², Mittelfeld 0.025·qL²; Zweifeldträger mit Einzellast in Feldmitte M<sub>B</sub> = −3PL/32.</p>
+
+  <footer>
+    <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
+    <div class="foot-row">
+      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.github.io/">Website</a></p>
+      <div class="theme" role="group" aria-label="Farbschema" hidden>
+        <button type="button" data-theme="light" aria-label="Hell" title="Hell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" data-theme="dark" aria-label="Dunkel" title="Dunkel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <button type="button" data-theme="system" aria-label="System" title="System">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+/*CALC-START*/
+// Träger: Kragarm links a, Felder spans[{L,q}], Kragarm rechts b, Linienlasten qa/qb auf den Kragarmen.
+// Stützmomente über die Dreimomentengleichung (EI konstant), danach Auflagerkräfte und M(x).
+function solve(m){
+  const n=m.spans.length, s=[m.a];
+  for(let i=0;i<n;i++) s.push(s[i]+m.spans[i].L);
+  const tot=s[n]+m.b, E=1e-12;
+  const lines=[];
+  if(m.qa>0&&m.a>0) lines.push({s:0,e:m.a,q:m.qa});
+  for(let i=0;i<n;i++) if(m.spans[i].q>0) lines.push({s:s[i],e:s[i+1],q:m.spans[i].q});
+  if(m.qb>0&&m.b>0) lines.push({s:s[n],e:tot,q:m.qb});
+  const pts=m.points.filter(p=>p.P>0&&p.x>=-E&&p.x<=tot+E);
+  const R=new Array(n+1).fill(0), TL=new Array(n+1).fill(0), TR=new Array(n+1).fill(0);
+  let M0=0, Mn=0, F=0;
+  const cantL=[], cantR=[], contrib=[];
+  for(let i=0;i<=n;i++) contrib.push([]);
+  for(const p of pts){
+    F+=p.P;
+    if(p.x<=s[0]+E){ R[0]+=p.P; M0-=p.P*(s[0]-p.x); cantL.push({P:p.P,e:s[0]-p.x}); }
+    else if(p.x>=s[n]-E){ R[n]+=p.P; Mn-=p.P*(p.x-s[n]); cantR.push({P:p.P,e:p.x-s[n]}); }
+    else{
+      let i=1; while(p.x>=s[i]) i++;
+      const L=s[i]-s[i-1], u=p.x-s[i-1], v=L-u;
+      R[i-1]+=p.P*v/L; R[i]+=p.P*u/L;
+      const tr=p.P*u*v*(L+u)/L, tl=p.P*u*v*(L+v)/L;
+      TR[i]+=tr; TL[i]+=tl;
+      contrib[i].push({P:p.P,u,v,TL:tl,TR:tr});
+    }
+  }
+  if(m.qa>0&&m.a>0){ R[0]+=m.qa*m.a; M0-=m.qa*m.a*m.a/2; F+=m.qa*m.a; cantL.unshift({q:m.qa,e:m.a}); }
+  if(m.qb>0&&m.b>0){ R[n]+=m.qb*m.b; Mn-=m.qb*m.b*m.b/2; F+=m.qb*m.b; cantR.unshift({q:m.qb,e:m.b}); }
+  for(let i=1;i<=n;i++){
+    const L=m.spans[i-1].L, q=m.spans[i-1].q;
+    if(q>0){ R[i-1]+=q*L/2; R[i]+=q*L/2; TL[i]+=q*L*L*L/4; TR[i]+=q*L*L*L/4; F+=q*L; contrib[i].unshift({q,L,TL:q*L*L*L/4,TR:q*L*L*L/4}); }
+  }
+  const Ms=new Array(n+1).fill(0); Ms[0]=M0; Ms[n]=Mn;
+  const k=n-1;
+  if(k>0){
+    const lo=[],di=[],up=[],rh=[];
+    for(let j=1;j<=k;j++){
+      const L1=m.spans[j-1].L, L2=m.spans[j].L;
+      lo.push(L1); di.push(2*(L1+L2)); up.push(L2);
+      let r=-(TR[j]+TL[j+1]);
+      if(j===1) r-=M0*L1;
+      if(j===k) r-=Mn*L2;
+      rh.push(r);
+    }
+    for(let j=1;j<k;j++){ const w=lo[j]/di[j-1]; di[j]-=w*up[j-1]; rh[j]-=w*rh[j-1]; }
+    const x=new Array(k);
+    x[k-1]=rh[k-1]/di[k-1];
+    for(let j=k-2;j>=0;j--) x[j]=(rh[j]-up[j]*x[j+1])/di[j];
+    for(let j=1;j<=k;j++) Ms[j]=x[j-1];
+  }
+  const R0=R.slice(), dd=[0];
+  for(let i=1;i<=n;i++){
+    const d=(Ms[i]-Ms[i-1])/m.spans[i-1].L;
+    dd.push(d); R[i-1]+=d; R[i]-=d;
+  }
+  function V(x){
+    let v=0;
+    for(let j=0;j<=n;j++) if(s[j]<=x) v+=R[j];
+    for(const p of pts) if(p.x<=x) v-=p.P;
+    for(const l of lines){ const c=Math.max(0,Math.min(x,l.e)-l.s); v-=l.q*c; }
+    return v;
+  }
+  function M(x){
+    let mm=0;
+    for(let j=0;j<=n;j++) mm+=R[j]*Math.max(0,x-s[j]);
+    for(const p of pts) mm-=p.P*Math.max(0,x-p.x);
+    for(const l of lines){
+      const e=Math.min(x,l.e), c=Math.max(0,e-l.s);
+      if(c>0) mm-=l.q*c*(x-(l.s+e)/2);
+    }
+    return Math.abs(mm)<1e-9?0:mm;
+  }
+  let bp=[0,tot].concat(s);
+  for(const p of pts) bp.push(p.x);
+  for(const l of lines) bp.push(l.s,l.e);
+  bp=bp.map(x=>Math.min(Math.max(x,0),tot)).sort((u,v)=>u-v);
+  const bps=[];
+  for(const x of bp) if(!bps.length||x-bps[bps.length-1]>1e-9) bps.push(x);
+  const cand=[], eps=Math.max(tot,1)*1e-9;
+  for(let i=0;i<bps.length-1;i++){
+    const u=bps[i], v=bps[i+1];
+    if(v-u<1e-9) continue;
+    const V1=V(u+eps), V2=V(v-eps);
+    if(V1*V2<0) cand.push(u+(v-u)*V1/(V1-V2));
+  }
+  const crit=bps.concat(cand).sort((u,v)=>u-v);
+  let mx={v:-Infinity,x:0}, mn={v:Infinity,x:0};
+  for(const x of crit){ const v=M(x); if(v>mx.v+1e-12) mx={v,x}; if(v<mn.v-1e-12) mn={v,x}; }
+  const spanMax=[];
+  for(let i=1;i<=n;i++){
+    let b={v:-Infinity,x:(s[i-1]+s[i])/2};
+    for(const x of crit) if(x>=s[i-1]-1e-9&&x<=s[i]+1e-9){ const v=M(x); if(v>b.v+1e-12) b={v,x}; }
+    spanMax.push(b);
+  }
+  const N=360, xs=[];
+  for(let i=0;i<=N;i++) xs.push(tot*i/N);
+  for(const x of crit) xs.push(x);
+  xs.sort((u,v)=>u-v);
+  return {n,s,R,R0,dd,Ms,F,tot,xs,Mv:xs.map(M),M,Mpos:mx,Mneg:mn,spanMax,pts,lines,TL,TR,contrib,cantL,cantR,spans:m.spans,a:m.a,b:m.b};
+}
+/*CALC-END*/
+
+(function(){
+  const MINUS='−';
+  const f2=v=>(v<-0.0049?MINUS:'')+Math.abs(v).toFixed(2);
+  const fS=v=>(v>0.0049?'+':(v<-0.0049?MINUS:''))+Math.abs(v).toFixed(2);
+  const fN=v=>String(Number(v.toFixed(3)));
+  const letter=i=>String.fromCharCode(65+i);
+  const pf=(v,d)=>{ const x=parseFloat(v); return isFinite(x)?x:d; };
+
+  function createTool(root,cfg){
+    const K=cfg.key, id=x=>K+'-'+x, $=x=>document.getElementById(id(x));
+    let st=JSON.parse(JSON.stringify(cfg.init));
+    let uid=0; st.loads.forEach(l=>l.id=++uid);
+
+    root.innerHTML=
+      '<div class="app">'+
+        '<div class="col">'+
+          '<div class="sec"><h2>Geometrie und Linienlasten</h2>'+
+            '<div class="segs" id="'+id('segs')+'"></div>'+
+            (cfg.multi?'<button type="button" class="btn" id="'+id('addS')+'">+ Feld hinzufügen</button>':'')+
+            '<div class="total">Gesamtlänge <b id="'+id('tot')+'">–</b> · x = 0 am linken Ende</div>'+
+            '<p class="hint">Kragarm mit Länge 0 entfällt. Linienlast 0 bedeutet keine Last im Abschnitt.</p>'+
+          '</div>'+
+          '<div class="sec"><h2>Punktlasten</h2>'+
+            '<div class="plist" id="'+id('plist')+'"></div>'+
+            '<button type="button" class="btn" id="'+id('addP')+'">+ Punktlast hinzufügen</button>'+
+            '<p class="hint">Wähle eine Stelle oder «Frei» und gib x ein. Feste Stellen wandern mit, wenn sich die Geometrie ändert. Alle Lasten wirken nach unten, die Startwerte sind Beispiele.</p>'+
+          '</div>'+
+        '</div>'+
+        '<div class="col">'+
+          '<div class="chart"><div class="wrap" id="'+id('wrap')+'"></div>'+
+            '<div class="legend">'+
+              '<span><i class="sw" style="background:var(--sag-fill);border:1px solid var(--sag)"></i>Feldmoment (+), Zug unten</span>'+
+              '<span><i class="sw" style="background:var(--hog-fill);border:1px solid var(--hog)"></i>Stützmoment (−), Zug oben</span>'+
+              '<span>Pfeillänge proportional zur Last</span>'+
+            '</div></div>'+
+          '<div class="stats" aria-live="polite">'+
+            '<div class="stat"><div class="k"><i class="sw" style="background:var(--sag)"></i>Max. Feldmoment</div><div class="v" id="'+id('pos')+'">–</div><div class="w" id="'+id('posAt')+'"></div></div>'+
+            '<div class="stat"><div class="k"><i class="sw" style="background:var(--hog)"></i>Max. Stützmoment</div><div class="v" id="'+id('neg')+'">–</div><div class="w" id="'+id('negAt')+'"></div></div>'+
+          '</div>'+
+          '<p class="warn" id="'+id('warn')+'" hidden></p>'+
+          '<div class="tables">'+
+            '<div class="tbl"><table><caption>Auflager</caption><thead><tr><th scope="col">Auflager</th><th scope="col">x [m]</th><th scope="col">M [kNm]</th><th scope="col">R [kN]</th></tr></thead><tbody id="'+id('tSup')+'"></tbody></table></div>'+
+            '<div class="tbl"><table><caption>Felder</caption><thead><tr><th scope="col">Feld</th><th scope="col">L [m]</th><th scope="col">max M [kNm]</th><th scope="col">bei x [m]</th></tr></thead><tbody id="'+id('tSpan')+'"></tbody></table></div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<details class="rw" id="'+id('rwd')+'"><summary>Rechenweg</summary><div id="'+id('rw')+'"></div></details>';
+
+    const wrap=$('wrap');
+
+    function segRow(key,name,sub,L,q,canDel){
+      return '<div class="segrow"><div class="nm">'+name+(sub?'<small>'+sub+'</small>':'')+'</div>'+
+        '<div class="inp"><input type="number" id="'+id('L-'+key)+'" min="0" step="0.1" value="'+fN(L)+'" inputmode="decimal" aria-label="Länge '+name+' in m"><span>m</span></div>'+
+        '<div class="inp"><input type="number" id="'+id('q-'+key)+'" min="0" step="0.5" value="'+fN(q)+'" inputmode="decimal" aria-label="Linienlast '+name+' in kN/m"><span>kN/m</span></div>'+
+        '<button type="button" class="del" id="'+id('d-'+key)+'" aria-label="'+name+' entfernen" title="Entfernen"'+(canDel?'':' disabled')+'>×</button></div>';
+    }
+    function buildSegs(){
+      const n=st.spans.length;
+      let h='<div class="seghead"><span>Abschnitt</span><span>Länge</span><span>Linienlast q</span><span></span></div>';
+      h+=segRow('a','Kragarm links','',st.a,st.qa,false);
+      st.spans.forEach((sp,i)=>{
+        const nm=cfg.multi?'Feld '+(i+1):'Feld';
+        h+=segRow('s'+i,nm,letter(i)+' – '+letter(i+1),sp.L,sp.q,cfg.multi&&n>2);
+      });
+      h+=segRow('b','Kragarm rechts','',st.b,st.qb,false);
+      $('segs').innerHTML=h;
+      const bind=(key,set)=>{
+        $('L-'+key).addEventListener('input',e=>{ set('L',Math.max(0,pf(e.target.value,0))); render(); });
+        $('q-'+key).addEventListener('input',e=>{ set('q',Math.max(0,pf(e.target.value,0))); render(); });
+      };
+      bind('a',(k,v)=>{ if(k==='L') st.a=v; else st.qa=v; });
+      bind('b',(k,v)=>{ if(k==='L') st.b=v; else st.qb=v; });
+      st.spans.forEach((sp,i)=>{
+        bind('s'+i,(k,v)=>{ sp[k]=v; });
+        const d=$('d-s'+i);
+        if(!d.disabled) d.addEventListener('click',()=>{
+          st.spans.splice(i,1);
+          for(const l of st.loads){
+            const mm=/^(mid|sup):(\d+)$/.exec(l.mode);
+            if(!mm) continue;
+            const j=+mm[2];
+            if(mm[1]==='mid'){ if(j===i){ l.mode='free'; } else if(j>i) l.mode='mid:'+(j-1); }
+            else { if(j>st.spans.length){ l.mode='sup:'+st.spans.length; } else if(j>i) l.mode='sup:'+(j-1); }
+          }
+          buildSegs(); buildList(); render();
+          $('addS')&&$('addS').focus();
+        });
+      });
+      if($('addS')) $('addS').disabled=n>=8;
+    }
+    if(cfg.multi) $('addS').addEventListener('click',()=>{
+      if(st.spans.length>=8) return;
+      const last=st.spans[st.spans.length-1];
+      st.spans.push({L:last.L,q:last.q});
+      for(const l of st.loads) if(l.mode==='tipR'){} // Ende rechts bleibt am Ende
+      buildSegs(); buildList(); render();
+      $('L-s'+(st.spans.length-1)).focus();
+    });
+
+    function geo(){
+      const s=[st.a]; st.spans.forEach((sp,i)=>s.push(s[i]+sp.L));
+      return {s,tot:s[s.length-1]+st.b};
+    }
+    function options(){
+      const n=st.spans.length, o=[['free','Frei'],['tipL','Ende links']];
+      for(let j=0;j<=n;j++){
+        o.push(['sup:'+j,'Auflager '+letter(j)]);
+        if(j<n) o.push(['mid:'+j,cfg.multi?'Mitte Feld '+(j+1):'Feldmitte']);
+      }
+      o.push(['tipR','Ende rechts']);
+      return o;
+    }
+    function presetX(mode,g){
+      if(mode==='tipL') return 0;
+      if(mode==='tipR') return g.tot;
+      const mm=/^(mid|sup):(\d+)$/.exec(mode);
+      if(!mm) return null;
+      const j=+mm[2];
+      if(mm[1]==='sup') return g.s[j];
+      return (g.s[j]+g.s[j+1])/2;
+    }
+
+    function buildList(){
+      const el=$('plist');
+      if(!st.loads.length){ el.innerHTML='<p class="empty">Keine Punktlast.</p>'; return; }
+      const opts=options(), g=geo();
+      el.innerHTML=st.loads.map((p,i)=>{
+        if(p.mode!=='free'){ const x=presetX(p.mode,g); if(x==null) p.mode='free'; else p.x=x; }
+        const o=opts.map(q=>'<option value="'+q[0]+'"'+(q[0]===p.mode?' selected':'')+'>'+q[1]+'</option>').join('');
+        return '<div class="prow" data-id="'+p.id+'">'+
+          '<div class="fsel"><label class="cap" for="'+id('ps-'+p.id)+'"><b>P'+(i+1)+'</b>Stelle</label><select id="'+id('ps-'+p.id)+'">'+o+'</select></div>'+
+          '<div><label class="cap" for="'+id('px-'+p.id)+'">x</label><div class="inp"><input type="number" id="'+id('px-'+p.id)+'" min="0" step="0.1" value="'+fN(p.x)+'" inputmode="decimal"><span>m</span></div></div>'+
+          '<div><label class="cap" for="'+id('pp-'+p.id)+'">Last</label><div class="inp"><input type="number" id="'+id('pp-'+p.id)+'" min="0" step="1" value="'+fN(p.P)+'" inputmode="decimal"><span>kN</span></div></div>'+
+          '<button type="button" class="del" id="'+id('pd-'+p.id)+'" aria-label="Punktlast P'+(i+1)+' entfernen" title="Entfernen">×</button>'+
+        '</div>';
+      }).join('');
+      for(const p of st.loads){
+        $('ps-'+p.id).addEventListener('change',e=>{
+          p.mode=e.target.value;
+          if(p.mode!=='free'){ p.x=presetX(p.mode,geo()); $('px-'+p.id).value=fN(p.x); }
+          render();
+        });
+        $('px-'+p.id).addEventListener('input',e=>{
+          const v=parseFloat(e.target.value); if(isFinite(v)) p.x=v;
+          p.mode='free'; $('ps-'+p.id).value='free'; render();
+        });
+        $('pp-'+p.id).addEventListener('input',e=>{ p.P=Math.max(0,pf(e.target.value,0)); render(); });
+        $('pd-'+p.id).addEventListener('click',()=>{
+          const i=st.loads.indexOf(p); st.loads.splice(i,1); buildList(); render();
+          const nx=st.loads[Math.min(i,st.loads.length-1)];
+          (nx?$('pd-'+nx.id):$('addP')).focus();
+        });
+      }
+    }
+    $('addP').addEventListener('click',()=>{
+      const p={id:++uid,mode:'mid:0',x:0,P:10};
+      st.loads.push(p); buildList(); render(); $('pp-'+p.id).focus();
+    });
+
+    function arrow(x,y1,y2,hs,sw){
+      return '<line class="ln" style="stroke-width:'+sw+'" x1="'+x+'" y1="'+y1+'" x2="'+x+'" y2="'+(y2-hs*1.6)+'"/>'+
+        '<polygon class="fi" points="'+x+','+y2+' '+(x-hs*0.7)+','+(y2-hs*1.8)+' '+(x+hs*0.7)+','+(y2-hs*1.8)+'"/>';
+    }
+
+    function draw(R){
+      const W=Math.floor(wrap.clientWidth);
+      if(W<50) return false;
+      const padL=22,padR=22,tot=R.tot,sx=(W-padL-padR)/tot,X=x=>padL+x*sx;
+      const beamY=120,dimY=beamY+66,momTop=dimY+28,plotTop=momTop+34,Hp=180,plotBot=plotTop+Hp,H=plotBot+30;
+      const o=[], placed=[];
+      function lab(px,y,text,cls,bg){
+        const hw=text.length*3.65+2;
+        let ax='middle',tx=px;
+        if(px-hw<2){ax='start';tx=2;} else if(px+hw>W-2){ax='end';tx=W-2;}
+        let s='';
+        if(bg){
+          const rx=ax==='middle'?tx-hw-3:(ax==='start'?tx-3:tx-2*hw-3);
+          s+='<rect class="fp" x="'+rx+'" y="'+(y-12)+'" width="'+(2*hw+6)+'" height="16" rx="3"/>';
+        }
+        return s+'<text class="'+cls+'" x="'+tx+'" y="'+y+'" text-anchor="'+ax+'">'+text+'</text>';
+      }
+      function place(px,y0,txt){
+        const hw=txt.length*3.65+4; let ly=y0;
+        for(let k=0;k<8;k++){ if(!placed.some(q=>Math.abs(q.x-px)<q.hw+hw&&Math.abs(q.y-ly)<15)) break; ly-=15; }
+        placed.push({x:px,y:ly,hw}); return ly;
+      }
+      // Linienlasten
+      const qMax=Math.max(0,...R.lines.map(l=>l.q)), tops=[];
+      for(const l of R.lines){
+        const x1=X(l.s),x2=X(l.e),w=x2-x1,h=10+30*l.q/qMax,yt=beamY-h;
+        tops.push({x1,x2,yt,q:l.q});
+        o.push('<rect class="fl" x="'+x1+'" y="'+yt+'" width="'+w+'" height="'+h+'"/>');
+        o.push('<line class="ln" style="stroke-width:1.2" x1="'+x1+'" y1="'+yt+'" x2="'+x2+'" y2="'+yt+'"/>');
+        const n=Math.max(1,Math.round(w/16));
+        for(let i=0;i<=n;i++){
+          const ax=x1+w*i/n;
+          if(h>=12) o.push(arrow(ax,yt,beamY-1,Math.min(3.2,h/6),1.1));
+          else o.push('<line class="ln" style="stroke-width:1.1" x1="'+ax+'" y1="'+yt+'" x2="'+ax+'" y2="'+(beamY-1)+'"/>');
+        }
+      }
+      // Punktlasten
+      const groups=[];
+      for(const p of R.pts){ const x=Math.min(Math.max(p.x,0),tot); const f=groups.find(q=>Math.abs(q.x-x)<1e-9); if(f) f.P+=p.P; else groups.push({x,P:p.P}); }
+      groups.sort((u,v)=>u.x-v.x);
+      const pMax=Math.max(0,...groups.map(p=>p.P));
+      for(const p of groups){
+        const r=p.P/pMax, len=22+66*r, px=X(p.x), top=beamY-1-len;
+        o.push(arrow(px,top,beamY-1,3.5+2*r,1.3+0.8*r));
+        const txt=fN(p.P)+' kN';
+        o.push(lab(px,place(px,top-7,txt),txt,'tb',true));
+      }
+      for(const t of tops){
+        const txt=fN(t.q)+' kN/m';
+        if(t.x2-t.x1>txt.length*7.2+8){ const px=(t.x1+t.x2)/2; o.push(lab(px,place(px,t.yt-6,txt),txt,'t',true)); }
+      }
+      // Balken, Auflager
+      o.push('<rect class="fi" x="'+X(0)+'" y="'+beamY+'" width="'+(tot*sx)+'" height="7" rx="1"/>');
+      R.s.forEach((x0,j)=>{
+        const x=X(x0), y1=beamY+7, y2=beamY+25, roller=j>0;
+        o.push('<polygon class="fp ln" points="'+x+','+y1+' '+(x-10)+','+y2+' '+(x+10)+','+y2+'" stroke-linejoin="round"/>');
+        let gy=y2;
+        if(roller){ o.push('<circle class="fp ln" cx="'+(x-5)+'" cy="'+(y2+4)+'" r="3"/><circle class="fp ln" cx="'+(x+5)+'" cy="'+(y2+4)+'" r="3"/>'); gy=y2+8; }
+        o.push('<line class="ln" x1="'+(x-15)+'" y1="'+gy+'" x2="'+(x+15)+'" y2="'+gy+'"/>');
+        for(let i=0;i<5;i++){ const hx=x-15+i*6; o.push('<line class="ln2" x1="'+(hx+6)+'" y1="'+gy+'" x2="'+hx+'" y2="'+(gy+6)+'"/>'); }
+        o.push('<text class="t2" x="'+(x+14)+'" y="'+(beamY+22)+'">'+letter(j)+'</text>');
+      });
+      // Bemassung
+      o.push('<line class="ln2" x1="'+X(0)+'" y1="'+dimY+'" x2="'+X(tot)+'" y2="'+dimY+'"/>');
+      const marks=[0].concat(R.s,[tot]), seen=[];
+      for(const x of marks){
+        if(seen.some(q=>Math.abs(q-x)<1e-9)) continue; seen.push(x);
+        const px=X(x);
+        o.push('<line class="ln2" x1="'+(px-4)+'" y1="'+(dimY+4)+'" x2="'+(px+4)+'" y2="'+(dimY-4)+'"/>');
+        o.push('<line class="ln2" x1="'+px+'" y1="'+(dimY-6)+'" x2="'+px+'" y2="'+(dimY+6)+'"/>');
+      }
+      for(let i=0;i<marks.length-1;i++){
+        const len=marks[i+1]-marks[i]; if(len<1e-9) continue;
+        const txt=len.toFixed(2)+' m';
+        if(len*sx>txt.length*7.2+6) o.push('<text class="t2" x="'+((X(marks[i])+X(marks[i+1]))/2)+'" y="'+(dimY-8)+'" text-anchor="middle">'+txt+'</text>');
+      }
+      for(const x of R.s) o.push('<line class="guide" x1="'+X(x)+'" y1="'+(dimY+8)+'" x2="'+X(x)+'" y2="'+plotBot+'"/>');
+      // Momentenfläche
+      const pos=Math.max(0,R.Mpos.v), neg=Math.max(0,-R.Mneg.v), span=pos+neg;
+      o.push('<text class="t2" x="'+padL+'" y="'+(momTop+8)+'">Biegemoment M [kNm]</text>');
+      if(span<1e-9){
+        const y0=plotTop+Hp/2;
+        o.push('<line class="ln2" x1="'+X(0)+'" y1="'+y0+'" x2="'+X(tot)+'" y2="'+y0+'"/>');
+        o.push('<text class="t2" x="'+(W/2)+'" y="'+(y0-12)+'" text-anchor="middle">Keine Last aktiv</text>');
+      } else {
+        const sc=Hp/span, y0=plotTop+neg*sc, Y=v=>y0+v*sc;
+        let pp=X(0)+','+y0, np=pp; const cp=[];
+        for(let i=0;i<R.xs.length;i++){
+          const px=X(R.xs[i]).toFixed(2), v=R.Mv[i];
+          pp+=' '+px+','+Y(Math.max(v,0)).toFixed(2);
+          np+=' '+px+','+Y(Math.min(v,0)).toFixed(2);
+          cp.push(px+','+Y(v).toFixed(2));
+        }
+        pp+=' '+X(tot)+','+y0; np+=' '+X(tot)+','+y0;
+        o.push('<polygon class="sag-f" points="'+pp+'"/><polygon class="hog-f" points="'+np+'"/>');
+        o.push('<line class="ln2" x1="'+X(0)+'" y1="'+y0+'" x2="'+X(tot)+'" y2="'+y0+'"/>');
+        o.push('<polyline class="curve" points="'+cp.join(' ')+'"/>');
+        const c=[];
+        if(pos>1e-9) c.push({x:R.Mpos.x,v:R.Mpos.v});
+        if(neg>1e-9) c.push({x:R.Mneg.x,v:R.Mneg.v});
+        R.spanMax.forEach(b=>{ if(b.v>1e-9) c.push(b); });
+        R.s.forEach((x,j)=>{ if(Math.abs(R.Ms[j])>1e-9) c.push({x,v:R.Ms[j]}); });
+        const kept=[];
+        for(const k of c){ if(kept.some(q=>(q.v>0)===(k.v>0)&&Math.abs(X(q.x)-X(k.x))<78)) continue; kept.push(k); }
+        for(const k of kept){
+          const px=X(k.x), py=Y(k.v);
+          o.push('<circle class="'+(k.v>0?'sag-d':'hog-d')+'" cx="'+px+'" cy="'+py+'" r="4"/>');
+          o.push(lab(px,k.v>0?py+19:py-9,fS(k.v)+' kNm','tb'));
+        }
+      }
+      const minY=Math.min(0,...placed.map(p=>p.y-14));
+      const d='Momentenverlauf. Maximales Feldmoment '+f2(pos)+' kNm, maximales Stützmoment '+f2(-neg)+' kNm.';
+      wrap.innerHTML='<svg role="img" aria-label="'+d+'" width="'+W+'" height="'+(H-minY)+'" viewBox="0 '+minY+' '+W+' '+(H-minY)+'" xmlns="http://www.w3.org/2000/svg">'+o.join('')+'</svg>';
+      return true;
+    }
+
+    function where(R,x){
+      for(let j=0;j<R.s.length;j++) if(Math.abs(x-R.s[j])<1e-6) return 'über Auflager '+letter(j)+', x = '+x.toFixed(2)+' m';
+      for(let i=0;i<R.n;i++) if(x>R.s[i]&&x<R.s[i+1]) return (cfg.multi?'in Feld '+(i+1)+', ':'')+'x = '+x.toFixed(2)+' m';
+      return x<R.s[0]?'im Kragarm links, x = '+x.toFixed(2)+' m':'im Kragarm rechts, x = '+x.toFixed(2)+' m';
+    }
+
+    let lastW=0;
+    function render(){
+      const g=geo(), tooShort=st.spans.some(sp=>!(sp.L>=0.05));
+      $('tot').textContent=g.tot.toFixed(2)+' m';
+      if(tooShort){
+        wrap.innerHTML='<div class="err">Jedes Feld muss mindestens 0.05 m lang sein.</div>';
+        ['pos','neg'].forEach(k=>$(k).textContent='–'); $('posAt').textContent=''; $('negAt').textContent='';
+        $('tSup').innerHTML=''; $('tSpan').innerHTML=''; $('warn').hidden=true; return;
+      }
+      let oor=0; const points=[];
+      for(const p of st.loads){
+        if(p.mode!=='free'){ p.x=presetX(p.mode,g); const inp=$('px-'+p.id); if(inp&&document.activeElement!==inp) inp.value=fN(p.x); }
+        const out=p.x<-1e-9||p.x>g.tot+1e-9;
+        const row=root.querySelector('.prow[data-id="'+p.id+'"]'); if(row) row.classList.toggle('oor',out);
+        if(out){ oor++; continue; }
+        points.push({x:p.x,P:p.P});
+      }
+      const R=solve({a:st.a,b:st.b,qa:st.qa,qb:st.qb,spans:st.spans,points});
+      lastW=Math.floor(wrap.clientWidth);
+      draw(R);
+      const u='<small>kNm</small>';
+      if(R.Mpos.v>1e-9){ $('pos').innerHTML='+'+Math.abs(R.Mpos.v).toFixed(2)+u; $('posAt').textContent=where(R,R.Mpos.x); }
+      else { $('pos').innerHTML='0.00'+u; $('posAt').textContent='kein Feldmoment'; }
+      if(R.Mneg.v<-1e-9){ $('neg').innerHTML=MINUS+Math.abs(R.Mneg.v).toFixed(2)+u; $('negAt').textContent=where(R,R.Mneg.x); }
+      else { $('neg').innerHTML='0.00'+u; $('negAt').textContent='kein Stützmoment'; }
+      $('tSup').innerHTML=R.s.map((x,j)=>'<tr><td>'+letter(j)+'</td><td>'+x.toFixed(2)+'</td><td>'+fS(R.Ms[j])+'</td><td>'+f2(R.R[j])+'</td></tr>').join('')+
+        '<tr><td>Summe Lasten</td><td></td><td></td><td>'+R.F.toFixed(2)+'</td></tr>';
+      $('tSpan').innerHTML=R.spanMax.map((b,i)=>'<tr><td>'+(cfg.multi?'Feld '+(i+1):'Feld')+'</td><td>'+st.spans[i].L.toFixed(2)+'</td><td>'+(b.v>1e-9?fS(b.v):'–')+'</td><td>'+(b.v>1e-9?b.x.toFixed(2):'–')+'</td></tr>').join('');
+      const msgs=[], negR=[];
+      R.R.forEach((r,j)=>{ if(r<-1e-9) negR.push(letter(j)); });
+      if(negR.length) msgs.push('Auflagerkraft '+negR.join(', ')+' ist negativ. Der Träger hebt dort ab und müsste verankert werden.');
+      if(oor) msgs.push((oor===1?'Eine Punktlast liegt':oor+' Punktlasten liegen')+' ausserhalb des Trägers (0 bis '+g.tot.toFixed(2)+' m) und '+(oor===1?'wird':'werden')+' nicht berücksichtigt.');
+      $('warn').hidden=!msgs.length; $('warn').textContent=msgs.join(' ');
+      $('rw').innerHTML=rechenweg(R);
+      if(cfg.onChange) cfg.onChange();
+    }
+
+    // ---------- Rechenweg ----------
+    function rechenweg(R){
+      const n2=v=>(v<-0.00499?MINUS:'')+Math.abs(v).toFixed(2);
+      const pa=v=>v<-0.00499?'('+n2(v)+')':n2(v);
+      const Mj=j=>'M<sub>'+letter(j)+'</sub>';
+      const n=R.n, last=letter(n);
+      let h='';
+      // 1. Kragarme
+      h+='<h3>1. Momente an den Kragarmen</h3><p>Ein Kragarm ist statisch bestimmt: Das Moment am Auflager ist die Summe aller Lasten auf dem Kragarm mal ihrem Hebelarm e zum Auflager. Gleichlast q über die Länge a: q·a²/2.</p>';
+      function cant(list,j,len,side){
+        if(!(len>0)) return 'Kein Kragarm '+side+': '+Mj(j)+' = 0';
+        if(!list.length) return 'Kragarm '+side+' ohne Last: '+Mj(j)+' = 0';
+        const sym=list.map(c=>c.q!=null?'q·'+(j?'b':'a')+'²/2':'P·e').join(' + ');
+        const num=list.map(c=>c.q!=null?n2(c.q)+'·'+n2(c.e)+'²/2':n2(c.P)+'·'+n2(c.e)).join(' + ');
+        return Mj(j)+' = −('+sym+') = −('+num+') = '+n2(R.Ms[j])+' kNm';
+      }
+      h+='<div class="formula">'+cant(R.cantL,0,R.a,'links')+'<br>'+cant(R.cantR,n,R.b,'rechts')+'</div>';
+      // 2. Stützmomente
+      h+='<h3>2. Stützmomente</h3>';
+      if(n===1){
+        h+='<p>Einfeldträger: statisch bestimmt. Die Stützmomente sind die Kragarmmomente aus Schritt 1, eine Gleichung ist nicht nötig.</p>';
+      } else {
+        h+='<p>Jedes Feld wird als gelenkig gelagerter Einfeldträger betrachtet. Die Belastungsglieder ℒ (linkes Feldende) und ℛ (rechtes Feldende) fassen die Last im Feld zusammen. Gleichlast: ℒ = ℛ = q·L³/4. Einzellast P im Abstand u vom linken und v vom rechten Auflager: ℒ = P·u·v·(L+v)/L, ℛ = P·u·v·(L+u)/L.</p>';
+        let t='<div class="tbl"><table><thead><tr><th scope="col">Feld</th><th scope="col">Last</th><th scope="col">ℒ [kNm²]</th><th scope="col">ℛ [kNm²]</th></tr></thead><tbody>';
+        for(let i=1;i<=n;i++){
+          const L=R.spans[i-1].L;
+          if(!R.contrib[i].length) t+='<tr><td>Feld '+i+'</td><td>keine Last</td><td>0.00</td><td>0.00</td></tr>';
+          R.contrib[i].forEach((c,k)=>{
+            const desc=c.q!=null?'q = '+n2(c.q)+' kN/m, L = '+n2(L)+' m':'P = '+n2(c.P)+' kN, u = '+n2(c.u)+', v = '+n2(c.v)+' m';
+            t+='<tr><td>'+(k===0?'Feld '+i:'')+'</td><td>'+desc+'</td><td>'+n2(c.TL)+'</td><td>'+n2(c.TR)+'</td></tr>';
+          });
+          if(R.contrib[i].length>1) t+='<tr class="sum"><td></td><td>Summe Feld '+i+'</td><td>'+n2(R.TL[i])+'</td><td>'+n2(R.TR[i])+'</td></tr>';
+        }
+        t+='</tbody></table></div>';
+        h+=t;
+        h+='<p>Dreimomentengleichung für jedes innere Auflager j zwischen Feld j und Feld j+1 (EI konstant):</p>';
+        let f='L<sub>j</sub>·M<sub>j−1</sub> + 2·(L<sub>j</sub> + L<sub>j+1</sub>)·M<sub>j</sub> + L<sub>j+1</sub>·M<sub>j+1</sub> = −(ℛ<sub>j</sub> + ℒ<sub>j+1</sub>)<br>';
+        f+='Bekannt aus Schritt 1: '+Mj(0)+' = '+n2(R.Ms[0])+' kNm, '+Mj(n)+' = '+n2(R.Ms[n])+' kNm<br>';
+        for(let j=1;j<n;j++){
+          const L1=R.spans[j-1].L, L2=R.spans[j].L;
+          f+='Auflager '+letter(j)+': '+n2(L1)+'·'+Mj(j-1)+' + '+n2(2*(L1+L2))+'·'+Mj(j)+' + '+n2(L2)+'·'+Mj(j+1)+' = −('+n2(R.TR[j])+' + '+n2(R.TL[j+1])+') = '+n2(-(R.TR[j]+R.TL[j+1]))+' kNm²<br>';
+        }
+        f+='Lösung: '+R.Ms.slice(1,n).map((v,k)=>Mj(k+1)+' = '+n2(v)+' kNm').join(', ');
+        h+='<div class="formula">'+f+'</div>';
+      }
+      // 3. Auflagerkräfte
+      h+='<h3>3. Auflagerkräfte</h3><p>R⁰: Auflagerkraft, wenn jedes Feld ein gelenkig gelagerter Einfeldträger wäre; Kragarmlasten gehen ganz auf das Endauflager. ΔR: Anteil der Stützmomente, ΔR<sub>j</sub> = (M<sub>j+1</sub> − M<sub>j</sub>)/L<sub>j+1</sub> − (M<sub>j</sub> − M<sub>j−1</sub>)/L<sub>j</sub>.</p>';
+      let t2='<div class="tbl"><table><thead><tr><th scope="col">Auflager</th><th scope="col">R⁰ [kN]</th><th scope="col">ΔR [kN]</th><th scope="col">R [kN]</th></tr></thead><tbody>';
+      let s0=0,s1=0,s2=0;
+      for(let j=0;j<=n;j++){
+        const d=(j<n?R.dd[j+1]:0)-(j>0?R.dd[j]:0);
+        s0+=R.R0[j]; s1+=d; s2+=R.R[j];
+        t2+='<tr><td>'+letter(j)+'</td><td>'+n2(R.R0[j])+'</td><td>'+(Math.abs(d)<0.005?'0.00':(d>0?'+':'')+n2(d))+'</td><td>'+n2(R.R[j])+'</td></tr>';
+      }
+      t2+='<tr class="sum"><td>Summe</td><td>'+n2(s0)+'</td><td>'+n2(s1)+'</td><td>'+n2(s2)+'</td></tr></tbody></table></div>';
+      h+=t2+'<div class="formula">Kontrolle: Σ R = '+n2(s2)+' kN = Σ Lasten = '+n2(R.F)+' kN</div>';
+      // 4. Feldmomente
+      h+='<h3>4. Feldmomente</h3><p>Im Feld zwischen den Auflagern j−1 und j gilt M(x) = M⁰(x) + M<sub>j−1</sub>·(1 − ξ) + M<sub>j</sub>·ξ mit ξ = x′/L. M⁰(x) ist das Moment des gelenkig gelagerten Einfeldträgers. Das grösste Feldmoment liegt dort, wo die Querkraft V(x) das Vorzeichen wechselt.</p>';
+      let f4='';
+      for(let i=1;i<=n;i++){
+        const b=R.spanMax[i-1];
+        f4+=(cfg.multi?'Feld '+i:'Feld')+' ('+letter(i-1)+'–'+letter(i)+'): '+(b.v>0.00499?'max M = +'+Math.abs(b.v).toFixed(2)+' kNm bei x = '+b.x.toFixed(2)+' m':'kein positives Feldmoment')+'<br>';
+      }
+      f4+='Grösstes Stützmoment: '+n2(Math.min(0,R.Mneg.v))+' kNm'+(R.Mneg.v<-0.00499?' bei x = '+R.Mneg.x.toFixed(2)+' m':'');
+      h+='<div class="formula">'+f4+'</div>';
+      return h;
+    }
+
+    function getState(){
+      return {a:st.a,qa:st.qa,b:st.b,qb:st.qb,spans:st.spans.map(s=>({L:s.L,q:s.q})),loads:st.loads.map(l=>({mode:l.mode,x:l.x,P:l.P}))};
+    }
+    function setState(o){
+      const num=v=>typeof v==='number'&&isFinite(v);
+      const src=o||cfg.init;
+      const ok=src&&num(src.a)&&num(src.b)&&num(src.qa)&&num(src.qb)&&Array.isArray(src.spans)&&src.spans.length>=(cfg.multi?2:1)&&src.spans.length<=(cfg.multi?8:1)&&src.spans.every(s=>s&&num(s.L)&&num(s.q))&&Array.isArray(src.loads)&&src.loads.every(l=>l&&typeof l.mode==='string'&&num(l.x)&&num(l.P));
+      st=JSON.parse(JSON.stringify(ok?src:cfg.init));
+      uid=0; st.loads.forEach(l=>l.id=++uid);
+      buildSegs(); buildList(); render();
+    }
+
+    buildSegs(); buildList(); render();
+    if(window.ResizeObserver) new ResizeObserver(()=>{ const w=Math.floor(wrap.clientWidth); if(w!==lastW&&w>50) render(); }).observe(wrap);
+    else window.addEventListener('resize',render);
+    window.addEventListener('beforeprint',()=>{ $('rwd').open=true; });
+    return {render,getState,setState};
+  }
+
+  // Eingaben in der Adresszeile: #%7B...%7D (JSON). Ein einfaches #einfeld / #durchlauf öffnet nur den Tab.
+  let ready=false, current='einfeld';
+  function save(){
+    if(!ready) return;
+    try{
+      const s={t:current,e:tools.einfeld.getState(),d:tools.durchlauf.getState()};
+      history.replaceState(null,'','#'+encodeURIComponent(JSON.stringify(s)));
+    }catch(e){ /* z. B. in eingebetteten Vorschauen */ }
+  }
+  const tools={
+    einfeld:createTool(document.getElementById('tool-einfeld'),{key:'e',multi:false,onChange:save,init:{
+      a:1.5,qa:5,b:1,qb:0,spans:[{L:5,q:2}],
+      loads:[{mode:'mid:0',x:4,P:20},{mode:'tipR',x:7.5,P:15},{mode:'free',x:5.5,P:8}]
+    }}),
+    durchlauf:createTool(document.getElementById('tool-durchlauf'),{key:'d',multi:true,onChange:save,init:{
+      a:1.2,qa:6,b:0,qb:0,spans:[{L:5,q:6},{L:4,q:6},{L:5,q:6}],
+      loads:[{mode:'mid:1',x:8.2,P:25},{mode:'tipL',x:0,P:10}]
+    }})
+  };
+
+  // Tabs
+  const tabs=[...document.querySelectorAll('[role=tab]')];
+  function show(name,focus){
+    tabs.forEach(t=>{
+      const on=t.id==='tab-'+name;
+      t.setAttribute('aria-selected',on); t.tabIndex=on?0:-1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden=!on;
+      if(on&&focus) t.focus();
+    });
+    current=name;
+    tools[name].render();
+    try{ localStorage.setItem('balken-tab',name); }catch(e){}
+    save();
+  }
+  tabs.forEach((t,i)=>{
+    t.addEventListener('click',()=>show(t.id.slice(4)));
+    t.addEventListener('keydown',e=>{
+      if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft') return;
+      const n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];
+      show(n.id.slice(4),true);
+    });
+  });
+  let start='einfeld';
+  try{ const s=localStorage.getItem('balken-tab'); if(s&&tools[s]) start=s; }catch(e){}
+  const h=(location.hash||'').slice(1);
+  if(tools[h]) start=h;
+  else if(h.length>2){
+    try{
+      const s=JSON.parse(decodeURIComponent(h));
+      if(s&&typeof s==='object'){
+        if(s.e) tools.einfeld.setState(s.e);
+        if(s.d) tools.durchlauf.setState(s.d);
+        if(tools[s.t]) start=s.t;
+      }
+    }catch(e){ /* ungültiger Link: Standardwerte */ }
+  }
+  ready=true;
+  show(start);
+  document.getElementById('reset').addEventListener('click',()=>{
+    tools.einfeld.setState(null); tools.durchlauf.setState(null); tools[current].render(); save();
+  });
+
+})();
+
+// Hell / Dunkel / System: wie in _layouts/default.html, gleicher Speicherschlüssel "theme".
+(function () {
+  var root = document.documentElement;
+  try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") root.dataset.theme = t; } catch (e) {}
+  var group = document.querySelector(".theme");
+  var buttons = group.querySelectorAll("button");
+  function apply(theme) {
+    if (theme === "light" || theme === "dark") root.dataset.theme = theme;
+    else { delete root.dataset.theme; theme = "system"; }
+    try {
+      if (theme === "system") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", theme);
+    } catch (e) {}
+    buttons.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.theme === theme); });
+  }
+  buttons.forEach(function (b) { b.addEventListener("click", function () { apply(b.dataset.theme); }); });
+  apply(root.dataset.theme);
+  group.hidden = false;
+})();
+</script>
+</body>
+</html>
