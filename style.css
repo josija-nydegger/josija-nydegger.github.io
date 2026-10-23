@@ -139,6 +139,19 @@ article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px soli
 .lang a:hover { color: var(--text); }
 .lang [aria-current] { color: var(--text); font-weight: 600; }
 
+/* ---------- Menü oben links (CV, Tools, Blog), gleiche Optik wie .lang ---------- */
+.nav { position: absolute; top: 16px; left: 20px; display: flex; gap: 10px; font-size: 13px; }
+.nav a { display: inline-block; padding: 6px 4px; color: var(--muted); text-decoration: none; }
+.nav a:hover { color: var(--text); }
+.nav [aria-current] { color: var(--text); font-weight: 600; }
+
+/* ---------- Unterseiten wie /tools/ ---------- */
+.page-title { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+.page-intro { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+.page-note { color: var(--muted); font-size: 13px; margin-top: 28px; }
+.item-title a { text-decoration: none; }
+.item-title a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
 /* ---------- Button (z. B. 404-Seite) ---------- */
 .button {
   display: inline-block; margin-top: 8px; font-size: 14px; padding: 6px 16px;
@@ -184,7 +197,7 @@ footer a { color: var(--muted); }
   }
   body { font-size: 10.5pt; line-height: 1.45; }
   main { max-width: none; padding: 0; }
-  .back, .socials, .lang, .print-button, footer { display: none !important; }
+  .back, .socials, .lang, .nav, .print-button, footer { display: none !important; }
   .header { margin-bottom: 12pt; }
   section { margin-top: 16pt; }
   h2 { break-after: avoid; margin-bottom: 6pt; }
