@@ -279,7 +279,7 @@ footer a:hover{color:var(--text)}
   <p class="small"><strong>Nur ein Lastfall:</strong> Gerechnet wird genau die eingegebene Lastanordnung. Bei Durchlaufträgern entstehen die massgebenden Feldmomente, Stützmomente und Querkräfte aus veränderlichen Lasten (z. B. Nutzlast) oft erst bei feldweise ungünstiger Laststellung, etwa mit Last nur in jedem zweiten Feld. Solche Laststellungen einzeln eingeben und die ungünstigsten Werte verwenden, sonst werden besonders die Feldmomente unterschätzt.</p>
   <p class="small">Linear-elastisches Verhalten nach Theorie 1. Ordnung. Die Biegesteifigkeit EI ist über die ganze Trägerlänge konstant, Schubverformungen sind vernachlässigt. Alle Auflager sind gelenkig und starr, also ohne Setzungen und ohne Einspannung. Die Lasten wirken senkrecht nach unten; das Eigengewicht ist nicht automatisch enthalten.</p>
   <p class="small">Die Durchbiegung gilt für elastisches Material ohne Kriechen und bei Beton für den ungerissenen Zustand. Rissbildung (Beton) und Kriechen (Beton, Holz) können sie ein Mehrfaches grösser machen. Die E-Modul-Vorlagen stammen aus SIA 263:2013, SIA 262:2025, SIA 265:2021 und SN EN 1999-1-1; massgebend sind die jeweils aktuelle Norm und die Angaben zum Produkt.</p>
-  <p class="small"><strong>Holz:</strong> Die Vorlagen sind die 5 %-Fraktilwerte parallel zur Faser (E<sub>0,05</sub>), die gemäss SIA 265 für die Tragsicherheit (Knicken, Kippen) verwendet werden. Für die Gebrauchstauglichkeit werden die höheren Mittelwerte E<sub>0,mean</sub> bzw. E<sub>m,mean</sub> verwendet. Für eine Durchbiegung im Sinne der Gebrauchstauglichkeit den Mittelwert daher frei eingeben.</p>
+  <p class="small"><strong>Holz:</strong> Die Vorlagen sind die Mittelwerte E<sub>m,mean</sub> gemäss SIA 265, die für die Gebrauchstauglichkeit und damit für die Durchbiegung verwendet werden. Für die Tragsicherheit (Knicken, Kippen) gelten die tieferen 5 %-Fraktilwerte parallel zur Faser E<sub>0,05</sub> (C24: 7 400 N/mm², GL24h: 9 600 N/mm²).</p>
   <p class="small">Vorzeichen: Querkraft Q positiv, wenn die Summe der Kräfte links vom Schnitt nach oben zeigt. Biegemoment M positiv bei Zug unten. Durchbiegung w positiv nach unten.</p>
   <p class="small">Grundlagen: Gleichgewichtsbedingungen, Superposition, die Dreimomentengleichung nach Clapeyron mit den Belastungsgliedern für Gleich- und Einzellasten und die Differentialgleichung der Biegelinie EI·w″ = −M.</p>
   <p class="small">Geprüft gegen Tabellenwerte: Zweifeldträger mit Gleichlast M<sub>B</sub> = −qL²/8 und max M<sub>F</sub> = 9/128·qL²; Dreifeldträger mit Gleichlast M<sub>B</sub> = M<sub>C</sub> = −0.1·qL², Endfeld 0.08·qL², Mittelfeld 0.025·qL²; Zweifeldträger mit Einzellast in Feldmitte M<sub>B</sub> = −3PL/32. Durchbiegung: Einfeldträger mit Gleichlast 5qL⁴/(384EI), Kragarm mit Einzellast am Ende PL³/(3EI), Zweifeldträger mit Gleichlast max w = qL⁴/(185EI). Querkräfte und Durchbiegungen zusätzlich gegen eine unabhängige Finite-Elemente-Rechnung.</p>
@@ -485,13 +485,13 @@ function solve(m){
   const letter=i=>String.fromCharCode(65+i);
   const pf=(v,d)=>{ const x=parseFloat(v); return isFinite(x)?x:d; };
   const fT=v=>Math.round(v).toLocaleString('de-CH');
-  // E-Modul-Vorlagen in N/mm² (aus den genannten Normen). Holz: 5 %-Fraktilwerte parallel zur Faser (E_0,05).
+  // E-Modul-Vorlagen in N/mm² (aus den genannten Normen). Holz: Mittelwerte E_m,mean für die Durchbiegung (Gebrauchstauglichkeit).
   // Beton bewusst ohne Vorlage: E_cm hängt von der Betonsorte ab.
   const MATS=[
     ['s263','Baustahl (SIA 263:2013)',210000],
     ['s262','Betonstahl (SIA 262:2025)',200000],
-    ['c24','Vollholz C24, E₀,₀₅ (SIA 265:2021)',7400],
-    ['gl24h','Brettschichtholz GL24h, E₀,₀₅ (SIA 265:2021)',9600],
+    ['c24','Vollholz C24, Eₘ,mean (SIA 265:2021)',11000],
+    ['gl24h','Brettschichtholz GL24h, Eₘ,mean (SIA 265:2021)',11500],
     ['alu','Aluminium (SN EN 1999-1-1)',70000],
     ['free','Frei wählbar',null]
   ];
@@ -532,7 +532,7 @@ function solve(m){
               '<div data-im="val" style="align-self:end;font-size:13.5px;padding-bottom:6px"><a href="/tools/querschnittswerte/" target="_blank" rel="noopener">I mit Querschnittswerte berechnen ↗</a></div>'+
             '</div>'+
             '<div class="eires" id="'+id('eires')+'"></div>'+
-            '<p class="hint">Nur für die Durchbiegung nötig. Holz-Vorlagen sind E<sub>0,05</sub> (Tragsicherheit); für die Gebrauchstauglichkeit E<sub>0,mean</sub> frei eingeben. Beton: E<sub>cm</sub> je nach Betonsorte frei eingeben (SIA 262); die Rechnung gilt für den ungerissenen Zustand ohne Kriechen.</p>'+
+            '<p class="hint">Nur für die Durchbiegung nötig. Holz-Vorlagen sind Mittelwerte E<sub>m,mean</sub> (Gebrauchstauglichkeit). Beton: E<sub>cm</sub> je nach Betonsorte frei eingeben (SIA 262); die Rechnung gilt für den ungerissenen Zustand ohne Kriechen.</p>'+
           '</div>'+
         '</div>'+
         '<div class="col">'+
@@ -1107,7 +1107,7 @@ function solve(m){
     einfeld:createTool(document.getElementById('tool-einfeld'),{key:'e',multi:false,onChange:save,init:{
       a:1.5,qa:5,b:1,qb:0,spans:[{L:5,q:2}],
       loads:[{mode:'mid:0',x:4,P:20},{mode:'tipR',x:7.5,P:15},{mode:'free',x:5.5,P:8}],
-      E:9600,mat:'gl24h',im:'rect',bq:160,hq:400,I6:100
+      E:11500,mat:'gl24h',im:'rect',bq:160,hq:400,I6:100
     }}),
     durchlauf:createTool(document.getElementById('tool-durchlauf'),{key:'d',multi:true,onChange:save,init:{
       a:1.2,qa:6,b:0,qb:0,spans:[{L:5,q:6},{L:4,q:6},{L:5,q:6}],
