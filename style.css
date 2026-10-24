@@ -139,7 +139,7 @@ article blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px soli
 .lang a:hover { color: var(--text); }
 .lang [aria-current] { color: var(--text); font-weight: 600; }
 
-/* ---------- Menü oben links (CV, Tools, Blog), gleiche Optik wie .lang ---------- */
+/* ---------- Menü oben links (Start/Home, CV, Tools, Blog), gleiche Optik wie .lang ---------- */
 .nav { position: absolute; top: 16px; left: 20px; display: flex; gap: 10px; font-size: 13px; }
 .nav a { display: inline-block; padding: 6px 4px; color: var(--muted); text-decoration: none; }
 .nav a:hover { color: var(--text); }
