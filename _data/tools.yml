@@ -7,11 +7,11 @@
     de: Balken mit Auskragung
     en: Overhanging beam
   description:
-    de: Biegemomente, Stützmomente und Auflagerkräfte für Einfeld- und Durchlaufträger mit Kragarmen, Punkt- und Linienlasten, mit Rechenweg.
-    en: Bending moments, support moments and reactions for simply supported and continuous beams with cantilevers under point and line loads, with step-by-step calculation.
+    de: Querkraft, Biegemoment, Durchbiegung und Auflagerkräfte für Einfeld- und Durchlaufträger mit Kragarmen, Punkt- und Linienlasten, mit Rechenweg.
+    en: Shear force, bending moment, deflection and support reactions for simply supported and continuous beams with cantilevers under point and line loads, with step-by-step calculation.
   tags:
-    de: [Statik, Träger]
-    en: [Structural analysis, Beams]
+    de: [Statik, Träger, Durchbiegung]
+    en: [Structural analysis, Beams, Deflection]
 
 - url: /tools/querschnittswerte/
   year: 2026

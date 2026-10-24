@@ -9,7 +9,7 @@ Stand: 24.10.2026
 
 | # | Tool | Bereich | Aufwand | Status |
 |---|---|---|---|---|
-| 1 | Durchlaufträger-Rechner | Statik | mittel | teilweise umgesetzt: `tools/balken/` (Okt. 2026) |
+| 1 | Durchlaufträger-Rechner | Statik | mittel | umgesetzt: `tools/balken/` (Okt. 2026) |
 | 2 | Querschnittswerte-Rechner | Statik | klein | umgesetzt: `tools/querschnittswerte/` (Okt. 2026) |
 | 3 | Stützenlast-Abtrag nach Einzugsflächen | Tragwerksentwurf, Hochbau | klein bis mittel | offen |
 | 4 | IFC-Mengen- und Property-Auszug | BIM | mittel | offen |
@@ -23,8 +23,8 @@ Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächst
 - **Ausgaben:** Momenten-, Querkraft- und Durchbiegungsverlauf.
 - **Technik:** kleines 1D-Stabwerksmodell (Steifigkeitsmethode) in JavaScript.
 - **Idee:** Zwischenschritte zeigen, ähnlich wie der Lernmodus im Durchstanz-Tool.
-- **Umgesetzt als "Balken mit Auskragung"** (`tools/balken/`): Einfeld- und Durchlaufträger (2–8 Felder) mit Kragarmen, Punkt- und Linienlasten; Stützmomente mit der Dreimomentengleichung (statt Steifigkeitsmethode), Auflagerkräfte, Momentenverlauf und Rechenweg. Geprüft gegen Tabellenwerte und eine unabhängige FE-Rechnung.
-- **Noch offen:** Querkraft- und Durchbiegungsverlauf, EI als Eingabe (heute konstant angenommen), Einspannungen und Auflagersetzungen.
+- **Umgesetzt als "Balken mit Auskragung"** (`tools/balken/`): Einfeld- und Durchlaufträger (2–8 Felder) mit Kragarmen, Punkt- und Linienlasten; Stützmomente mit der Dreimomentengleichung (statt Steifigkeitsmethode), Auflagerkräfte, Verläufe von Querkraft, Moment und Durchbiegung (einzeln ein- und ausblendbar), EI aus E-Modul-Vorlage oder freiem E und Rechteckquerschnitt oder eingegebenem I (Link zu Querschnittswerte), Rechenweg. Geprüft gegen Tabellenwerte und eine unabhängige FE-Rechnung.
+- **Noch offen:** Einspannungen, Auflagersetzungen, abschnittsweise veränderliches EI, Lastfallkombinationen bzw. ungünstigste Laststellung automatisch, Momentenlasten.
 
 ## 2. Querschnittswerte-Rechner (Statik)
 
