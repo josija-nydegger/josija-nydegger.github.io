@@ -717,8 +717,8 @@ function solve(m){
       if(n===1){
         h+='<p>Einfeldträger: statisch bestimmt. Die Stützmomente sind die Kragarmmomente aus Schritt 1, eine Gleichung ist nicht nötig.</p>';
       } else {
-        h+='<p>Jedes Feld wird als gelenkig gelagerter Einfeldträger betrachtet. Die Belastungsglieder ℒ (linkes Feldende) und ℛ (rechtes Feldende) fassen die Last im Feld zusammen. Gleichlast: ℒ = ℛ = q·L³/4. Einzellast P im Abstand u vom linken und v vom rechten Auflager: ℒ = P·u·v·(L+v)/L, ℛ = P·u·v·(L+u)/L.</p>';
-        let t='<div class="tbl"><table><thead><tr><th scope="col">Feld</th><th scope="col">Last</th><th scope="col">ℒ [kNm²]</th><th scope="col">ℛ [kNm²]</th></tr></thead><tbody>';
+        h+='<p>Jedes Feld wird als gelenkig gelagerter Einfeldträger betrachtet. Die Belastungsglieder T<sub>l</sub> (linkes Feldende) und T<sub>r</sub> (rechtes Feldende) fassen die Last im Feld zusammen. Gleichlast: T<sub>l</sub> = T<sub>r</sub> = q·L³/4. Einzellast P im Abstand u vom linken und v vom rechten Auflager: T<sub>l</sub> = P·u·v·(L+v)/L, T<sub>r</sub> = P·u·v·(L+u)/L.</p>';
+        let t='<div class="tbl"><table><thead><tr><th scope="col">Feld</th><th scope="col">Last</th><th scope="col">T<sub>l</sub> [kNm²]</th><th scope="col">T<sub>r</sub> [kNm²]</th></tr></thead><tbody>';
         for(let i=1;i<=n;i++){
           const L=R.spans[i-1].L;
           if(!R.contrib[i].length) t+='<tr><td>Feld '+i+'</td><td>keine Last</td><td>0.00</td><td>0.00</td></tr>';
@@ -731,7 +731,7 @@ function solve(m){
         t+='</tbody></table></div>';
         h+=t;
         h+='<p>Dreimomentengleichung für jedes innere Auflager j zwischen Feld j und Feld j+1 (EI konstant):</p>';
-        let f='L<sub>j</sub>·M<sub>j−1</sub> + 2·(L<sub>j</sub> + L<sub>j+1</sub>)·M<sub>j</sub> + L<sub>j+1</sub>·M<sub>j+1</sub> = −(ℛ<sub>j</sub> + ℒ<sub>j+1</sub>)<br>';
+        let f='L<sub>j</sub>·M<sub>j−1</sub> + 2·(L<sub>j</sub> + L<sub>j+1</sub>)·M<sub>j</sub> + L<sub>j+1</sub>·M<sub>j+1</sub> = −(T<sub>r,j</sub> + T<sub>l,j+1</sub>)<br>';
         f+='Bekannt aus Schritt 1: '+Mj(0)+' = '+n2(R.Ms[0])+' kNm, '+Mj(n)+' = '+n2(R.Ms[n])+' kNm<br>';
         for(let j=1;j<n;j++){
           const L1=R.spans[j-1].L, L2=R.spans[j].L;
