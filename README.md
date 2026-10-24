@@ -1,8 +1,8 @@
-# josija-nydegger.github.io
+# josija-nydegger.ch
 
 Persönliche Website von **Josija Nydegger**: Bauingenieurwesen, BIM und Digital Construction.
 
-**Live:** <https://josija-nydegger.github.io> · English: <https://josija-nydegger.github.io/en/>
+**Live:** <https://josija-nydegger.ch> · English: <https://josija-nydegger.ch/en/>
 
 ## Inhalt
 
@@ -10,7 +10,7 @@ Persönliche Website von **Josija Nydegger**: Bauingenieurwesen, BIM und Digital
 - Lebenslauf, im Browser direkt als PDF speicherbar
 - Zweisprachig: Deutsch (Hauptsprache) und Englisch unter `/en/`
 - Helles und dunkles Design, folgt standardmässig der Systemeinstellung
-- RSS-Feeds: [`/feed.xml`](https://josija-nydegger.github.io/feed.xml) (DE) und [`/en/feed.xml`](https://josija-nydegger.github.io/en/feed.xml) (EN)
+- RSS-Feeds: [`/feed.xml`](https://josija-nydegger.ch/feed.xml) (DE) und [`/en/feed.xml`](https://josija-nydegger.ch/en/feed.xml) (EN)
 
 ## Technik
 

@@ -1,7 +1,9 @@
 # CLAUDE.md
 
 Persönliche Website von Josija Nydegger (Bauingenieurwesen, BIM, Digital Construction).
-Live: <https://josija-nydegger.github.io> · gehostet mit GitHub Pages (Jekyll, Build direkt durch GitHub).
+Live: <https://josija-nydegger.ch> · gehostet mit GitHub Pages (Jekyll, Build direkt durch GitHub).
+
+**Domain:** `josija-nydegger.ch`, registriert bei Infomaniak (dort auch DNS, DNSSEC aktiv). DNS: 4× A und 4× AAAA für `@` auf die GitHub-Pages-Adressen, CNAME `www` → `josija-nydegger.github.io`, TXT `_github-pages-challenge-josija-nydegger` (Domain in GitHub bestätigt). Die übrigen Einträge (MX, SPF, DKIM, DMARC, SRV, autoconfig) sind für E-Mail und bleiben. Die Datei `CNAME` im Repo enthält die Domain: **nicht löschen**. Alte Adressen unter `josija-nydegger.github.io` leiten automatisch auf die Domain um. Absolute Adressen immer mit `https://josija-nydegger.ch` schreiben (bzw. `site.url` aus `_config.yml`). Falls die DNS-Verwaltung je umzieht: DNSSEC vorher ausschalten.
 
 ## Grundsätze
 
@@ -43,6 +45,7 @@ assets/katex/        KaTeX 0.16.11 (MIT) für LaTeX-Formeln im Blog, nur .woff2-
 images/              profil.jpg, og-image.jpg (Link-Vorschau 1200×630), projekte/ für Projekt-Icons, blog/ für Beitragsbilder
 arbeiten/            PDFs von Arbeiten (Projekt-, Bachelorarbeiten), nur im Original
 favicon.svg, favicon-32.png, apple-touch-icon.png
+CNAME                Eigene Domain für GitHub Pages (nicht löschen)
 ANLEITUNG.md         Anleitung für PDF-Uploads (nicht veröffentlicht)
 README.md            Beschreibung für das GitHub-Repo (nicht veröffentlicht)
 ```
