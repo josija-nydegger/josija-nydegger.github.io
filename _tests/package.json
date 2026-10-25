@@ -1,0 +1,14 @@
+{
+  "name": "josija-nydegger-tests",
+  "private": true,
+  "description": "Prüfungen für die Website (nicht veröffentlicht, Ordner mit _ wird von Jekyll ignoriert)",
+  "scripts": {
+    "test": "node balken-momente.test.js && node balken-querkraft-durchbiegung.test.js && node querschnittswerte.test.js && node website.test.js",
+    "build": "node jekyll-nachbau.js .. _site"
+  },
+  "devDependencies": {
+    "js-yaml": "4.1.0",
+    "jsdom": "24.1.3",
+    "liquidjs": "10.16.1"
+  }
+}

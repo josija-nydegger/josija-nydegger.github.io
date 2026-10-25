@@ -30,6 +30,7 @@ _posts/              Deutsche Blogbeiträge in Markdown (werden automatisch geli
 _posts/en/           Englische Blogbeiträge (→ /en/blog/:title/)
 _drafts/vorlage.md   Vorlage für neue Beiträge (wird nicht veröffentlicht)
 _notizen/            Interne Notizen, z. B. tool-ideen.md (Ordner mit _ wird nicht veröffentlicht)
+_tests/              Lokale Tests (Node.js): Tools gegen Formeln/FE, Website mit Jekyll-Nachbau (nicht veröffentlicht)
 index.html           Startseite DE: Bio, Arbeiten, Projekte, Blog, Kontakt
 cv.html              Lebenslauf DE
 feed.xml             RSS-Feed DE
@@ -106,7 +107,7 @@ Bisher: `tools/balken/` (Balken mit Auskragung, Einfeld- und Durchlaufträger) u
 6. **Verhalten:** Eingaben in der Adresszeile speichern (`#` + JSON), damit ein kopierter Link dieselben Werte öffnet; Werte aus dem Link prüfen, bevor sie verwendet werden; Button "Zurücksetzen"; ungültige Eingaben mit klarer Meldung statt falscher Ergebnisse; Druckansicht hell und mit offenem Rechenweg.
 7. **Inhalt:** keine Normwerte (nur Mechanik und Eingaben der Nutzer). Ausnahme auf ausdrücklichen Wunsch: E-Modul-Vorlagen im Balken-Tool (Werte mit Normangabe: Baustahl 210 000 SIA 263:2013, Betonstahl 200 000 SIA 262:2025, Holz E<sub>m,mean</sub> C24 11 000 / GL24h 11 500 SIA 265:2021 (Gebrauchstauglichkeit; E<sub>0,05</sub> 7 400 / 9 600 nur im Hinweistext), Aluminium 70 000 SN EN 1999-1-1; jederzeit frei überschreibbar); Eingaben verlassen den Rechner nicht (keine Server, keine Tracker). Bibliotheken und Schriften nur lokal einbinden, nie per CDN. Lizenz von Bibliotheken vorher prüfen.
 8. **Testbar machen:** Rechenkern als reine Funktion, z. B. zwischen `/*CALC-START*/` und `/*CALC-END*/` (Balken) oder über `window.__… = { compute }` (Querschnittswerte), damit er automatisch getestet werden kann.
-9. **Prüfen vor dem Commit:** gegen Tabellenwerte, Handrechnungen oder eine unabhängige Rechnung (z. B. FE) testen, inkl. Grenzfälle; Darstellung auf Handybreite und im Dunkelmodus ansehen; Testfälle auf der Seite aufführen.
+9. **Prüfen vor dem Commit:** gegen Tabellenwerte, Handrechnungen oder eine unabhängige Rechnung (z. B. FE) testen, inkl. Grenzfälle, als Testdatei in `_tests/` (Muster: `balken-*.test.js`); Darstellung auf Handybreite und im Dunkelmodus ansehen; Testfälle auf der Seite aufführen.
 10. Status in `_notizen/tool-ideen.md` nachführen. Die Tools sind vorerst nur auf Deutsch; `/en/tools/` weist darauf hin.
 
 ## Zweisprachigkeit (Deutsch / Englisch)
@@ -137,6 +138,8 @@ Status: **umgesetzt** (Oktober 2026).
 
 ## Prüfen
 
-- Es gibt keinen lokalen Build. Nach dem Push baut GitHub die Seite in 1–2 Minuten; Fehler stehen im Tab **Actions** des Repos.
+- Es gibt keinen echten lokalen Jekyll-Build. Nach dem Push baut GitHub die Seite in 1–2 Minuten; Fehler stehen im Tab **Actions** des Repos.
+- **Vor jedem Commit `npm test` im Ordner `_tests` ausführen** (einmalig `npm install`). Prüft die Rechenkerne beider Tools gegen Formeln und eine FE-Rechnung und baut die Website mit einem Jekyll-Nachbau (Seiten, Liquid, E-Mail nicht im Klartext, Sprachumschalter, interne Links, Feeds). Details: `_tests/README.md`. `npm run build` erzeugt eine lokale Vorschau in `_tests/_site/`.
+- Neue Tools bekommen eine eigene Testdatei in `_tests/` und einen Eintrag im `test`-Skript von `_tests/package.json`.
 - Vor dem Commit: Liquid-Syntax prüfen (auch `_layouts/`, `_includes/`, `_data/i18n.yml`) (`{% %}` / `{{ }}` geschlossen), Links und Dateinamen auf exakte Schreibweise prüfen, Darstellung auf Handybreite bedenken.
 - Commit-Nachrichten kurz und auf Deutsch, z. B. `Blog: Beitrag zu IfcOpenShell` oder `Arbeiten: PDF Projektarbeit BFH`.
