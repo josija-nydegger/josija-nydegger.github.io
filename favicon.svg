@@ -1,19 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Hintergrund -->
-  <rect width="64" height="64" rx="14" fill="#1a1a1a"/>
-  <!-- Isometrischer Würfel als Drahtmodell (Bauteil / BIM-Element) -->
-  <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M32 12 L49 22 L49 42 L32 52 L15 42 L15 22 Z"/>
-    <path d="M15 22 L32 32 L49 22"/>
-    <path d="M32 32 L32 52"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Statik &amp; Code</title>
+  <rect width="64" height="64" rx="14" fill="#0F2A4A"/>
+  <!-- Code: </> -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5">
+    <path d="M23 12 L10 25 L23 38" stroke="#FFFFFF"/>
+    <path d="M41 12 L54 25 L41 38" stroke="#FFFFFF"/>
+    <path d="M36 10 L28 40" stroke="#FF8A1F"/>
   </g>
-  <!-- Verdeckte Kanten gestrichelt, wie in einem CAD-Modell -->
-  <g fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="3 3" stroke-linecap="round">
-    <path d="M32 12 L32 32"/>
-  </g>
-  <!-- Knotenpunkte -->
-  <circle cx="32" cy="32" r="4.5" fill="#f2a43a"/>
-  <circle cx="15" cy="22" r="2.5" fill="#ffffff"/>
-  <circle cx="49" cy="22" r="2.5" fill="#ffffff"/>
-  <circle cx="32" cy="52" r="2.5" fill="#ffffff"/>
+  <!-- Statik: Einfeldträger mit Auflagern -->
+  <rect x="8" y="44" width="48" height="4.5" rx="1.5" fill="#5FA8FF"/>
+  <path d="M14 49 L7.5 58 L20.5 58 Z" fill="#5FA8FF"/>
+  <circle cx="50" cy="53.5" r="4.5" fill="#5FA8FF"/>
 </svg>

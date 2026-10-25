@@ -45,7 +45,7 @@ style.css            Gesamtes Design; Farben als CSS-Variablen inkl. Dark Mode (
 assets/katex/        KaTeX 0.16.11 (MIT) für LaTeX-Formeln im Blog, nur .woff2-Schriften
 images/              profil.jpg, og-image.jpg (Link-Vorschau 1200×630), projekte/ für Projekt-Icons, blog/ für Beitragsbilder
 arbeiten/            PDFs von Arbeiten (Projekt-, Bachelorarbeiten), nur im Original
-favicon.svg, favicon-32.png, apple-touch-icon.png
+favicon.svg, favicon.ico (16/32/48), favicon-32.png, apple-touch-icon.png (180×180, randlos dunkelblau, iOS rundet selbst)  Website-Symbol "Statik & Code", Quelle: G:\Meine Ablage\personal_websiteavicon 3.0
 CNAME                Eigene Domain für GitHub Pages (nicht löschen)
 ANLEITUNG.md         Anleitung für PDF-Uploads (nicht veröffentlicht)
 README.md            Beschreibung für das GitHub-Repo (nicht veröffentlicht)
