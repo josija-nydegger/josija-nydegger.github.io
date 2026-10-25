@@ -13,7 +13,7 @@ image: /images/og-image.jpg
 # E-Mail-Adresse, Base64-kodiert, damit Bots sie im Quelltext nicht finden.
 # Wird erst im Browser per JavaScript zusammengesetzt (siehe _layouts/default.html).
 # Neue Adresse kodieren z. B. mit: printf 'neue@adresse.ch' | base64
-email_b64: am9zaWphLm55ZGVnZ2VyQGdtYWlsLmNvbQ==
+email_b64: aGFsbG9Aam9zaWphLW55ZGVnZ2VyLmNo
 
 author:
   name: Josija Nydegger
