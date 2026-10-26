@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="de">
+  <title>Josija Nydegger – Blog</title>
+  <subtitle>Bauingenieurwesen · BIM · Digital Construction</subtitle>
+  <link href="https://josija-nydegger.ch/feed.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://josija-nydegger.ch/" rel="alternate" type="text/html" hreflang="de"/>
+  <id>https://josija-nydegger.ch/feed.xml</id>
+  <updated>2026-10-25T02:15:21+01:00</updated>
+  <author><name>Josija Nydegger</name><uri>https://josija-nydegger.ch</uri></author>
+</feed>
+

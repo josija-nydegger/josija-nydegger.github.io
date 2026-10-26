@@ -25,6 +25,8 @@ Jede Datei endet mit «Alle Tests bestanden» oder «n FEHLER» (dann mit Exit-C
 | `querschnittswerte.test.js` | Querschnittswerte-Tool: A, I, W<sub>pl</sub>, Hauptachsen gegen geschlossene Formeln und numerische Integration |
 | `website.test.js` | Ganze Website mit dem Jekyll-Nachbau: alle Seiten entstehen, kein Liquid übrig, keine E-Mail im Klartext, Sprachumschalter und hreflang, interne Links, Feeds |
 
+`referenz-sichern.js` (nicht Teil von `npm test`, braucht Internet) sichert die Live-Website als Massstab für die Migration zu Astro nach `referenz/`: alle veröffentlichten Adressen, die Seitenköpfe und die Originale von Seiten, Feeds, Sitemap und robots.txt. Siehe `_notizen/astro-migration.md`.
+
 Einzelne Tests: `node balken-momente.test.js` usw. Die Balken- und Querschnitts-Tests nehmen optional einen anderen Pfad zur HTML-Datei als Argument.
 
 ## Jekyll-Nachbau
