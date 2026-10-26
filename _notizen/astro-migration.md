@@ -115,7 +115,7 @@ PRs werden nur gebaut und getestet, veröffentlicht wird nur `main`. `package-lo
 | Phase | Inhalt | Aufwand | Status |
 |---|---|---|---|
 | 0 | Branch `astro`, Referenz sichern (Stufe 1) | 1 h | erledigt |
-| 1 | Astro-Gerüst, `astro.config.mjs`, Dateien nach `public/` | 1 h | |
+| 1 | Astro-Gerüst, `astro.config.mjs`, Dateien nach `public/` | 1 h | erledigt (Astro 7.4.2; 39 von 50 Adressen im Build, es fehlen nur Seiten, Feeds, Sitemap, robots.txt) |
 | 2 | `src/data/*`, `lib/posts.ts` | 1 h | |
 | 3 | `Base`, `Seo`, `Nav`, `PersonJsonLd`, `Post` | 2–3 h | |
 | 4 | Seiten 1:1 übertragen | 1–2 h | |
@@ -133,6 +133,13 @@ Rückfall: Bis Phase 8 ändert sich live nichts. Danach Pages-Quelle zurück auf
 - **`/en/` mit deutschem Untertitel:** `<title>` und JSON-LD der englischen Startseite nennen "Bauingenieurwesen · BIM · Digital Construction" (`site.tagline`). In Phase 3 entscheiden: 1:1 übernehmen oder `tagline` aus `i18n` (EN) verwenden.
 - Live haben die Seiten **kein `og:image`** und `twitter:card` = `summary` (obwohl `image:` in `_config.yml` steht). Für Astro so übernehmen.
 - `jekyll-sitemap` erzeugt auch `/robots.txt` und listet neben den Seiten das PDF und die beiden Tools (mit `lastmod`). Der Astro-Endpunkt muss das nachbilden.
+
+## Übergangszustand (ab Phase 1)
+
+- Statische Dateien liegen in `public/`, die Jekyll-Seiten (`index.html`, `cv.html`, `en/…`, `tools/index.html`, Feeds, `404.html`) noch im Hauptordner. Der Jekyll-Nachbau liest sie dort und kopiert Stil und Bilder aus `public/`; `npm test` in `_tests` bleibt so bis Phase 6 gültig.
+- Der Branch ist auf GitHub Pages (Jekyll) **nicht** lauffähig, weil Stil, Bilder und Tools nun in `public/` liegen. Darum vor Phase 8 nicht auf `main` mergen.
+- Root-`package.json` hat `"type": "module"`; `_tests/` behält eine eigene `package.json` (CommonJS) bis Phase 6.
+- `ANLEITUNG.md`, `README.md` und `CLAUDE.md` nennen noch die alten Pfade (`arbeiten/`, `images/`, `style.css`, `tools/<name>/`): in Phase 9 nachführen.
 
 ## Offene Entscheide
 

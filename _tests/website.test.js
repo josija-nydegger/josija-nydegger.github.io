@@ -28,7 +28,7 @@ for (const p of built) {
 }
 
 // 3. E-Mail nie im Klartext (weder im Repo noch in der gebauten Seite)
-const repoFiles = walk(ROOT).filter(p => !/^(\.git|_tests\/node_modules|assets\/katex)\//.test(p) && /\.(html|md|yml|xml|txt|css|js)$/.test(p));
+const repoFiles = walk(ROOT).filter(p => !/^(\.git|\.astro|node_modules|dist|_tests\/node_modules|public\/assets\/katex)\//.test(p) && /\.(html|md|yml|xml|txt|css|js)$/.test(p));
 const mailRe = /[A-Za-z0-9._%+-]+@(josija-nydegger\.ch|gmail\.com)/;
 for (const p of repoFiles) if (!p.startsWith('_tests/')) ok('Keine E-Mail im Klartext: ' + p, !mailRe.test(fs.readFileSync(path.join(ROOT, p), 'utf8')));
 for (const p of built) ok('Keine E-Mail im Klartext (gebaut): ' + p, !mailRe.test(read(p)));
@@ -47,7 +47,7 @@ const exists = url => {
   if (!u || u === '/') return true;
   const rel = decodeURIComponent(u.replace(/^\//, ''));
   const cands = [rel, rel + 'index.html', rel.replace(/\/$/, '') + '/index.html'];
-  return cands.some(c => fs.existsSync(path.join(OUT, c)) || fs.existsSync(path.join(ROOT, c)));
+  return cands.some(c => fs.existsSync(path.join(OUT, c)) || fs.existsSync(path.join(ROOT, 'public', c)));
 };
 for (const p of built.filter(p => p.endsWith('.html'))) {
   const s = read(p).replace(/<!--[\s\S]*?-->/g, '');   // Beispiel-Links in HTML-Kommentaren ignorieren

@@ -1,0 +1,14 @@
+{
+  "name": "josija-nydegger-website",
+  "private": true,
+  "type": "module",
+  "description": "Persönliche Website von Josija Nydegger, gebaut mit Astro",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "7.4.2"
+  }
+}

@@ -2,7 +2,7 @@
 // Start: node _tests/balken-querkraft-durchbiegung.test.js   (optional Pfad zur HTML-Datei als Argument)
 const fs=require('fs');
 const path=require('path');
-const html=fs.readFileSync(process.argv[2]||path.join(__dirname,'..','tools','balken','index.html'),'utf8');
+const html=fs.readFileSync(process.argv[2]||path.join(__dirname,'..','public','tools','balken','index.html'),'utf8');
 const solve=new Function(html.slice(html.indexOf('/*CALC-START*/'),html.indexOf('/*CALC-END*/'))+';return solve;')();
 let fails=0;
 const chk=(n,g,e,tol=1e-6)=>{const ok=Math.abs(g-e)<=tol*Math.max(1e-9,Math.abs(e))||Math.abs(g-e)<1e-12;if(!ok)fails++;console.log((ok?'OK  ':'FAIL')+' '+n+': '+g.toPrecision(7)+' (soll '+e.toPrecision(7)+')');};
