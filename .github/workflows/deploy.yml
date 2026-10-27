@@ -1,6 +1,6 @@
 # Website mit Astro bauen, prüfen und auf GitHub Pages veröffentlichen.
 # Pull Requests: nur bauen und prüfen. Push auf main: zusätzlich veröffentlichen.
-# Voraussetzung: Repo-Einstellungen → Pages → Source "GitHub Actions" (siehe _notizen/astro-migration.md, Phase 8).
+# Voraussetzung (seit 27.10.2026 eingestellt): Repo-Einstellungen → Pages → Source "GitHub Actions".
 name: Website bauen und veröffentlichen
 
 on:
@@ -31,8 +31,6 @@ jobs:
         run: npm run check
       - name: Tests (Tools und Website)
         run: npm test
-      - name: Vergleich mit der Jekyll-Referenz (nur bis zum Aufräumen nach der Umstellung)
-        run: npm run vergleich
       - name: Website bauen
         run: npm run build
       - uses: actions/upload-pages-artifact@v5

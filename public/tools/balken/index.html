@@ -1168,7 +1168,7 @@ function solve(m){
 
 })();
 
-// Hell / Dunkel / System: wie in _layouts/default.html, gleicher Speicherschlüssel "theme".
+// Hell / Dunkel / System: wie in src/layouts/Base.astro, gleicher Speicherschlüssel "theme".
 (function () {
   var root = document.documentElement;
   try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") root.dataset.theme = t; } catch (e) {}

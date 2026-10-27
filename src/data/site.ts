@@ -1,4 +1,4 @@
-// Grundeinstellungen der Website (bisher _config.yml).
+// Grundeinstellungen der Website.
 
 export const site = {
   title: 'Josija Nydegger',

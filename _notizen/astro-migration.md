@@ -1,6 +1,8 @@
 # Migration Jekyll → Astro
 
-Stand: 26.10.2026, Branch `astro`. Grundlage: Astro 7 (laut Doku), alle URLs bleiben gleich.
+**Abgeschlossen am 27.10.2026.** Die Website läuft seither mit Astro 7. Diese Notiz hält Ablauf, Befunde und Entscheide fest; die aktuelle Arbeitsweise steht in `CLAUDE.md`.
+
+Ursprünglicher Plan vom 26.10.2026 (Branch `astro`, Grundlage Astro 7, alle URLs bleiben gleich). Pfade und Werkzeuge in den Abschnitten unten beschreiben teils den Stand während der Migration.
 
 ## Zielstruktur
 
@@ -93,7 +95,7 @@ Markdown: `syntaxHighlight: false` (heute auch keine Code-Farben), `remark-math`
 | 6 | Tests umbauen (Tool-Tests → `public/tools/`, `website.test.js` → `dist/` + Referenz, Nachbau/liquidjs weg) | 1–2 h | erledigt (`npm test` im Hauptordner, `website.test.js` baut mit echten Inhalten und mit Testbeiträgen aus `_tests/fixtures/blog`; 6 eingebaute Fehler wurden alle erkannt; `npm run vergleich` für Kopf/Inhalt gegen die Referenz) |
 | 7 | Workflow, PR öffnen, PR-Build grün | 30 min | erledigt (PR https://github.com/josija-nydegger/josija-nydegger.github.io/pull/2, Build grün) |
 | 8 | Umschalten: zuerst Pages-Quelle auf "GitHub Actions" (alte Seite bleibt bis zum nächsten Deploy online), dann mergen, Stufe 3 | 30 min | erledigt 27.10.2026 (Pages-Quelle per `gh api` auf "GitHub Actions", PR #2 gemergt als `3536bcf`, Veröffentlichung erfolgreich; `node _tests/live-pruefung.js`: alle Adressen 200, entfernte KaTeX-Skripte 404, Umleitungen /en, www, http, github.io in Ordnung, Google-Datei wieder erreichbar, Köpfe und Inhalte wie Referenz; Skripte im Browser live geprüft). Offen: Sitemap in der Search Console neu abrufen lassen, Abdeckung eine Woche beobachten |
-| 9 | Aufräumen: Jekyll-Dateien löschen, CLAUDE.md, README, ANLEITUNG, Vorlage nachführen | 1 h | |
+| 9 | Aufräumen: Jekyll-Dateien löschen, CLAUDE.md, README, ANLEITUNG, Vorlage nachführen | 1 h | erledigt 27.10.2026 (Jekyll-Dateien und `_data/*.yml` gelöscht; Vergleichswerkzeuge `head-vergleich.js`, `inhalt-vergleich.js`, `referenz-sichern.js` und die Live-Kopien entfernt, von der Referenz bleiben `dateien.txt` und `live/sitemap.xml` für `website.test.js`; `npm run vergleich` aus Workflow und `package.json` entfernt; `live-pruefung.js` als dauerhafte Prüfung von Adressen und Umleitungen; Kommentare im Code, CLAUDE.md, README, ANLEITUNG, Vorlage, tool-ideen nachgeführt) |
 
 Rückfall: Bis Phase 8 ändert sich live nichts. Danach Pages-Quelle zurück auf "Branch main" und Merge rückgängig machen.
 
@@ -106,7 +108,9 @@ Rückfall: Bis Phase 8 ändert sich live nichts. Danach Pages-Quelle zurück auf
 - Live haben die Seiten **kein `og:image`** und `twitter:card` = `summary` (obwohl `image:` in `_config.yml` steht). Für Astro so übernehmen.
 - `jekyll-sitemap` erzeugt auch `/robots.txt` und listet neben den Seiten das PDF und die beiden Tools (mit `lastmod`). Der Astro-Endpunkt muss das nachbilden.
 
-## Übergangszustand (ab Phase 1)
+## Übergangszustand (Phase 1 bis 8, erledigt)
+
+Galt nur während der Migration; seit Phase 9 gibt es keine doppelten Dateien mehr.
 
 - Statische Dateien liegen in `public/`, die Jekyll-Seiten (`index.html`, `cv.html`, `en/…`, `tools/index.html`, Feeds, `404.html`) noch im Hauptordner. Seit Phase 6 prüfen die Tests nur noch den Astro-Build; die Jekyll-Dateien werden von keinem Test mehr gelesen und können in Phase 9 gelöscht werden.
 - Der Branch ist auf GitHub Pages (Jekyll) **nicht** lauffähig, weil Stil, Bilder und Tools nun in `public/` liegen. Darum vor Phase 8 nicht auf `main` mergen.

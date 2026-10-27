@@ -1,4 +1,4 @@
-// Einstellungen für Astro. Alle Adressen bleiben wie unter Jekyll (siehe _notizen/astro-migration.md).
+// Einstellungen für Astro. Die Adressen sind dieselben wie früher unter Jekyll (siehe _notizen/astro-migration.md).
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';

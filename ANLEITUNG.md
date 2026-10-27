@@ -12,30 +12,23 @@ Repository: `josija-nydegger/josija-nydegger.github.io`
 
 ## 2. PDF hochladen
 
-Die PDFs kommen in den Ordner `arbeiten/`.
+Die PDFs kommen in den Ordner `public/arbeiten/` (er existiert bereits).
 
-**Wenn der Ordner `arbeiten` auf GitHub noch nicht existiert:**
-
-1. Auf dem Computer einen Ordner `arbeiten` anlegen und die PDF hineinlegen.
-2. Im Repository auf **Add file → Upload files** klicken.
-3. Den **ganzen Ordner** `arbeiten` ins Upload-Fenster ziehen.
-4. Auf **Commit changes** klicken.
-
-**Wenn der Ordner `arbeiten` bereits existiert:**
-
-1. Im Repository in den Ordner `arbeiten` klicken.
+1. Im Repository in den Ordner `public`, dann `arbeiten` klicken.
 2. Dort **Add file → Upload files** wählen und die PDF hineinziehen.
 3. Auf **Commit changes** klicken.
 
 ## 3. Link auf der Startseite einfügen
 
-1. Im Repository die Datei `index.html` öffnen und auf das **Stift-Symbol (Edit)** klicken.
+1. Im Repository die Datei `src/pages/index.astro` öffnen und auf das **Stift-Symbol (Edit)** klicken.
 2. Den passenden Eintrag im Abschnitt `Arbeiten` suchen.
 3. Direkt unter der Zeile mit `class="item-sub"` diese Zeile einfügen und den Dateinamen anpassen:
 
    ```html
-   <div class="tags"><a class="tag" href="arbeiten/projektarbeit-bfh-bruecken.pdf" target="_blank" rel="noopener">PDF</a></div>
+   <div class="tags"><a class="tag" href="/arbeiten/projektarbeit-bfh-bruecken.pdf" target="_blank" rel="noopener">PDF</a></div>
    ```
+
+   Der Link beginnt mit `/arbeiten/`, ohne `public` (Astro veröffentlicht den Inhalt von `public/` direkt unter der Domain).
 
    Vollständiges Beispiel für die ETH-Arbeit:
 
@@ -46,18 +39,12 @@ Die PDFs kommen in den Ordner `arbeiten/`.
        <span class="item-year">2021</span>
      </div>
      <p class="item-sub">Bachelorarbeit, ETH Zürich</p>
-     <div class="tags"><a class="tag" href="arbeiten/bachelorarbeit-eth-windturbine.pdf" target="_blank" rel="noopener">PDF</a></div>
+     <div class="tags"><a class="tag" href="/arbeiten/bachelorarbeit-eth-windturbine.pdf" target="_blank" rel="noopener">PDF</a></div>
    </li>
    ```
 
 4. Auf **Commit changes** klicken.
-5. **Englische Seite nicht vergessen:** Dasselbe in `en/index.html` wiederholen (Abschnitt `Academic work`).
-   Dort den Link mit Schrägstrich am Anfang schreiben, sonst findet die englische Seite die Datei nicht:
-
-   ```html
-   <div class="tags"><a class="tag" href="/arbeiten/projektarbeit-bfh-bruecken.pdf" target="_blank" rel="noopener">PDF</a></div>
-   ```
-
+5. **Englische Seite nicht vergessen:** Dasselbe in `src/pages/en/index.astro` wiederholen (Abschnitt `Academic work`), mit demselben Link.
    Der Titel der Arbeit bleibt in der Originalsprache, nur die Beschreibung darunter ist englisch
    (z. B. `Semester project, Bern University of Applied Sciences`).
 
@@ -65,9 +52,9 @@ Die PDFs kommen in den Ordner `arbeiten/`.
 
 - Nach 1–2 Minuten erscheint unter der Arbeit ein **PDF**-Button, auf Deutsch (`/`) und auf Englisch (`/en/`).
 - Funktioniert der Button nicht: Stimmt der Dateiname im Link **exakt** mit der hochgeladenen Datei überein, inklusive Gross- und Kleinschreibung?
-- Erscheint die Änderung gar nicht: Im Repository den Tab **Actions** öffnen. Dort steht, ob die Veröffentlichung fehlgeschlagen ist.
+- Erscheint die Änderung gar nicht: Im Repository den Tab **Actions** öffnen. Dort steht, ob die Veröffentlichung fehlgeschlagen ist (z. B. weil ein Test einen falschen Link gefunden hat: der Link muss genau zur Datei in `public/arbeiten/` passen).
 
 ## Weitere Arbeit hinzufügen
 
-Im Abschnitt `Arbeiten` in `index.html` einen ganzen `<li class="item"> … </li>`-Block kopieren, darüber einfügen (neueste zuerst) und Titel, Jahr, Beschreibung und PDF-Link anpassen. Danach dasselbe in `en/index.html` mit englischer Beschreibung.
+Im Abschnitt `Arbeiten` in `src/pages/index.astro` einen ganzen `<li class="item"> … </li>`-Block kopieren, darüber einfügen (neueste zuerst) und Titel, Jahr, Beschreibung und PDF-Link anpassen. Danach dasselbe in `src/pages/en/index.astro` mit englischer Beschreibung.
 

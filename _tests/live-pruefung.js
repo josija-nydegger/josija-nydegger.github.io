@@ -1,15 +1,13 @@
-// Live-Website nach der Umstellung auf Astro prüfen (Stufe 3 in _notizen/astro-migration.md).
+// Live-Website prüfen, z. B. nach einer Veröffentlichung oder Änderungen an Domain/DNS.
 // Start: node _tests/live-pruefung.js   (braucht Internet)
-// Ruft alle Adressen aus referenz/dateien.txt ab, prüft Umleitungen und Sonderfälle und speichert die Seiten
-// in einen temporären Ordner, gegen den danach head-vergleich.js und inhalt-vergleich.js laufen.
+// Ruft alle Adressen aus referenz/dateien.txt ab (Stand vor dem Wechsel zu Astro, dürfen nie verschwinden)
+// und prüft Umleitungen, Google-Bestätigung und 404-Seite.
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const { execFileSync } = require('child_process');
 
 const SITE = 'https://josija-nydegger.ch';
+// Adressen der Referenz, die bewusst entfallen sind (gleiche Liste wie in website.test.js)
 const REMOVED = ['assets/katex/katex.min.js', 'assets/katex/contrib/auto-render.min.js'];
-const OUT = fs.mkdtempSync(path.join(os.tmpdir(), 'live-'));
 
 let fails = 0;
 const ok = (name, cond, info) => { if (!cond) fails++; console.log((cond ? 'OK  ' : 'FAIL') + ' ' + name + (cond || info === undefined ? '' : ': ' + info)); };
@@ -19,20 +17,10 @@ const get = (url, opts = {}) => fetch(url, { redirect: 'manual', ...opts });
   const rows = fs.readFileSync(path.join(__dirname, 'referenz', 'dateien.txt'), 'utf8').split('\n').filter(l => l && !l.startsWith('#')).map(l => l.split('\t'));
   for (const [url, file] of rows) {
     const res = await get(SITE + encodeURI(url));
-    if (REMOVED.includes(file)) { ok('Bewusst entfernt (404): ' + url, res.status === 404, res.status); continue; }
-    ok('200: ' + url, res.status === 200, res.status);
-    if (res.status === 200 && /\.(html|xml|txt)$/.test(file)) {
-      const target = path.join(OUT, file);
-      fs.mkdirSync(path.dirname(target), { recursive: true });
-      fs.writeFileSync(target, await res.text());
-    }
+    if (REMOVED.includes(file)) ok('Bewusst entfernt (404): ' + url, res.status === 404, res.status);
+    else ok('200: ' + url, res.status === 200, res.status);
   }
 
-  // Es läuft wirklich Astro (Jekyll schrieb einen generator-Tag)
-  const home = fs.readFileSync(path.join(OUT, 'index.html'), 'utf8');
-  ok('Astro-Version live (kein Jekyll-generator)', !home.includes('content="Jekyll'));
-
-  // Sonderfälle
   const google = await get(SITE + '/google385c59b71b73dd03.html');
   ok('Google-Bestätigung unter .html', google.status === 200 && (await google.text()).trim() === 'google-site-verification: google385c59b71b73dd03.html');
   ok('/cv ohne .html', (await get(SITE + '/cv')).status === 200);
@@ -47,14 +35,6 @@ const get = (url, opts = {}) => fetch(url, { redirect: 'manual', ...opts });
   const missing = await get(SITE + '/gibt-es-nicht/');
   ok('Unbekannte Adresse → eigene 404-Seite', missing.status === 404 && (await missing.text()).includes('PAGE NOT FOUND'));
 
-  console.log('\n--- Seitenköpfe und Inhalte live gegen die Referenz ---');
-  for (const script of ['head-vergleich.js', 'inhalt-vergleich.js']) {
-    try {
-      console.log(execFileSync(process.execPath, [path.join(__dirname, script), OUT], { encoding: 'utf8' }).trim().split('\n').filter(l => !l.startsWith('OK')).join('\n'));
-    } catch (e) { fails++; console.log(e.stdout); }
-  }
-
-  fs.rmSync(OUT, { recursive: true, force: true });
   console.log(fails ? fails + ' FEHLER' : 'Live-Website in Ordnung');
   process.exitCode = fails ? 1 : 0;
 })().catch(e => { console.error(e); process.exit(1); });

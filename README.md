@@ -14,28 +14,30 @@ Persönliche Website von **Josija Nydegger**: Bauingenieurwesen, BIM und Digital
 
 ## Technik
 
-Bewusst schlicht: reines HTML und CSS mit [Jekyll](https://jekyllrb.com/), gebaut und gehostet von GitHub Pages.
-Keine Frameworks, kein Build-Tool, keine Tracker und kein externes JavaScript.
-Formeln in Blogbeiträgen (LaTeX mit `$…$` und `$$…$$`) setzt [KaTeX](https://katex.org), lokal eingebunden in `assets/katex/`.
+Bewusst schlicht: statisches HTML und CSS, erzeugt mit [Astro](https://astro.build), gebaut und veröffentlicht per GitHub Action auf GitHub Pages.
+Keine UI-Frameworks, keine Tracker und kein externes JavaScript.
+Formeln in Blogbeiträgen (LaTeX mit `$…$` und `$$…$$`) setzt [KaTeX](https://katex.org) beim Build; Stylesheet und Schriften liegen lokal in `public/assets/katex/`.
 
 | Pfad | Inhalt |
 |---|---|
-| `index.html`, `cv.html` | Startseite und Lebenslauf (Deutsch) |
-| `en/` | Startseite, Lebenslauf und Feed (Englisch) |
-| `_posts/`, `_posts/en/` | Blogbeiträge in Markdown (Deutsch, Englisch) |
-| `_layouts/`, `_includes/` | Gemeinsames Layout, Blog-Layout, Feeds, strukturierte Daten |
-| `_data/i18n.yml` | Feste Texte der Templates in beiden Sprachen |
-| `style.css` | Gesamtes Design inkl. Dark Mode und Druckansicht |
-| `arbeiten/` | PDFs der Arbeiten |
-| `images/` | Profilbild, Link-Vorschau, Projekt-Icons, Blogbilder |
+| `src/pages/` | Seiten: Startseite, Lebenslauf, Tools, Blog, Feeds, Sitemap (Deutsch, Englisch unter `en/`) |
+| `src/content/blog/`, `src/content/blog/en/` | Blogbeiträge in Markdown (Deutsch, Englisch) |
+| `src/layouts/`, `src/components/` | Gemeinsames Layout, Blog-Layout, Menü, Link-Vorschau, strukturierte Daten |
+| `src/data/` | Grundeinstellungen, feste Texte in beiden Sprachen, Liste der Tools |
+| `public/style.css` | Gesamtes Design inkl. Dark Mode und Druckansicht |
+| `public/tools/` | Web-Tools (eigenständige Seiten) |
+| `public/arbeiten/` | PDFs der Arbeiten |
+| `public/images/` | Profilbild, Link-Vorschau, Projekt-Icons, Blogbilder |
+| `_tests/` | Tests für Tools und Website (`npm test`) |
 
 ## Bearbeiten
 
-- **Neuer Blogbeitrag:** Vorlage in [`_drafts/vorlage.md`](_drafts/vorlage.md) kopieren und nach `_posts/` (bzw. `_posts/en/`) legen.
+- **Neuer Blogbeitrag:** Vorlage in [`_drafts/vorlage.md`](_drafts/vorlage.md) kopieren und nach `src/content/blog/` (bzw. `src/content/blog/en/`) legen.
 - **PDF einer Arbeit hinzufügen:** siehe [`ANLEITUNG.md`](ANLEITUNG.md).
-- Nach jedem Push baut GitHub die Seite in 1–2 Minuten neu. Fehler stehen im Tab **Actions**.
+- **Lokal ansehen:** einmalig `npm install`, dann `npm run dev` (Vorschau unter <http://localhost:4321>). Vor dem Commit `npm test`.
+- Nach jedem Push auf `main` prüft und veröffentlicht eine GitHub Action die Seite in 1–2 Minuten. Fehler stehen im Tab **Actions**; schlägt ein Test fehl, bleibt die bisherige Version online.
 
-Diese README, `ANLEITUNG.md` und `CLAUDE.md` werden nicht auf der Website veröffentlicht.
+Veröffentlicht wird nur, was Astro aus `src/` erzeugt, und der Inhalt von `public/`. Diese README, `ANLEITUNG.md`, `CLAUDE.md` und die Ordner mit `_` gelangen nicht auf die Website.
 
 ## Kontakt
 

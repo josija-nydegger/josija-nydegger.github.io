@@ -1,10 +1,10 @@
-// Atom-Feeds /feed.xml (Deutsch) und /en/feed.xml (Englisch), bisher _includes/atom.xml.
+// Atom-Feeds /feed.xml (Deutsch) und /en/feed.xml (Englisch).
 // Bis 20 Beiträge der Sprache, neueste zuerst, mit vollem Inhalt.
 import { i18n, type Lang } from '../data/i18n';
 import { site, absoluteUrl } from '../data/site';
 import { getPosts, xmlDate, xmlDateTime } from './posts';
 
-// Wie der Liquid-Filter xml_escape
+// Sonderzeichen für XML maskieren
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 /**

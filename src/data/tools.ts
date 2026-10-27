@@ -1,4 +1,4 @@
-// Liste der Tools für /tools/ und /en/tools/ (neueste zuerst), bisher _data/tools.yml.
+// Liste der Tools für /tools/ und /en/tools/ (neueste zuerst).
 // Neues Tool: Ordner public/tools/<name>/index.html ablegen (ohne Front Matter) und hier oben einen Eintrag ergänzen.
 import type { Lang } from './i18n';
 

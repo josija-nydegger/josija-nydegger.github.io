@@ -8,16 +8,20 @@ Diese Datei ist eine Vorlage und wird nicht veröffentlicht, weil sie im Ordner 
 
 **So erstellst du einen neuen Beitrag:**
 
-1. Diese Datei kopieren und im Ordner `_posts` speichern.
+1. Diese Datei kopieren und im Ordner `src/content/blog` speichern.
 2. Dateiname: `JJJJ-MM-TT-titel-ohne-leerzeichen.md`, z. B. `2026-11-03-ifcopenshell-einstieg.md`.
-   Das Datum im Dateinamen ist das Veröffentlichungsdatum.
-3. Oben `title`, `description` und `ref` anpassen, darunter den Text schreiben.
+   Das Datum im Dateinamen ist das Veröffentlichungsdatum, der Rest die Adresse (`/blog/ifcopenshell-einstieg/`).
+3. Oben `title`, `description` und `ref` anpassen (alle drei sind Pflicht), darunter den Text schreiben.
    `ref` ist eine kurze Kennung ohne Leerzeichen, z. B. `ifcopenshell-einstieg`.
+4. Mit `npm run dev` ansehen (http://localhost:4321/blog/ifcopenshell-einstieg/), vor dem Commit `npm test`.
+
+Optional im Front Matter: `image: /images/blog/bild.jpg` (grosses Vorschaubild beim Teilen),
+`last_modified_at: 2026-11-10` (bei späteren Änderungen), `published: false` (noch nicht veröffentlichen).
 
 **Englische Version (optional):**
 
-1. Eine Kopie mit englischem Text im Ordner `_posts/en/` speichern, z. B.
-   `_posts/en/2026-11-03-getting-started-with-ifcopenshell.md`.
+1. Eine Kopie mit englischem Text im Ordner `src/content/blog/en/` speichern, z. B.
+   `src/content/blog/en/2026-11-03-getting-started-with-ifcopenshell.md`.
 2. Dieselbe `ref` wie beim deutschen Beitrag eintragen. Dann führt der Sprachumschalter
    "DE | EN" direkt zum übersetzten Beitrag. Sprache und Adresse (`/en/blog/...`) werden automatisch gesetzt.
 3. Ein Beitrag darf auch nur in einer Sprache existieren. Dann führt der Umschalter zur Blog-Liste
@@ -32,7 +36,7 @@ Normaler Text, **fett**, *kursiv* und [ein Link](https://github.com/josija-nydeg
 
 > Ein Zitat oder eine Randbemerkung.
 
-Bilder legst du in `images/blog/` ab und bindest sie so ein:
+Bilder legst du in `public/images/blog/` ab und bindest sie ohne `public` ein:
 
 ![Beschreibung des Bildes](/images/blog/beispiel.jpg)
 
@@ -42,11 +46,10 @@ $$M_{max} = \frac{q \cdot l^2}{8}$$
 
 Hinweise zu Formeln:
 
-- Enthält eine Inline-Formel `\{`, `\}`, `\\` oder `*`, schreibe sie mit doppeltem Dollar im Fliesstext,
-  z. B. `die Menge $$\{1, 2, 3\}$$ ist …`. Sie wird trotzdem inline dargestellt.
-- Für ein normales Dollarzeichen im Text: `<span class="nomath">$</span>`.
-- Stehen in einer Formel zwei geschweifte Klammern direkt nacheinander (öffnend), Leerzeichen dazwischen setzen,
-  sonst hält Jekyll sie für eigenen Code.
+- Formeln werden beim Bauen gesetzt. `\{`, `\}`, `\\` und `*` funktionieren direkt, z. B. $\{1, 2, 3\}$.
+- Längere Block-Formeln dürfen auch über mehrere Zeilen gehen, dann `$$` je allein auf eine Zeile.
+- Für ein normales Dollarzeichen im Text: `\$` (z. B. \$5).
+- Eine fehlerhafte Formel erscheint rot. Deshalb Beiträge mit Formeln vor dem Veröffentlichen in der Vorschau ansehen.
 
 Code:
 
