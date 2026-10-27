@@ -1,5 +1,7 @@
 // Referenz der heutigen (Jekyll-)Website sichern, als Massstab für die Migration zu Astro.
-// Start: node _tests/referenz-sichern.js   (braucht Internet und einmalig "npm install" im Ordner _tests)
+// Start: node _tests/referenz-sichern.js   (braucht Internet und einmalig "npm install" im Hauptordner)
+// Nur für den Stand vor der Migration gedacht: liest die Jekyll-Struktur (Seiten mit Front Matter im Hauptordner).
+// Die Referenz vom 26.10.2026 liegt in referenz/ und soll nicht überschrieben werden.
 // Schreibt nach _tests/referenz/:
 //   dateien.txt  alle Adressen, die Jekyll veröffentlicht (aus git ls-files + Sitemap/robots), jede live mit 200 geprüft
 //   head.json    Kopf jeder HTML-Seite mit Front Matter, wie live ausgeliefert (title, meta, link, JSON-LD)

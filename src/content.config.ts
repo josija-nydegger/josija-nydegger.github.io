@@ -6,7 +6,8 @@ import { z } from 'astro/zod';
 
 const blog = defineCollection({
   loader: glob({
-    base: './src/content/blog',
+    // BLOG_DIR nur für die Tests (_tests/website.test.js baut zusätzlich mit _tests/fixtures/blog)
+    base: process.env.BLOG_DIR ?? './src/content/blog',
     // Nur Dateien mit Datum vorne gelten als Beitrag (wie _posts bei Jekyll)
     pattern: ['[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-*.md', 'en/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-*.md'],
     // ID = Pfad ohne Endung, unverändert, z. B. "en/2026-11-03-getting-started"

@@ -1,5 +1,5 @@
 // Querschnittswerte-Tool: Rechenkern (window.__qs.compute) gegen geschlossene Formeln und eine numerische Integration.
-// Start: node _tests/querschnittswerte.test.js   (braucht einmalig "npm install" im Ordner _tests)
+// Start: node _tests/querschnittswerte.test.js   (braucht einmalig "npm install" im Hauptordner)
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
