@@ -12,7 +12,7 @@ const { JSDOM } = require('jsdom');
 const ROOT = path.join(__dirname, '..');
 const ASTRO = path.join(ROOT, 'node_modules', 'astro', 'bin', 'astro.mjs');
 
-// Adressen der Referenz (Jekyll), die bewusst entfallen sind (siehe _notizen/astro-migration.md)
+// Adressen der bisherigen Website (referenz/dateien.txt), die bewusst entfallen sind (siehe _notizen/astro-migration.md)
 const REMOVED = ['assets/katex/katex.min.js', 'assets/katex/contrib/auto-render.min.js'];
 
 function build(env = {}) {

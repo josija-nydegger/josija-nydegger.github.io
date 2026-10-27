@@ -1,7 +1,8 @@
 ---
-// Titel, Beschreibung, Link-Vorschau (Open Graph) und JSON-LD, wie bisher jekyll-seo-tag 2.8.
-// Vorlage: _tests/referenz/head.json (Live-Ausgabe von Jekyll). Bewusste Abweichungen: kein "generator",
-// englische Startseite mit englischem Untertitel.
+// Titel, Beschreibung, Link-Vorschau (Open Graph) und JSON-LD, nachgebaut nach jekyll-seo-tag 2.8
+// (beim Wechsel zu Astro gegen die Live-Ausgabe geprüft). Bewusste Abweichungen: kein "generator",
+// englische Startseite mit englischem Untertitel. Kein og:image ausser bei Beiträgen mit "image:",
+// damit WhatsApp, Teams usw. das Website-Symbol zeigen.
 import { i18n, type Lang } from '../data/i18n';
 import { site, absoluteUrl } from '../data/site';
 import { xmlDate, type Post } from '../lib/posts';

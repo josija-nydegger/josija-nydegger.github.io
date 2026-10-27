@@ -1,4 +1,4 @@
-// Feste Texte für die gemeinsamen Layouts und Komponenten in beiden Sprachen (bisher _data/i18n.yml).
+// Feste Texte für die gemeinsamen Layouts und Komponenten in beiden Sprachen.
 // Texte, die nur auf einer Seite vorkommen (z. B. Abschnittstitel), stehen direkt in der Seite.
 
 export const langs = ['de', 'en'] as const;

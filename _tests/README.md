@@ -33,21 +33,19 @@ Einzelne Tests: `node _tests/balken-momente.test.js` usw. Die Balken- und Quersc
 
 `fixtures/blog/` enthält Beiträge, die jede Blog-Funktion einmal benutzen. `website.test.js` baut damit zusätzlich (`BLOG_DIR=./_tests/fixtures/blog`, siehe `src/content.config.ts`). Wer eine Blog-Funktion ändert, passt Beitrag und Prüfung gemeinsam an.
 
-## Vergleich mit der Jekyll-Website (Migration)
+## Referenz: Adressen der früheren Website
 
-`referenz/` enthält den Stand der Live-Website vom 26.10.2026, kurz vor dem Wechsel zu Astro. Gesichert mit `referenz-sichern.js` (nur für diesen Stand gedacht, nicht erneut ausführen).
+`referenz/` enthält aus dem Stand vom 26.10.2026 (kurz vor dem Wechsel von Jekyll zu Astro) die Liste aller veröffentlichten Adressen (`dateien.txt`) und die damalige Sitemap (`live/sitemap.xml`). Diese Adressen dürfen nie verschwinden: `website.test.js` prüft das bei jedem Build. Wird eine Adresse bewusst entfernt, gehört sie in die Liste `REMOVED` in `website.test.js` und `live-pruefung.js`.
+
+Die Werkzeuge, mit denen beim Wechsel Seitenköpfe und Inhalte 1:1 verglichen wurden, sind mit der Umstellung entfallen (in der Git-Geschichte bis Commit `1839758` vorhanden).
+
+## Live-Prüfung
 
 ```
-npm run vergleich
+node _tests/live-pruefung.js
 ```
 
-baut die Website und vergleicht sie mit der Referenz:
-
-- `head-vergleich.js`: Seitenköpfe (Titel, Meta-Tags, Links, JSON-LD). Bewusste Abweichungen stehen im Skript unter `ALLOWED`.
-- `inhalt-vergleich.js`: `<body>` jeder Seite (ohne Leerraum, Kommentare und Skripte).
-- `live-pruefung.js` (braucht Internet): ruft alle Adressen der Referenz auf der Live-Website ab, prüft Umleitungen (www, http, github.io, /en), Google-Datei und 404-Seite und vergleicht Köpfe und Inhalte live mit der Referenz.
-
-Das ist nur bis zur Umstellung sinnvoll: Sobald sich Inhalte ändern, weichen sie absichtlich von der Referenz ab. Die Prüfung, dass keine Adresse der Referenz verloren geht, bleibt dagegen dauerhaft in `website.test.js`.
+braucht Internet. Ruft alle Adressen der Referenz auf <https://josija-nydegger.ch> ab und prüft Umleitungen (www, http, github.io, /en), Google-Bestätigung und 404-Seite. Sinnvoll nach Änderungen an Domain, DNS oder den Pages-Einstellungen.
 
 ## Neue Tools
 

@@ -1,4 +1,4 @@
-// Sitemap für Suchmaschinen: /sitemap.xml, bisher jekyll-sitemap.
+// Sitemap für Suchmaschinen: /sitemap.xml (gleiches Format wie früher jekyll-sitemap).
 // Enthält alle Seiten aus src/pages (ohne 404 und Beitragsvorlagen), alle Beiträge (mit lastmod)
 // und die statischen HTML- und PDF-Dateien aus public/ (z. B. Tools, Arbeiten).
 import fs from 'node:fs';
