@@ -1,0 +1,31 @@
+---
+// Bisher tools/index.html (Jekyll). Übersicht der Tools, Liste aus src/data/tools.ts.
+import Base from '../../layouts/Base.astro';
+import { tools } from '../../data/tools';
+---
+<Base
+  lang="de"
+  ref="tools"
+  title="Tools"
+  description="Kleine Web-Tools zu Tragwerken, Statik und BIM. Sie laufen direkt im Browser, Eingaben verlassen den Rechner nicht."
+>
+<h1 class="page-title">Tools</h1>
+<p class="page-intro">Kleine Web-Tools zu Tragwerken, Statik und BIM, die ich für Studium und Arbeit entwickle. Sie laufen direkt im Browser; Eingaben verlassen den Rechner nicht.</p>
+
+<section>
+  <ul class="list tool-list">
+    {tools.map(tool => (
+      <li class="item">
+        <div class="item-head">
+          <p class="item-title"><a href={tool.url}>{tool.title.de}</a></p>
+          <span class="item-year">{tool.year}</span>
+        </div>
+        <p class="item-sub">{tool.description.de}</p>
+        {tool.tags.de.length > 0 && <div class="tags">{tool.tags.de.map(tag => <span class="tag">{tag}</span>)}</div>}
+      </li>
+    ))}
+  </ul>
+</section>
+
+<p class="page-note"><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Sie ersetzen keine Prüfung durch eine fachkundige Person.</p>
+</Base>

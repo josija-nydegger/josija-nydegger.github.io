@@ -29,6 +29,8 @@ Jede Datei endet mit «Alle Tests bestanden» oder «n FEHLER» (dann mit Exit-C
 
 `head-vergleich.js` vergleicht die Seitenköpfe eines Astro-Builds (`dist/`) mit `referenz/head.json`: Titel, Meta-Tags, Links und JSON-LD. Bewusste Abweichungen stehen im Skript unter `ALLOWED`. Start im Hauptordner nach `npm run build`: `node _tests/head-vergleich.js`.
 
+`inhalt-vergleich.js` vergleicht den `<body>` jeder Seite des Builds mit `referenz/live/` (ohne Leerraum, Kommentare und Skripte). Start wie oben: `node _tests/inhalt-vergleich.js`.
+
 Einzelne Tests: `node balken-momente.test.js` usw. Die Balken- und Querschnitts-Tests nehmen optional einen anderen Pfad zur HTML-Datei als Argument.
 
 ## Jekyll-Nachbau
