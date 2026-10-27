@@ -73,43 +73,12 @@ Markdown: `syntaxHighlight: false` (heute auch keine Code-Farben), `remark-math`
 
 ## GitHub Action
 
-`.github/workflows/deploy.yml`:
+`.github/workflows/deploy.yml` (Phase 7), mit einzelnen Schritten statt `withastro/action`, damit die Tests vor dem Hochladen laufen und kein Astro-Cache alte Beiträge ausliefert:
 
-```yaml
-name: Website bauen und veröffentlichen
-on:
-  push:
-    branches: [main]
-  pull_request:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: withastro/action@v6        # npm ci + astro build + Upload, Node 24
-      - run: npm test                     # Tools + Website (baut selbst in temporäre Ordner)
-      - run: npm run vergleich            # nur bis Phase 9: Kopf/Inhalt gegen die Jekyll-Referenz
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
-```
-
-PRs werden nur gebaut und getestet, veröffentlicht wird nur `main`. `package-lock.json` committen. `public/CNAME` und die Domain in den Pages-Einstellungen bleiben, DNS/DNSSEC unverändert.
+- **build** (bei jedem PR und Push): `actions/checkout@v7`, `actions/setup-node@v7` (Node 24, npm-Cache), `npm ci`, `npm run check`, `npm test`, `npm run vergleich` (nur bis Phase 9), `npm run build`, `actions/upload-pages-artifact@v5` (`dist`).
+- **deploy** (nur Push auf `main`, nach erfolgreichem build): `actions/deploy-pages@v5` in der Umgebung `github-pages`.
+- Schlägt ein Schritt fehl, wird nichts veröffentlicht. `package-lock.json` ist committet. `public/CNAME` und die Domain in den Pages-Einstellungen bleiben, DNS/DNSSEC unverändert.
+- Stand 27.10.2026: Pages läuft noch als "legacy" (Quelle Branch `main`, Jekyll). Umstellen auf "GitHub Actions" erst in Phase 8, direkt vor dem Merge.
 
 ## Phasen
 
@@ -122,7 +91,7 @@ PRs werden nur gebaut und getestet, veröffentlicht wird nur `main`. `package-lo
 | 4 | Seiten 1:1 übertragen | 1–2 h | erledigt (alle 7 Seiten: Kopf und Inhalt wie live laut `head-vergleich.js`/`inhalt-vergleich.js`; Handy hell/dunkel im Browser verglichen; 46 von 50 Adressen im Build) |
 | 5 | Blog-Collection, Routen, KaTeX, Feeds, Sitemap, Testbeitrag | 2 h | erledigt (Feeds, robots.txt und Sitemap-URLs wie live; KaTeX beim Build mit Testbeiträgen und im Browser geprüft; Testbeiträge entfernt) |
 | 6 | Tests umbauen (Tool-Tests → `public/tools/`, `website.test.js` → `dist/` + Referenz, Nachbau/liquidjs weg) | 1–2 h | erledigt (`npm test` im Hauptordner, `website.test.js` baut mit echten Inhalten und mit Testbeiträgen aus `_tests/fixtures/blog`; 6 eingebaute Fehler wurden alle erkannt; `npm run vergleich` für Kopf/Inhalt gegen die Referenz) |
-| 7 | Workflow, PR öffnen, PR-Build grün | 30 min | |
+| 7 | Workflow, PR öffnen, PR-Build grün | 30 min | Workflow und Entwurfs-PR https://github.com/josija-nydegger/josija-nydegger.github.io/pull/2 (Entwurf, damit nicht versehentlich gemergt wird) |
 | 8 | Umschalten: zuerst Pages-Quelle auf "GitHub Actions" (alte Seite bleibt bis zum nächsten Deploy online), dann mergen, Stufe 3 | 30 min | |
 | 9 | Aufräumen: Jekyll-Dateien löschen, CLAUDE.md, README, ANLEITUNG, Vorlage nachführen | 1 h | |
 
