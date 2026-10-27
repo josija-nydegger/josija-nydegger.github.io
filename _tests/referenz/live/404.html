@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Page not found | Josija Nydegger</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Page not found" />
+<meta name="author" content="Josija Nydegger" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Persönliche Website von Josija Nydegger – Bauingenieurwesen an der BFH, Arbeiten, Projekte und Blog zu Tragwerken, BIM und Digital Construction." />
+<meta property="og:description" content="Persönliche Website von Josija Nydegger – Bauingenieurwesen an der BFH, Arbeiten, Projekte und Blog zu Tragwerken, BIM und Digital Construction." />
+<link rel="canonical" href="https://josija-nydegger.ch/404.html" />
+<meta property="og:url" content="https://josija-nydegger.ch/404.html" />
+<meta property="og:site_name" content="Josija Nydegger" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Page not found" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"Josija Nydegger","url":"https://josija-nydegger.ch"},"description":"Persönliche Website von Josija Nydegger – Bauingenieurwesen an der BFH, Arbeiten, Projekte und Blog zu Tragwerken, BIM und Digital Construction.","headline":"Page not found","url":"https://josija-nydegger.ch/404.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link rel="alternate" type="application/atom+xml" title="Josija Nydegger – Blog (English)" href="https://josija-nydegger.ch/en/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main>
+  <nav class="nav" aria-label="Main menu">
+    <a href="/en/">Home</a>
+    <a href="/en/cv.html">CV</a>
+    <a href="/en/tools/">Tools</a>
+    <a href="/en/#blog">Blog</a>
+  </nav>
+
+  <nav class="lang" aria-label="Language">
+    <a href="/" hreflang="de" lang="de" title="Deutsch">DE</a> | <span aria-current="true">EN</span>
+  </nav>
+
+    <article>
+    <h1>PAGE NOT FOUND</h1>
+    <div class="date">404</div>
+    <p>The page you are looking for doesn't exist or has been moved.</p>
+    <a class="button" href="/">Back to Website</a>
+  </article>
+
+
+  <footer>
+    <span>© 2026 Josija Nydegger</span>
+    <div class="theme" role="group" aria-label="Color scheme" hidden>
+      <button type="button" data-theme="light" aria-label="Light" title="Light">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+      <button type="button" data-theme="dark" aria-label="Dark" title="Dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+      <button type="button" data-theme="system" aria-label="System" title="System">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+      </button>
+    </div>
+  </footer>
+</main>
+<script>
+  // Hell / Dunkel / System: Auswahl wird im Browser gespeichert, "System" folgt der Geräteeinstellung.
+  (function () {
+    var root = document.documentElement;
+    var group = document.querySelector(".theme");
+    var buttons = group.querySelectorAll("button");
+    function apply(theme) {
+      if (theme === "light" || theme === "dark") root.dataset.theme = theme;
+      else { delete root.dataset.theme; theme = "system"; }
+      try {
+        if (theme === "system") localStorage.removeItem("theme");
+        else localStorage.setItem("theme", theme);
+      } catch (e) {}
+      buttons.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.theme === theme); });
+    }
+    buttons.forEach(function (b) { b.addEventListener("click", function () { apply(b.dataset.theme); }); });
+    apply(root.dataset.theme);
+    group.hidden = false;
+  })();
+
+  // E-Mail-Adresse erst im Browser zusammensetzen (Schutz vor Bots). Ohne JavaScript bleibt sie ausgeblendet.
+  (function () {
+    var address;
+    try { address = atob("aGFsbG9Aam9zaWphLW55ZGVnZ2VyLmNo"); } catch (e) { return; }
+    document.querySelectorAll(".email").forEach(function (a) {
+      a.href = "mailto:" + address;
+      a.textContent = address;
+    });
+    document.querySelectorAll(".email-wrap").forEach(function (w) { w.hidden = false; });
+  })();
+
+  // Lebenslauf: Button "Als PDF speichern" öffnet den Druckdialog.
+  // Während des Druckens wird der Seitentitel (= vorgeschlagener Dateiname) durch data-print ersetzt.
+  (function () {
+    var button = document.querySelector("[data-print]");
+    if (!button) return;
+    var title = document.title;
+    window.addEventListener("beforeprint", function () { document.title = button.dataset.print; });
+    window.addEventListener("afterprint", function () { document.title = title; });
+    button.addEventListener("click", function () { window.print(); });
+    button.hidden = false;
+  })();
+</script>
+</body>
+</html>

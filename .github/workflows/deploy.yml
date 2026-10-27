@@ -1,0 +1,54 @@
+# Website mit Astro bauen, prüfen und auf GitHub Pages veröffentlichen.
+# Pull Requests: nur bauen und prüfen. Push auf main: zusätzlich veröffentlichen.
+# Voraussetzung: Repo-Einstellungen → Pages → Source "GitHub Actions" (siehe _notizen/astro-migration.md, Phase 8).
+name: Website bauen und veröffentlichen
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Nie zwei Veröffentlichungen gleichzeitig; eine laufende wird nicht abgebrochen
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Typen prüfen
+        run: npm run check
+      - name: Tests (Tools und Website)
+        run: npm test
+      - name: Vergleich mit der Jekyll-Referenz (nur bis zum Aufräumen nach der Umstellung)
+        run: npm run vergleich
+      - name: Website bauen
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

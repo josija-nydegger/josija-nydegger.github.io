@@ -1,0 +1,122 @@
+---
+// Gemeinsames Layout für alle Seiten und Beiträge (Deutsch und Englisch), bisher _layouts/default.html.
+// "ref" verbindet eine Seite mit ihrem Gegenstück in der anderen Sprache (src/data/pages.ts bzw. Front Matter der Beiträge).
+import Nav from '../components/Nav.astro';
+import Seo from '../components/Seo.astro';
+import PersonJsonLd from '../components/PersonJsonLd.astro';
+import { i18n, otherLang, type Lang } from '../data/i18n';
+import { site, absoluteUrl } from '../data/site';
+import { counterpartUrl, type Post } from '../lib/posts';
+
+interface Props {
+  lang: Lang;
+  ref?: string;
+  title?: string;
+  description?: string;
+  post?: Post;
+}
+const { lang, ref, title, description, post } = Astro.props;
+const t = i18n[lang];
+const other = otherLang(lang);
+const tOther = i18n[other];
+
+// Sprachumschalter: Gegenstück, sonst Startseite der anderen Sprache (bei Beiträgen deren Blog-Liste)
+const otherUrl = await counterpartUrl(ref, lang);
+const switchUrl = otherUrl ?? (post ? `${tOther.homeUrl}#blog` : tOther.homeUrl);
+const path = Astro.url.pathname;
+const deUrl = lang === 'de' ? path : otherUrl;
+---
+<!doctype html>
+<html lang={lang}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script is:inline>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <Seo lang={lang} title={title} description={description} post={post} />
+  {(ref === 'home' || ref === 'cv') && <PersonJsonLd lang={lang} />}
+  {otherUrl && (
+    <>
+      <link rel="alternate" hreflang={lang} href={absoluteUrl(path)}>
+      <link rel="alternate" hreflang={other} href={absoluteUrl(otherUrl)}>
+      <link rel="alternate" hreflang="x-default" href={absoluteUrl(deUrl!)}>
+    </>
+  )}
+  <link rel="alternate" type="application/atom+xml" title={t.feedTitle} href={absoluteUrl(t.feedUrl)}>
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/style.css">
+  <slot name="head" />
+</head>
+<body>
+<main>
+  <Nav lang={lang} ref={ref} isPost={!!post} />
+  <nav class="lang" aria-label={t.langLabel}>
+    {lang === 'de'
+      ? <><span aria-current="true">DE</span> | <a href={switchUrl} hreflang="en" lang="en" title={tOther.name}>EN</a></>
+      : <><a href={switchUrl} hreflang="de" lang="de" title={tOther.name}>DE</a> | <span aria-current="true">EN</span></>}
+  </nav>
+
+  <slot />
+
+  <footer>
+    <span>© {new Date().getFullYear()} {site.author.name}</span>
+    <div class="theme" role="group" aria-label={t.themeLabel} hidden>
+      <button type="button" data-theme="light" aria-label={t.themeLight} title={t.themeLight}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+      <button type="button" data-theme="dark" aria-label={t.themeDark} title={t.themeDark}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+      <button type="button" data-theme="system" aria-label={t.themeSystem} title={t.themeSystem}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+      </button>
+    </div>
+  </footer>
+</main>
+<script is:inline define:vars={{ emailB64: site.emailB64 }}>
+  // Hell / Dunkel / System: Auswahl wird im Browser gespeichert, "System" folgt der Geräteeinstellung.
+  (function () {
+    var root = document.documentElement;
+    var group = document.querySelector(".theme");
+    var buttons = group.querySelectorAll("button");
+    function apply(theme) {
+      if (theme === "light" || theme === "dark") root.dataset.theme = theme;
+      else { delete root.dataset.theme; theme = "system"; }
+      try {
+        if (theme === "system") localStorage.removeItem("theme");
+        else localStorage.setItem("theme", theme);
+      } catch (e) {}
+      buttons.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.theme === theme); });
+    }
+    buttons.forEach(function (b) { b.addEventListener("click", function () { apply(b.dataset.theme); }); });
+    apply(root.dataset.theme);
+    group.hidden = false;
+  })();
+
+  // E-Mail-Adresse erst im Browser zusammensetzen (Schutz vor Bots). Ohne JavaScript bleibt sie ausgeblendet.
+  (function () {
+    var address;
+    try { address = atob(emailB64); } catch (e) { return; }
+    document.querySelectorAll(".email").forEach(function (a) {
+      a.href = "mailto:" + address;
+      a.textContent = address;
+    });
+    document.querySelectorAll(".email-wrap").forEach(function (w) { w.hidden = false; });
+  })();
+
+  // Lebenslauf: Button "Als PDF speichern" öffnet den Druckdialog.
+  // Während des Druckens wird der Seitentitel (= vorgeschlagener Dateiname) durch data-print ersetzt.
+  (function () {
+    var button = document.querySelector("[data-print]");
+    if (!button) return;
+    var title = document.title;
+    window.addEventListener("beforeprint", function () { document.title = button.dataset.print; });
+    window.addEventListener("afterprint", function () { document.title = title; });
+    button.addEventListener("click", function () { window.print(); });
+    button.hidden = false;
+  })();
+</script>
+</body>
+</html>

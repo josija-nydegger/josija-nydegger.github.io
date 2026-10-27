@@ -1,0 +1,28 @@
+{
+  "name": "josija-nydegger-website",
+  "private": true,
+  "type": "module",
+  "description": "Persönliche Website von Josija Nydegger, gebaut mit Astro",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro check",
+    "preview": "astro preview",
+    "test": "node _tests/balken-momente.test.js && node _tests/balken-querkraft-durchbiegung.test.js && node _tests/querschnittswerte.test.js && node _tests/website.test.js",
+    "vergleich": "astro build && node _tests/head-vergleich.js && node _tests/inhalt-vergleich.js"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "7.3.4",
+    "astro": "7.4.2",
+    "katex": "0.16.47",
+    "rehype-katex": "7.0.1",
+    "remark-math": "6.0.0",
+    "unist-util-visit": "5.2.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@types/node": "24.19.2",
+    "jsdom": "24.1.3",
+    "typescript": "6.0.3"
+  }
+}

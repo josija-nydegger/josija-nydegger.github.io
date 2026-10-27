@@ -2,7 +2,7 @@
 // Start: node _tests/balken-momente.test.js   (optional Pfad zur HTML-Datei als Argument)
 const fs=require('fs');
 const path=require('path');
-const html=fs.readFileSync(process.argv[2]||path.join(__dirname,'..','tools','balken','index.html'),'utf8');
+const html=fs.readFileSync(process.argv[2]||path.join(__dirname,'..','public','tools','balken','index.html'),'utf8');
 const code=html.slice(html.indexOf('/*CALC-START*/'),html.indexOf('/*CALC-END*/'));
 const solve=new Function(code+';return solve;')();
 let fails=0;

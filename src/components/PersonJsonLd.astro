@@ -1,0 +1,49 @@
+---
+// Strukturierte Daten (schema.org/Person) für Google. Eingebunden auf Startseite und Lebenslauf (beide Sprachen).
+// Bei Änderungen an Arbeitgeber, Studium oder Wohnort hier nachführen.
+import { i18n, type Lang } from '../data/i18n';
+import { site, absoluteUrl } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const text = lang === 'en'
+  ? { job: 'Civil engineering student', roleBsb: 'Working student, infrastructure engineering', roleBk: 'Structural engineering for buildings' }
+  : { job: 'Student Bauingenieurwesen', roleBsb: 'Werkstudent Tiefbau', roleBk: 'Hochbau' };
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': absoluteUrl('/#person'),
+  name: site.author.name,
+  url: absoluteUrl(i18n[lang].homeUrl),
+  image: absoluteUrl('/images/profil.jpg'),
+  jobTitle: text.job,
+  homeLocation: {
+    '@type': 'Place',
+    name: 'Lyss',
+    address: { '@type': 'PostalAddress', addressLocality: 'Lyss', addressRegion: 'BE', addressCountry: 'CH' }
+  },
+  affiliation: { '@type': 'CollegeOrUniversity', name: 'Berner Fachhochschule BFH', url: 'https://www.bfh.ch' },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'ETH Zürich', url: 'https://ethz.ch' },
+  worksFor: [
+    {
+      '@type': 'EmployeeRole',
+      roleName: text.roleBk,
+      startDate: '2026-11',
+      worksFor: { '@type': 'Organization', name: 'Baukonstrukt AG', url: 'https://www.baukonstrukt.ch/' }
+    },
+    {
+      '@type': 'EmployeeRole',
+      roleName: text.roleBsb,
+      startDate: '2024',
+      worksFor: { '@type': 'Organization', name: 'BSB + Partner Ingenieure und Planer AG', url: 'https://www.bsb-partner.ch/' }
+    }
+  ],
+  knowsAbout: ['Structural engineering', 'Civil engineering', 'BIM', 'IFC', 'IfcOpenShell', 'Digital construction', 'Numerical simulation', 'COMSOL', 'Python'],
+  knowsLanguage: ['de', 'en', 'fr', 'es', 'ta'],
+  sameAs: site.social
+};
+---
+<script type="application/ld+json" set:html={JSON.stringify(person, null, 2)} />

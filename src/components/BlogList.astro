@@ -1,0 +1,30 @@
+---
+// Blog-Liste der Startseite: nur Beiträge der eigenen Sprache, neueste zuerst (bisher _includes/blog-list.html).
+import { i18n, formatDate, type Lang } from '../data/i18n';
+import { getPosts } from '../lib/posts';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = i18n[lang];
+const posts = await getPosts(lang);
+---
+<section id="blog">
+  <h2>{t.blog} <a class="rss" href={t.feedUrl} title={t.rssTitle}>RSS</a></h2>
+  {posts.length > 0 ? (
+    <div class="list">
+      {posts.map(post => (
+        <a class="item" href={post.url}>
+          <div class="item-head">
+            <p class="item-title">{post.title}</p>
+            <span class="item-year">{formatDate(post.date, lang)}</span>
+          </div>
+          {post.description && <p class="item-sub">{post.description}</p>}
+        </a>
+      ))}
+    </div>
+  ) : (
+    <p class="item-sub">{t.noPosts}</p>
+  )}
+</section>

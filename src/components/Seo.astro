@@ -1,0 +1,54 @@
+---
+// Titel, Beschreibung, Link-Vorschau (Open Graph) und JSON-LD, wie bisher jekyll-seo-tag 2.8.
+// Vorlage: _tests/referenz/head.json (Live-Ausgabe von Jekyll). Bewusste Abweichungen: kein "generator",
+// englische Startseite mit englischem Untertitel.
+import { i18n, type Lang } from '../data/i18n';
+import { site, absoluteUrl } from '../data/site';
+import { xmlDate, type Post } from '../lib/posts';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  post?: Post;
+}
+const { lang, title, description = site.description, post } = Astro.props;
+const t = i18n[lang];
+const path = Astro.url.pathname;
+const url = absoluteUrl(path);
+const image = post?.image ? absoluteUrl(post.image) : undefined;
+const published = post ? xmlDate(post.date) : undefined;
+const modified = post?.entry.data.last_modified_at ? xmlDate(post.entry.data.last_modified_at) : published;
+
+// Ohne eigenen Titel (Startseiten): "Josija Nydegger | Untertitel"
+const fullTitle = title ? `${title} | ${site.title}` : `${site.title} | ${t.tagline}`;
+const author = { '@type': 'Person', name: site.author.name, url: site.author.url };
+
+// Schlüssel alphabetisch wie bei jekyll-seo-tag
+const jsonld = post
+  ? {
+      '@context': 'https://schema.org', '@type': 'BlogPosting', author,
+      dateModified: modified, datePublished: published, description, headline: title,
+      ...(image && { image }),
+      mainEntityOfPage: { '@type': 'WebPage', '@id': url }, url
+    }
+  : path === '/'
+    ? { '@context': 'https://schema.org', '@type': 'WebSite', author, description, headline: site.title, name: site.title, sameAs: site.social, url }
+    : { '@context': 'https://schema.org', '@type': 'WebPage', author, description, headline: title ?? site.title, url };
+---
+<title>{fullTitle}</title>
+<meta property="og:title" content={title ?? site.title}>
+<meta name="author" content={site.author.name}>
+<meta property="og:locale" content={t.locale}>
+<meta name="description" content={description}>
+<meta property="og:description" content={description}>
+<link rel="canonical" href={url}>
+<meta property="og:url" content={url}>
+<meta property="og:site_name" content={site.title}>
+{image && <meta property="og:image" content={image}>}
+<meta property="og:type" content={post ? 'article' : 'website'}>
+{published && <meta property="article:published_time" content={published}>}
+<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'}>
+{image && <meta property="twitter:image" content={image}>}
+<meta property="twitter:title" content={title ?? site.title}>
+<script type="application/ld+json" set:html={JSON.stringify(jsonld)} />

@@ -1,0 +1,35 @@
+---
+// Layout für Blogbeiträge (baut auf Base auf), bisher _layouts/post.html.
+// Zeigt Datum, Lesezeit und Links zum älteren/neueren Beitrag derselben Sprache.
+import Base from './Base.astro';
+import { i18n, formatDate } from '../data/i18n';
+import { getPosts, neighbours, readingTime, type Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  /** Beitrag enthält Formeln: KaTeX-Stil laden (Formeln selbst werden beim Build gesetzt) */
+  math?: boolean;
+}
+const { post, math = false } = Astro.props;
+const t = i18n[post.lang];
+const minutes = readingTime(post.entry.rendered?.html ?? '');
+const { older, newer } = neighbours(await getPosts(post.lang), post);
+---
+<Base lang={post.lang} ref={post.ref} title={post.title} description={post.description} post={post}>
+  {math && <link slot="head" rel="stylesheet" href="/assets/katex/katex.min.css">}
+
+  <a class="back" href={`${t.homeUrl}#blog`}>← {t.back}</a>
+
+  <article>
+    <h1>{post.title}</h1>
+    <div class="date">{formatDate(post.date, post.lang)} · {minutes} {t.readingTime}</div>
+    <slot />
+  </article>
+
+  {(older || newer) && (
+    <nav class="post-nav" aria-label={t.postNav}>
+      {older && <a class="prev" href={older.url}><span>← {t.prevPost}</span>{older.title}</a>}
+      {newer && <a class="next" href={newer.url}><span>{t.nextPost} →</span>{newer.title}</a>}
+    </nav>
+  )}
+</Base>

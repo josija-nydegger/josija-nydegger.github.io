@@ -1,10 +1,10 @@
 // Querschnittswerte-Tool: Rechenkern (window.__qs.compute) gegen geschlossene Formeln und eine numerische Integration.
-// Start: node _tests/querschnittswerte.test.js   (braucht einmalig "npm install" im Ordner _tests)
+// Start: node _tests/querschnittswerte.test.js   (braucht einmalig "npm install" im Hauptordner)
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
-const file = process.argv[2] || path.join(__dirname, '..', 'tools', 'querschnittswerte', 'index.html');
+const file = process.argv[2] || path.join(__dirname, '..', 'public', 'tools', 'querschnittswerte', 'index.html');
 const dom = new JSDOM(fs.readFileSync(file, 'utf8'), { runScripts: 'dangerously', url: 'https://josija-nydegger.ch/tools/querschnittswerte/' });
 const { compute, SHAPES } = dom.window.__qs;
 
