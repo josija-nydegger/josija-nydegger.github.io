@@ -76,13 +76,23 @@ export function readingTime(html: string): number {
   return Math.max(1, Math.floor((words + 100) / 200));
 }
 
+// Abstand zu UTC in der Zeitzone der Website zum Zeitpunkt d, z. B. "+01:00" oder "+02:00"
+function utcOffset(d: Date): string {
+  return new Intl.DateTimeFormat('en', { timeZone: site.timezone, timeZoneName: 'longOffset' })
+    .formatToParts(d)
+    .find(p => p.type === 'timeZoneName')!.value.replace('GMT', '') || '+00:00';
+}
+
 /** Datum für Atom-Feeds wie bei Jekyll: Mitternacht in der Zeitzone der Website, z. B. 2026-11-03T00:00:00+01:00 */
 export function xmlDate(date: Date): string {
   const day = date.toISOString().slice(0, 10);
-  const offset = new Intl.DateTimeFormat('en', { timeZone: site.timezone, timeZoneName: 'longOffset' })
-    .formatToParts(new Date(day + 'T12:00:00Z'))
-    .find(p => p.type === 'timeZoneName')!.value.replace('GMT', '') || '+00:00';
-  return `${day}T00:00:00${offset}`;
+  return `${day}T00:00:00${utcOffset(new Date(day + 'T12:00:00Z'))}`;
+}
+
+/** Zeitpunkt in der Zeitzone der Website, z. B. 2026-10-25T02:15:21+01:00 (wie site.time bei Jekyll) */
+export function xmlDateTime(d: Date): string {
+  const local = d.toLocaleString('sv-SE', { timeZone: site.timezone }).replace(' ', 'T');
+  return local + utcOffset(d);
 }
 
 /**

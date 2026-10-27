@@ -49,7 +49,7 @@ _tests/  _notizen/  _drafts/   bleiben (ausserhalb von src/ und public/, nicht v
 | `jekyll-sitemap` | `src/pages/sitemap.xml.ts` (+ `public/robots.txt`, falls live vorhanden) | eigener Endpunkt, damit `/sitemap.xml` bleibt |
 | `google385c…html` | `public/google385c…html` | **ohne** Front Matter, Inhalt wie heute ausgeliefert |
 | `style.css`, Favicons, `CNAME`, `images/`, `arbeiten/` | `public/…` | unverändert |
-| `assets/katex/` | `public/assets/katex/` (nur CSS + Schriften) | `katex.min.js` und `auto-render` entfallen |
+| `assets/katex/` | `public/assets/katex/` (nur CSS + Schriften, KaTeX 0.16.47) | `katex.min.js` und `auto-render` entfallen (erledigt) |
 | `_drafts/vorlage.md` | bleibt | Abschnitt "Formeln" vereinfachen |
 | `_layouts/`, `_includes/`, `_data/`, `_config.yml`, `jekyll-nachbau.js` | löschen | erst in Phase 9 |
 
@@ -119,7 +119,7 @@ PRs werden nur gebaut und getestet, veröffentlicht wird nur `main`. `package-lo
 | 2 | `src/data/*`, `lib/posts.ts` | 1 h | erledigt (mit Testbeiträgen und Debug-Endpunkt geprüft, danach entfernt; `npm run check` ohne Fehler) |
 | 3 | `Base`, `Seo`, `Nav`, `PersonJsonLd`, `Post` | 2–3 h | erledigt (mit Probeseiten: alle 7 Seitenköpfe wie live bis auf 2 erlaubte Abweichungen; Theme, E-Mail, PDF-Button im Browser geprüft; Blog-Routen schon angelegt) |
 | 4 | Seiten 1:1 übertragen | 1–2 h | erledigt (alle 7 Seiten: Kopf und Inhalt wie live laut `head-vergleich.js`/`inhalt-vergleich.js`; Handy hell/dunkel im Browser verglichen; 46 von 50 Adressen im Build) |
-| 5 | Blog-Collection, Routen, KaTeX, Feeds, Sitemap, Testbeitrag | 2 h | |
+| 5 | Blog-Collection, Routen, KaTeX, Feeds, Sitemap, Testbeitrag | 2 h | erledigt (Feeds, robots.txt und Sitemap-URLs wie live; KaTeX beim Build mit Testbeiträgen und im Browser geprüft; Testbeiträge entfernt) |
 | 6 | Tests umbauen (Tool-Tests → `public/tools/`, `website.test.js` → `dist/` + Referenz, Nachbau/liquidjs weg) | 1–2 h | |
 | 7 | Workflow, PR öffnen, PR-Build grün | 30 min | |
 | 8 | Umschalten: zuerst Pages-Quelle auf "GitHub Actions" (alte Seite bleibt bis zum nächsten Deploy online), dann mergen, Stufe 3 | 30 min | |
@@ -146,6 +146,18 @@ Rückfall: Bis Phase 8 ändert sich live nichts. Danach Pages-Quelle zurück auf
 - Beiträge vorläufig in `src/content/blog/` (Entscheid 1, Empfehlung); umstellen = eine Zeile `base` in `src/content.config.ts`.
 - Phase 6: E-Mail-Prüfung in `website.test.js` auch auf `.ts`/`.astro`/`.mjs` ausdehnen (prüft heute nur html, md, yml, xml, txt, css, js).
 - `ANLEITUNG.md`, `README.md` und `CLAUDE.md` nennen noch die alten Pfade (`arbeiten/`, `images/`, `style.css`, `tools/<name>/`): in Phase 9 nachführen.
+
+## Markdown, Formeln, Feeds und Sitemap (Phase 5)
+
+- **Markdown-Prozessor:** Astro 7 nutzt standardmässig "Sätteri"; remark/rehype-Plugins brauchen `@astrojs/markdown-remark` (`processor: unified(...)` in `astro.config.mjs`). Gewählt, weil remark-math/rehype-katex erprobt sind.
+- **Typografie wie kramdown:** SmartyPants mit `dashes: 'oldschool'` (`--` → –, `---` → —), Anführungszeichen “…”, `...` → …. Titel und Beschreibung im Front Matter bleiben unverändert (wie bei Jekyll).
+- **Formeln:** `$…$` inline, `$$…$$` allein im Absatz = Block (eigenes Plugin `src/lib/remark-math-extras.mjs`, weil remark-math Blöcke sonst nur mit `$$` auf eigener Zeile erkennt; mehrzeilig mit `$$` auf eigenen Zeilen geht auch). `\{`, `\\`, `*` in Formeln brauchen keine Umwege mehr. Dollar als Text: `\$` (neu) oder weiterhin `<span class="nomath">$</span>`. `{% raw %}` ist nicht mehr nötig.
+- **KaTeX 0.16.47** (vorher 0.16.11, wegen zwei Sicherheitsmeldungen). Stylesheet und .woff2-Schriften in `public/assets/katex/` daraus neu kopiert; `katex.min.js` und `auto-render.min.js` gelöscht (bewusst: die beiden Adressen fehlen gegenüber `dateien.txt`). Offene npm-audit-Meldung GHSA-238p-pmpm-9mq7 betrifft nur `trust` bei bereits verschmutztem Prototyp, hier nicht ausnutzbar (KaTeX läuft nur beim Build mit eigenen Beiträgen); behoben erst in KaTeX 0.19, das rehype-katex 7 noch nicht unterstützt.
+- **Cache:** Nach Änderungen an den Markdown-Plugins `.astro/` löschen, sonst rendert Astro Beiträge aus dem Cache.
+- **Feeds:** wie `_includes/atom.xml` (Unterschied nur eine Leerzeile am Ende). Formeln im Feed nur als MathML (ohne `katex-html`), damit Feed-Reader sie nicht doppelt zeigen.
+- **Sitemap:** gleiche URLs wie live; Seiten automatisch aus `src/pages`, statische HTML/PDF aus `public/`, Beiträge mit `lastmod`. Bewusste Abweichung: statische Dateien ohne `lastmod` (bei Jekyll war es nur der Build-Zeitpunkt).
+- **`robots.txt`** als statische Datei in `public/`, Byte für Byte wie live.
+- Ohne Beiträge warnt der Build, die Collection "blog" sei leer. Harmlos, verschwindet mit dem ersten Beitrag.
 
 ## Verhalten von src/lib/posts.ts (wie Jekyll, geprüft in Phase 2)
 

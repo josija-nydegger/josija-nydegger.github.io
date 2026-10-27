@@ -8,6 +8,6 @@ export async function getStaticPaths() {
   return (await getPosts('de')).map(post => ({ params: { slug: post.url.split('/').at(-2) }, props: { post } }));
 }
 const { post } = Astro.props as { post: P };
-const { Content } = await render(post.entry);
+const { Content, remarkPluginFrontmatter } = await render(post.entry);
 ---
-<Post post={post}><Content /></Post>
+<Post post={post} math={remarkPluginFrontmatter.math === true}><Content /></Post>

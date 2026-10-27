@@ -1,3 +1,5 @@
-KaTeX 0.16.11 (https://katex.org), MIT-Lizenz, siehe LICENSE.
-Quelle: npm-Paket katex@0.16.11 (dist/). Nur .woff2-Schriften übernommen.
-Wird nur auf Blogbeiträgen mit Formeln geladen (siehe _layouts/post.html).
+KaTeX 0.16.47 (https://katex.org), MIT-Lizenz, siehe LICENSE.
+Quelle: npm-Paket katex@0.16.47 (dist/). Nur katex.min.css und .woff2-Schriften übernommen.
+Formeln werden beim Build gesetzt (remark-math + rehype-katex, siehe astro.config.mjs); im Browser läuft kein KaTeX-JavaScript.
+Das Stylesheet wird nur auf Blogbeiträgen mit Formeln geladen (siehe src/layouts/Post.astro).
+Bei einem Update von katex in package.json diese Dateien aus node_modules/katex/dist/ neu kopieren.
