@@ -69,7 +69,7 @@ Markdown: `syntaxHighlight: false` (heute auch keine Code-Farben), `remark-math`
 - bisherige Prüfungen: E-Mail nicht im Klartext, Sprachumschalter/hreflang, interne Links, Feeds
 - Testbeitrag (Vorlage DE + EN, gleiche `ref`) für Blog-URL, Umschalter, Formeln, älter/neuer, Feed; vor dem Merge entfernen
 
-**Stufe 3 – live nach dem Umschalten:** alle Adressen aus `dateien.txt` gegen `https://josija-nydegger.ch` (200 erwartet), Stichproben `/cv`, `www.`, `http://`; Sitemap in der Search Console neu abrufen, Abdeckung eine Woche beobachten.
+**Stufe 3 – live nach dem Umschalten (`node _tests/live-pruefung.js`):** alle Adressen aus `dateien.txt` gegen `https://josija-nydegger.ch` (200 erwartet), Stichproben `/cv`, `www.`, `http://`; Sitemap in der Search Console neu abrufen, Abdeckung eine Woche beobachten.
 
 ## GitHub Action
 
@@ -91,8 +91,8 @@ Markdown: `syntaxHighlight: false` (heute auch keine Code-Farben), `remark-math`
 | 4 | Seiten 1:1 übertragen | 1–2 h | erledigt (alle 7 Seiten: Kopf und Inhalt wie live laut `head-vergleich.js`/`inhalt-vergleich.js`; Handy hell/dunkel im Browser verglichen; 46 von 50 Adressen im Build) |
 | 5 | Blog-Collection, Routen, KaTeX, Feeds, Sitemap, Testbeitrag | 2 h | erledigt (Feeds, robots.txt und Sitemap-URLs wie live; KaTeX beim Build mit Testbeiträgen und im Browser geprüft; Testbeiträge entfernt) |
 | 6 | Tests umbauen (Tool-Tests → `public/tools/`, `website.test.js` → `dist/` + Referenz, Nachbau/liquidjs weg) | 1–2 h | erledigt (`npm test` im Hauptordner, `website.test.js` baut mit echten Inhalten und mit Testbeiträgen aus `_tests/fixtures/blog`; 6 eingebaute Fehler wurden alle erkannt; `npm run vergleich` für Kopf/Inhalt gegen die Referenz) |
-| 7 | Workflow, PR öffnen, PR-Build grün | 30 min | Workflow und Entwurfs-PR https://github.com/josija-nydegger/josija-nydegger.github.io/pull/2 (Entwurf, damit nicht versehentlich gemergt wird) |
-| 8 | Umschalten: zuerst Pages-Quelle auf "GitHub Actions" (alte Seite bleibt bis zum nächsten Deploy online), dann mergen, Stufe 3 | 30 min | |
+| 7 | Workflow, PR öffnen, PR-Build grün | 30 min | erledigt (PR https://github.com/josija-nydegger/josija-nydegger.github.io/pull/2, Build grün) |
+| 8 | Umschalten: zuerst Pages-Quelle auf "GitHub Actions" (alte Seite bleibt bis zum nächsten Deploy online), dann mergen, Stufe 3 | 30 min | erledigt 27.10.2026 (Pages-Quelle per `gh api` auf "GitHub Actions", PR #2 gemergt als `3536bcf`, Veröffentlichung erfolgreich; `node _tests/live-pruefung.js`: alle Adressen 200, entfernte KaTeX-Skripte 404, Umleitungen /en, www, http, github.io in Ordnung, Google-Datei wieder erreichbar, Köpfe und Inhalte wie Referenz; Skripte im Browser live geprüft). Offen: Sitemap in der Search Console neu abrufen lassen, Abdeckung eine Woche beobachten |
 | 9 | Aufräumen: Jekyll-Dateien löschen, CLAUDE.md, README, ANLEITUNG, Vorlage nachführen | 1 h | |
 
 Rückfall: Bis Phase 8 ändert sich live nichts. Danach Pages-Quelle zurück auf "Branch main" und Merge rückgängig machen.

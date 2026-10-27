@@ -45,6 +45,7 @@ baut die Website und vergleicht sie mit der Referenz:
 
 - `head-vergleich.js`: Seitenköpfe (Titel, Meta-Tags, Links, JSON-LD). Bewusste Abweichungen stehen im Skript unter `ALLOWED`.
 - `inhalt-vergleich.js`: `<body>` jeder Seite (ohne Leerraum, Kommentare und Skripte).
+- `live-pruefung.js` (braucht Internet): ruft alle Adressen der Referenz auf der Live-Website ab, prüft Umleitungen (www, http, github.io, /en), Google-Datei und 404-Seite und vergleicht Köpfe und Inhalte live mit der Referenz.
 
 Das ist nur bis zur Umstellung sinnvoll: Sobald sich Inhalte ändern, weichen sie absichtlich von der Referenz ab. Die Prüfung, dass keine Adresse der Referenz verloren geht, bleibt dagegen dauerhaft in `website.test.js`.
 
