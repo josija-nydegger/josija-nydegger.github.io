@@ -117,7 +117,7 @@ PRs werden nur gebaut und getestet, veröffentlicht wird nur `main`. `package-lo
 | 0 | Branch `astro`, Referenz sichern (Stufe 1) | 1 h | erledigt |
 | 1 | Astro-Gerüst, `astro.config.mjs`, Dateien nach `public/` | 1 h | erledigt (Astro 7.4.2; 39 von 50 Adressen im Build, es fehlen nur Seiten, Feeds, Sitemap, robots.txt) |
 | 2 | `src/data/*`, `lib/posts.ts` | 1 h | erledigt (mit Testbeiträgen und Debug-Endpunkt geprüft, danach entfernt; `npm run check` ohne Fehler) |
-| 3 | `Base`, `Seo`, `Nav`, `PersonJsonLd`, `Post` | 2–3 h | |
+| 3 | `Base`, `Seo`, `Nav`, `PersonJsonLd`, `Post` | 2–3 h | erledigt (mit Probeseiten: alle 7 Seitenköpfe wie live bis auf 2 erlaubte Abweichungen; Theme, E-Mail, PDF-Button im Browser geprüft; Blog-Routen schon angelegt) |
 | 4 | Seiten 1:1 übertragen | 1–2 h | |
 | 5 | Blog-Collection, Routen, KaTeX, Feeds, Sitemap, Testbeitrag | 2 h | |
 | 6 | Tests umbauen (Tool-Tests → `public/tools/`, `website.test.js` → `dist/` + Referenz, Nachbau/liquidjs weg) | 1–2 h | |
@@ -130,7 +130,9 @@ Rückfall: Bis Phase 8 ändert sich live nichts. Danach Pages-Quelle zurück auf
 ## Befunde aus Phase 0
 
 - **Google-Bestätigungsdatei live 404:** Seit sie Front Matter hat (`sitemap: false`), macht Jekyll wegen der Permalink-Regel `/google385c59b71b73dd03/` daraus statt `.html`. Mit Astro (`public/`, ohne Front Matter) ist das automatisch behoben. Auf `main` liesse es sich sofort mit `permalink: /google385c59b71b73dd03.html` im Front Matter beheben.
-- **`/en/` mit deutschem Untertitel:** `<title>` und JSON-LD der englischen Startseite nennen "Bauingenieurwesen · BIM · Digital Construction" (`site.tagline`). In Phase 3 entscheiden: 1:1 übernehmen oder `tagline` aus `i18n` (EN) verwenden.
+- **`/en/` mit deutschem Untertitel:** `<title>` der englischen Startseite nennt "Bauingenieurwesen · BIM · Digital Construction" (`site.tagline`). Phase 3: Astro verwendet den englischen Untertitel aus `i18n` (bewusste Abweichung; zurück zu 1:1 = in `Seo.astro` `site.tagline` statt `t.tagline`).
+- **`meta generator`** ("Jekyll v3.10.0") entfällt (bewusste Abweichung).
+- jekyll-seo-tag bei Beiträgen (nachgebaut in `Seo.astro`, live noch nicht überprüfbar, da keine Beiträge): `og:type` article, `article:published_time`, JSON-LD `BlogPosting` mit `datePublished`/`dateModified`/`mainEntityOfPage`; mit `image:` zusätzlich `og:image`, `twitter:image`, `twitter:card` summary_large_image.
 - Live haben die Seiten **kein `og:image`** und `twitter:card` = `summary` (obwohl `image:` in `_config.yml` steht). Für Astro so übernehmen.
 - `jekyll-sitemap` erzeugt auch `/robots.txt` und listet neben den Seiten das PDF und die beiden Tools (mit `lastmod`). Der Astro-Endpunkt muss das nachbilden.
 
