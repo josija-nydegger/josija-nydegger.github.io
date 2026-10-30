@@ -100,7 +100,7 @@ Veröffentlicht wird nur, was Astro aus `src/pages/` erzeugt, plus der Inhalt vo
 
 ### Lebenslauf und strukturierte Daten
 - Der Lebenslauf hat eine eigene Druckansicht (`@media print` in `public/style.css`): immer hell, ohne Navigation, keine Seitenumbrüche mitten in einem Eintrag.
-- Änderungen an Arbeitgeber, Studium oder Wohnort auch in `src/components/PersonJsonLd.astro` nachführen (z. B. BSB + Partner beenden, sobald die Stelle bei Baukonstrukt AG beginnt).
+- Änderungen an Arbeitgeber, Studium oder Wohnort auch in `src/components/PersonJsonLd.astro` nachführen (aktuell Baukonstrukt AG seit November 2026; BSB + Partner 2024 bis Oktober 2026 mit `endDate`).
 
 ## Tools
 
