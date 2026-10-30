@@ -9,8 +9,8 @@ interface Props {
 }
 const { lang } = Astro.props;
 const text = lang === 'en'
-  ? { job: 'Civil engineering student', roleBsb: 'Working student, infrastructure engineering', roleBk: 'Structural engineering for buildings' }
-  : { job: 'Student Bauingenieurwesen', roleBsb: 'Werkstudent Tiefbau', roleBk: 'Hochbau' };
+  ? { job: 'Civil engineering student', roleBsb: 'Working student, infrastructure engineering', roleBk: 'Working student, structural engineering' }
+  : { job: 'Student Bauingenieurwesen', roleBsb: 'Werkstudent Tiefbau', roleBk: 'Werkstudent Hochbau' };
 
 const person = {
   '@context': 'https://schema.org',
@@ -38,6 +38,7 @@ const person = {
       '@type': 'EmployeeRole',
       roleName: text.roleBsb,
       startDate: '2024',
+      endDate: '2026-10',
       worksFor: { '@type': 'Organization', name: 'BSB + Partner Ingenieure und Planer AG', url: 'https://www.bsb-partner.ch/' }
     }
   ],
