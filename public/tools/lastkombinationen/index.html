@@ -231,7 +231,7 @@
         <option value="sls">Gebrauchstauglichkeit</option>
       </select></label>
     </div>
-    <p class="note">h<sub>0</sub> nach SIA 261, Anhang D; nur für Schneelasten nötig. Mit b<sub>e</sub> werden Flächenlasten in kN/m² zu Linienlasten in kN/m (q = b<sub>e</sub>·q<sub>Fläche</sub>). L braucht es nur für die Übergabe ans Balken-Tool.</p>
+    <p class="note">h<sub>0</sub> = Meereshöhe + Zuschlag nach der Karte in SIA 261, Anhang D (nicht anwendbar für Bauwerke über 2000 m ü. M.); nur für Schneelasten nötig. Begehbare Dächer zählen zu den Kategorien A bis G (SIA 261, Tabelle 8, Fussnote 5). Mit b<sub>e</sub> werden Flächenlasten in kN/m² zu Linienlasten in kN/m (q = b<sub>e</sub>·q<sub>Fläche</sub>). L braucht es nur für die Übergabe ans Balken-Tool.</p>
   </section>
   <div class="error" id="error" hidden></div>
 
@@ -271,7 +271,7 @@
   <h2>Annahmen und Grenzen</h2>
   <ul class="list">
     <li><strong>Andauernde und vorübergehende Bemessungssituationen</strong> (SIA 260, 4.4.3.4 und 4.4.4.4), Gebäude nach Anhang A.</li>
-    <li><strong>Tragsicherheit Typ 2</strong> (Tragwiderstand, STR) mit Gleichung (16): E<sub>d</sub> = E&#123;γ<sub>G</sub>·G<sub>k</sub>, γ<sub>Q1</sub>·Q<sub>k1</sub>, ψ<sub>0i</sub>·Q<sub>ki</sub>&#125;. Jede veränderliche Einwirkung wird der Reihe nach Leiteinwirkung, die übrigen sind Begleiteinwirkungen; der grösste Wert ist massgebend. Begleiteinwirkungen werden ebenfalls mit γ<sub>Q</sub> multipliziert (γ<sub>Q</sub>·ψ<sub>0</sub>·Q<sub>k</sub>).</li>
+    <li><strong>Tragsicherheit Typ 2</strong> (Tragwiderstand, STR) mit Gleichung (16): E<sub>d</sub> = E&#123;γ<sub>G</sub>·G<sub>k</sub>, γ<sub>Q1</sub>·Q<sub>k1</sub>, ψ<sub>0i</sub>·Q<sub>ki</sub>&#125;. Jede veränderliche Einwirkung wird der Reihe nach Leiteinwirkung, die übrigen sind Begleiteinwirkungen; der grösste Wert ist massgebend. Begleiteinwirkungen gehen nach Gl. (16) mit ψ<sub>0</sub>·Q<sub>k</sub> ein, <strong>ohne</strong> Lastbeiwert γ<sub>Q</sub> (anders als SN EN 1990). Nach 4.2.6 genügt es in der Regel, eine einzige veränderliche Begleiteinwirkung zu berücksichtigen; das Tool setzt alle übrigen an und liegt damit auf der sicheren Seite.</li>
     <li><strong>Gebrauchstauglichkeit</strong> mit γ<sub>F</sub> = 1.0 (4.4.4.3): seltene (Gl. 20), häufige (Gl. 21) und quasi-ständige Lastfälle (Gl. 22). «Charakteristisch» im Sinne der Eurocodes entspricht hier den seltenen Lastfällen.</li>
     <li><strong>Lasten als Summe</strong>: Das Tool addiert die Einwirkungen zu einer einzigen Last. Das stimmt, wenn alle Einwirkungen gleich verteilt sind und dieselbe Auswirkung haben (z. B. Flächenlasten auf dieselbe Decke). Ungünstigste Laststellungen (z. B. feldweise Nutzlast) und unterschiedliche Lastbilder sind nicht erfasst.</li>
     <li><strong>Günstig wirkende Einwirkungen</strong>: ständige mit γ<sub>G,inf</sub> und negativem Vorzeichen (4.4.2.6), veränderliche werden nicht angesetzt. Nach Fussnote 1 zu Tabelle 1 wird eine ständige Einwirkung als Ganzes entweder mit γ<sub>G,sup</sub> oder mit γ<sub>G,inf</sub> multipliziert; das Tool übernimmt die Einteilung pro Zeile, wie eingegeben.</li>
@@ -280,7 +280,7 @@
     <li><strong>Nicht enthalten</strong>: aussergewöhnliche Bemessungssituationen (Anprall, Brand, Erdbeben, Gl. 17), Lagesicherheit (Typ 1, EQU), Baugrund (Typ 3, GEO) und Einwirkungen aus dem Baugrund (Erd- und Wasserdruck), Ermüdung (Typ 4), Vorspannung, Brücken (Anhänge B bis F), Strassen- und Bahnverkehrslasten.</li>
   </ul>
   <p class="note">Grundlagen: SIA 260:2013 Grundlagen der Projektierung von Tragwerken, Ziffern 4.4.2.6, 4.4.3.4, 4.4.4.3, 4.4.4.4, Tabelle 1 (Lastbeiwerte) und Anhang A, Tabelle 2 (Reduktionsbeiwerte für Gebäude); SIA 261:2020, 5.2 und Anhang D (Bezugshöhe h<sub>0</sub>). Massgebend ist immer der Normtext.</p>
-  <p class="note">Geprüfte Testfälle (von Hand nachgerechnet): nur ständige Lasten, eine Nutzlast, zwei veränderliche Einwirkungen mit massgebender kleinerer Einwirkung (Wind vor Lagerlast wegen ψ<sub>0</sub> = 1.0), günstig wirkendes Eigengewicht gegen Windsog, Schnee nach Höhenlage, Umrechnung mit der Lasteinzugsbreite und ungültige Eingaben.</p>
+  <p class="note">Geprüfte Testfälle (von Hand nachgerechnet): nur ständige Lasten, eine Nutzlast, zwei veränderliche Einwirkungen mit massgebender kleinerer Einwirkung (Wind 3.0 vor Lagerlast 5.0 wegen ψ<sub>0</sub> = 1.0 der Lagerlast), günstig wirkendes Eigengewicht gegen Windsog, Schnee nach Höhenlage, Umrechnung mit der Lasteinzugsbreite und ungültige Eingaben.</p>
 
   <footer>
     <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
@@ -321,7 +321,7 @@ const QTYPES = {
   E: { name: "Nutzlast Kat. E, Lagerflächen", psi: [1.0, 0.9, 0.8] },         // Tabelle 2
   F: { name: "Verkehrslast Kat. F, Fahrzeuge unter 3.5 t", psi: [0.7, 0.7, 0.6] }, // Tabelle 2
   G: { name: "Verkehrslast Kat. G, Fahrzeuge 3.5 bis 16 t", psi: [0.7, 0.5, 0.3] }, // Tabelle 2
-  H: { name: "Kat. H, Dächer", psi: [0, 0, 0] },                               // Tabelle 2
+  H: { name: "Kat. H, nicht begehbare Dächer", psi: [0, 0, 0] },              // Tabelle 2; Bezeichnung nach SIA 261:2020, Tabelle 8
   snow: { name: "Schnee", psi: null },                                         // Tabelle 2: 1 − 60/h0, 1 − 250/h0, 1 − 1000/h0
   wind: { name: "Wind", psi: [0.6, 0.5, 0] },                                  // Tabelle 2
   temp: { name: "Temperatur", psi: [0.6, 0.5, 0] }                             // Tabelle 2
@@ -396,8 +396,8 @@ function compute(p) {
     }));
   };
 
-  // Tragsicherheit Typ 2, Gl. (16): γG·Gk + γQ·Qk1 + γQ·ψ0i·Qki
-  const uls = build(gTermsULS, L => term(L, GAMMA.Q, null, 1), r => term(r, GAMMA.Q, 0, 1));
+  // Tragsicherheit Typ 2, SIA 260:2013 4.4.3.4, Gl. (16): γG·Gk + γQ1·Qk1 + ψ0i·Qki (Begleiteinwirkungen ohne γQ)
+  const uls = build(gTermsULS, L => term(L, GAMMA.Q, null, 1), r => term(r, 1, 0, 1));
   // Gebrauchstauglichkeit, γF = 1.0 (4.4.4.3)
   const sel = build(gTermsSLS, L => term(L, 1, null, 1), r => term(r, 1, 0, 1));  // Gl. (20) selten
   const hf = build(gTermsSLS, L => term(L, 1, 1, 1), r => term(r, 1, 2, 1));    // Gl. (21) häufig
@@ -616,7 +616,7 @@ function compute(p) {
     }
 
     H("4 Tragsicherheit, Grundkombination (4.4.3.4, Gl. 16)");
-    c("E<sub>d</sub> = E&#123;γ<sub>G</sub>·G<sub>k</sub>, γ<sub>Q1</sub>·Q<sub>k1</sub>, ψ<sub>0i</sub>·Q<sub>ki</sub>&#125;: jede veränderliche Einwirkung der Reihe nach als Leiteinwirkung, Begleiteinwirkungen mit γ<sub>Q</sub>·ψ<sub>0</sub>");
+    c("E<sub>d</sub> = E&#123;γ<sub>G</sub>·G<sub>k</sub>, γ<sub>Q1</sub>·Q<sub>k1</sub>, ψ<sub>0i</sub>·Q<sub>ki</sub>&#125;: jede veränderliche Einwirkung der Reihe nach als Leiteinwirkung, Begleiteinwirkungen mit ψ<sub>0</sub>·Q<sub>k</sub> ohne γ<sub>Q</sub>");
     r.uls.combos.forEach(cb => {
       l((cb.lead === null ? "nur ständig" : "Leiteinwirkung " + esc(cb.leadName)) + ": " + symbolic(cb));
       l("&nbsp;&nbsp;= " + formula(cb) + " = " + f2(cb.value) + " " + u + (cb.gov ? " ← massgebend" : ""));

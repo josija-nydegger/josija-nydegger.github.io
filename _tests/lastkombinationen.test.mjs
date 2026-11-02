@@ -2,6 +2,7 @@
 // Ohne Abhängigkeiten: liest den Block zwischen /*CALC-START*/ und /*CALC-END*/ aus der HTML-Datei.
 // Start: node _tests/lastkombinationen.test.mjs [pfad/zur/index.html]
 //
+// Formel Tragsicherheit SIA 260:2013, 4.4.3.4, Gl. (16): γG·Gk + γQ1·Qk1 + ψ0i·Qki (Begleiter ohne γQ).
 // Normwerte (SIA 260:2013): Tabelle 1, Typ 2: γG,sup = 1.35, γG,inf = 0.80, γQ = 1.50.
 // Anhang A, Tabelle 2: Kat. A ψ = 0.7/0.5/0.3; Kat. E ψ = 1.0/0.9/0.8; Wind ψ = 0.6/0.5/0;
 // Schnee ψ0 = 1 − 60/h0, ψ1 = 1 − 250/h0, ψ2 = 1 − 1000/h0.
@@ -64,21 +65,26 @@ yes('ψ Temperatur = 0.6/0.5/0 (Tabelle 2)', QTYPES.temp.psi.join() === '0.6,0.5
 }
 
 // ---------- 3) Zwei veränderliche, die kleinere Q_k wird massgebend (ψ0) ----------
-// G = 4.0; Q1 = 5.0 Lagerfläche Kat. E (ψ0 = 1.0, ψ1 = 0.9, ψ2 = 0.8); Q2 = 1.0 Wind (ψ0 = 0.6, ψ1 = 0.5, ψ2 = 0)
-// Leit Q1: 1.35·4 + 1.5·5.0 + 1.5·0.6·1.0 = 5.4 + 7.5 + 0.9 = 13.8
-// Leit Q2: 1.35·4 + 1.5·1.0 + 1.5·1.0·5.0 = 5.4 + 1.5 + 7.5 = 14.4  → massgebend, obwohl Q2 < Q1
-// selten:  Leit Q1: 4 + 5 + 0.6·1 = 9.6;  Leit Q2: 4 + 1 + 1.0·5 = 10.0 → 10.0
-// häufig:  Leit Q1: 4 + 0.9·5 + 0·1 = 8.5; Leit Q2: 4 + 0.5·1 + 0.8·5 = 8.5 → 8.5 (gleich gross)
-// quasi-ständig: 4 + 0.8·5 + 0·1 = 8.0
+// SIA 260:2013 Gl. (16): Begleiteinwirkungen mit ψ0·Qk, OHNE γQ.
+// G = 4.0; Q1 = 5.0 Lagerfläche Kat. E (ψ0 = 1.0, ψ1 = 0.9, ψ2 = 0.8); Q2 = 3.0 Wind (ψ0 = 0.6, ψ1 = 0.5, ψ2 = 0)
+// Leit Q1: 1.35·4 + 1.5·5.0 + 0.6·3.0 = 5.4 + 7.5 + 1.8 = 14.7
+// Leit Q2: 1.35·4 + 1.5·3.0 + 1.0·5.0 = 5.4 + 4.5 + 5.0 = 14.9  → massgebend, obwohl Q2 < Q1
+// selten:  Leit Q1: 4 + 5 + 0.6·3 = 10.8; Leit Q2: 4 + 3 + 1.0·5 = 12.0 → 12.0
+// häufig:  Leit Q1: 4 + 0.9·5 + 0·3 = 8.5; Leit Q2: 4 + 0.5·3 + 0.8·5 = 9.5 → 9.5
+// quasi-ständig: 4 + 0.8·5 + 0·3 = 8.0
 {
-  const r = compute({ actions: [G(4.0), Q(5.0, 'E', { name: 'Lager' }), Q(1.0, 'wind', { name: 'Wind' })] });
-  chk('3) Leit Lager', r.uls.combos[0].value, 13.8);
-  chk('3) Leit Wind', r.uls.combos[1].value, 14.4);
-  chk('3) q_d', r.qd, 14.4);
+  const r = compute({ actions: [G(4.0), Q(5.0, 'E', { name: 'Lager' }), Q(3.0, 'wind', { name: 'Wind' })] });
+  chk('3) Leit Lager', r.uls.combos[0].value, 14.7);
+  chk('3) Leit Wind', r.uls.combos[1].value, 14.9);
+  chk('3) q_d', r.qd, 14.9);
   yes('3) massgebend: Wind (kleinere Q_k)', r.uls.combos[r.uls.gov].leadName === 'Wind');
-  chk('3) q_selten', r.qk, 10.0);
-  chk('3) q_häufig', r.qf, 8.5);
+  chk('3) q_selten', r.qk, 12.0);
+  chk('3) q_häufig', r.qf, 9.5);
   chk('3) q_quasi-ständig', r.qqs, 8.0);
+  // Begleiter ohne γQ: Begleitterm Wind bei Leit Lager = ψ0·Qk = 0.6·3.0 = 1.8
+  const acc = r.uls.combos[0].terms.find(t => t.name === 'Wind');
+  chk('3) Begleiter ohne γQ: Faktor 1', acc.gamma, 1);
+  chk('3) Begleiter = ψ0·Qk', acc.val, 1.8);
 }
 
 // ---------- 4) Günstig wirkendes Eigengewicht ----------
@@ -113,9 +119,9 @@ yes('ψ Temperatur = 0.6/0.5/0 (Tabelle 2)', QTYPES.temp.psi.join() === '0.6,0.5
   const r2 = compute({ actions: [G(3.0), Q(2.0, 'snow')], h0: 500 });
   chk('5) Schnee h0 = 500: ψ2 auf 0 begrenzt', r2.rows[1].psi[2], 0);
   chk('5) Schnee h0 = 500: ψ1', r2.rows[1].psi[1], 0.5);
-  // Schnee als Begleiter: G = 3, Nutzlast B 2.0 Leit, Schnee 1.0 bei h0 = 1500
-  // Leit B: 4.05 + 3.0 + 1.5·0.96·1.0 = 8.49; Leit Schnee: 4.05 + 1.5 + 1.5·0.7·2 = 7.65 → 8.49
-  chk('5) Schnee als Begleiter', compute({ actions: [G(3.0), Q(2.0, 'B'), Q(1.0, 'snow')], h0: 1500 }).qd, 8.49);
+  // Schnee als Begleiter (ohne γQ): G = 3, Nutzlast B 2.0, Schnee 1.0 bei h0 = 1500
+  // Leit B: 4.05 + 1.5·2.0 + 0.96·1.0 = 4.05 + 3.0 + 0.96 = 8.01; Leit Schnee: 4.05 + 1.5·1.0 + 0.7·2.0 = 6.95 → 8.01
+  chk('5) Schnee als Begleiter', compute({ actions: [G(3.0), Q(2.0, 'B'), Q(1.0, 'snow')], h0: 1500 }).qd, 8.01);
 }
 
 // ---------- 6) Lasteinzugsbreite und Einheiten ----------
