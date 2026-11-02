@@ -14,6 +14,7 @@ Stand: 2.11.2026
 | 3 | Stützenlast-Abtrag nach Einzugsflächen | Tragwerksentwurf, Hochbau | klein bis mittel | offen |
 | 4 | IFC-Mengen- und Property-Auszug | BIM | mittel | offen |
 | 5 | IFC-Qualitätscheck | BIM | mittel bis gross | offen |
+| 7 | Lastkombinationen (SIA 260) | Einwirkungen | klein bis mittel | umgesetzt: `tools/lastkombinationen/` (Nov. 2026) |
 | 6 | Biegebemessung Rechteckquerschnitt (SIA 262) | Stahlbeton | mittel | umgesetzt: `tools/biegebemessung/` (Nov. 2026) |
 
 Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächstes 3)
@@ -58,6 +59,11 @@ Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächst
 
 - **Umgesetzt** (`tools/biegebemessung/`, Nov. 2026) auf ausdrücklichen Wunsch mit Normwerten der SIA 262:2025 (Vorlagen überschreibbar): erforderliche Zugbewehrung, Druckbewehrung ab wählbarer x/d-Grenze, Mindestbewehrung gegen sprödes Versagen (4.3.1.2), Stabwahl mit lichtem Abstand (5.2.3.2), M<sub>Rd</sub> der gewählten Bewehrung, x/d-Ampel (4.1.4.2.5/6), Zeichnung mit Bewehrung, Dehnungen und Spannungsblock, Rechenweg. Geprüft gegen Handrechnungen, Tabelle 8 und eine Faserintegration.
 - **Mögliche Erweiterungen:** Normalkraft (Biegung mit Längskraft), Plattenbalken, zwei Bewehrungslagen, Querkraft, Mindestbewehrung für Rissbreiten (4.4.2), Plattenstreifen pro Meter mit Stababstand statt Stabzahl.
+
+## 7. Lastkombinationen nach SIA 260 (Einwirkungen)
+
+- **Umgesetzt** (`tools/lastkombinationen/`, Nov. 2026): Liste von Einwirkungen (G/Q, Einheit, ψ-Typ, günstig), Grundkombination Typ 2 (Gl. 16) mit jeder Q als Leiteinwirkung, seltene, häufige und quasi-ständige Lastfälle (Gl. 20–22), Lasteinzugsbreite, Übergabe von q_d ans Balken-Tool. Normwerte SIA 260:2013 Tabelle 1 und 2.
+- **Mögliche Erweiterungen:** aussergewöhnliche Situationen (Gl. 17), Typ 1 (EQU) und Typ 3 (GEO), Erd- und Wasserdruck, mehrere Lastbilder statt einer Summe, Übergabe an den Durchlaufträger mit feldweiser Nutzlast.
 
 ## Für alle Tools
 

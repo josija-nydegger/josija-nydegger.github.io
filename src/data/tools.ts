@@ -12,6 +12,22 @@ type Tool = {
 
 export const tools: Tool[] = [
   {
+    url: '/tools/lastkombinationen/',
+    year: 2026,
+    title: {
+      de: 'Lastkombinationen (SIA 260)',
+      en: 'Load combinations (SIA 260)'
+    },
+    description: {
+      de: 'Lastkombinationen nach SIA 260:2013 für Tragsicherheit (Typ 2) und Gebrauchstauglichkeit: massgebende Bemessungslast aus ständigen und veränderlichen Einwirkungen, mit Rechenweg und Übergabe ans Balken-Tool.',
+      en: 'Load combinations to SIA 260:2013 for ultimate limit state (type 2) and serviceability: governing design load from permanent and variable actions, with step-by-step calculation and transfer to the beam tool.'
+    },
+    tags: {
+      de: ['Einwirkungen', 'Bemessung', 'SIA 260'],
+      en: ['Actions', 'Design', 'SIA 260']
+    }
+  },
+  {
     url: '/tools/biegebemessung/',
     year: 2026,
     title: {
