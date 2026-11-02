@@ -3,7 +3,7 @@
 Ideen für kleine, interaktive Web-Tools auf der Website (`/tools/`).
 Rahmen: ohne Normwerte (Mechanik und Eingaben der Nutzer), Open Source, je eine einzelne HTML-Seite, die im Browser läuft.
 
-Stand: 24.10.2026
+Stand: 2.11.2026
 
 ## Übersicht
 
@@ -14,6 +14,7 @@ Stand: 24.10.2026
 | 3 | Stützenlast-Abtrag nach Einzugsflächen | Tragwerksentwurf, Hochbau | klein bis mittel | offen |
 | 4 | IFC-Mengen- und Property-Auszug | BIM | mittel | offen |
 | 5 | IFC-Qualitätscheck | BIM | mittel bis gross | offen |
+| 6 | Biegebemessung Rechteckquerschnitt (SIA 262) | Stahlbeton | mittel | umgesetzt: `tools/biegebemessung/` (Nov. 2026) |
 
 Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächstes 3)
 
@@ -52,6 +53,11 @@ Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächst
 - **Regeln:** vom Nutzer einstellbar (z. B. "alle Stützen brauchen die Eigenschaft Tragend").
 - **Später:** Regeln am offenen Standard IDS (buildingSMART) ausrichten; aktuellen Stand prüfen.
 - **Baut auf Tool 4 auf.**
+
+## 6. Biegebemessung Rechteckquerschnitt nach SIA 262 (Stahlbeton)
+
+- **Umgesetzt** (`tools/biegebemessung/`, Nov. 2026) auf ausdrücklichen Wunsch mit Normwerten der SIA 262:2025 (Vorlagen überschreibbar): erforderliche Zugbewehrung, Druckbewehrung ab wählbarer x/d-Grenze, Mindestbewehrung gegen sprödes Versagen (4.3.1.2), Stabwahl mit lichtem Abstand (5.2.3.2), M<sub>Rd</sub> der gewählten Bewehrung, x/d-Ampel (4.1.4.2.5/6), Zeichnung mit Bewehrung, Dehnungen und Spannungsblock, Rechenweg. Geprüft gegen Handrechnungen, Tabelle 8 und eine Faserintegration.
+- **Mögliche Erweiterungen:** Normalkraft (Biegung mit Längskraft), Plattenbalken, zwei Bewehrungslagen, Querkraft, Mindestbewehrung für Rissbreiten (4.4.2), Plattenstreifen pro Meter mit Stababstand statt Stabzahl.
 
 ## Für alle Tools
 

@@ -12,6 +12,22 @@ type Tool = {
 
 export const tools: Tool[] = [
   {
+    url: '/tools/biegebemessung/',
+    year: 2026,
+    title: {
+      de: 'Biegebemessung Rechteckquerschnitt (SIA 262)',
+      en: 'Bending design of rectangular sections (SIA 262)'
+    },
+    description: {
+      de: 'Erforderliche Biegebewehrung eines Stahlbeton-Rechteckquerschnitts nach SIA 262:2025, mit Druck- und Mindestbewehrung, Stabwahl, Biegewiderstand, x/d-Ampel und Rechenweg.',
+      en: 'Required flexural reinforcement of a rectangular reinforced concrete section to SIA 262:2025, with compression and minimum reinforcement, bar selection, bending resistance, x/d check and step-by-step calculation.'
+    },
+    tags: {
+      de: ['Stahlbeton', 'Bemessung', 'SIA 262'],
+      en: ['Reinforced concrete', 'Design', 'SIA 262']
+    }
+  },
+  {
     url: '/tools/balken/',
     year: 2026,
     title: {

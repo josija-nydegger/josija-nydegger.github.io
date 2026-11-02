@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>Biegebemessung Rechteckquerschnitt (SIA 262) | Josija Nydegger</title>
+<!-- Link-Vorschau (LinkedIn, WhatsApp usw.) und Suchmaschinen; Tool-Seiten haben kein Front Matter, darum von Hand -->
+<link rel="canonical" href="https://josija-nydegger.ch/tools/biegebemessung/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Josija Nydegger">
+<meta property="og:locale" content="de_CH">
+<meta property="og:title" content="Biegebemessung Rechteckquerschnitt (SIA 262) | Josija Nydegger">
+<meta property="og:description" content="Erforderliche Biegebewehrung eines Rechteckquerschnitts aus Stahlbeton nach SIA 262:2025, mit Druckbewehrung, Mindestbewehrung, Stabwahl, Biegewiderstand und Rechenweg.">
+<meta property="og:url" content="https://josija-nydegger.ch/tools/biegebemessung/">
+<meta name="twitter:card" content="summary">
+<meta name="author" content="Josija Nydegger">
+<meta name="description" content="Biegebemessung eines Rechteckquerschnitts aus Stahlbeton nach SIA 262:2025: erforderliche Bewehrung A_s, Druckbewehrung, Mindestbewehrung, Stabwahl, Biegewiderstand M_Rd und Druckzonenhöhe x/d, mit Rechenweg.">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  /* Farben und Typografie wie style.css der Website (josija-nydegger.ch).
+     Zusätzliche Farben nur für die Zeichnung, die Ampel und Fehlermeldungen. */
+  :root {
+    color-scheme: light dark;
+    --bg: #fcfcfb;
+    --text: #1a1a1a;
+    --muted: #6b6a66;
+    --border: #e7e6e2;
+    --accent: #1a1a1a;
+    --tag-bg: #f1f0ed;
+    --fill: #e9e8e4;
+    --fill-stroke: #1a1a1a;
+    --steel: #1a1a1a;
+    --stirrup: #9e9c97;
+    --axis: #c0392b;
+    --tension: #2b6cb0;
+    --ok: #2e7d4f;
+    --warn: #a86500;
+    --bad: #c0392b;
+    --error-bg: #fbeceb;
+    --error-fg: #8a1f11;
+    --field: #ffffff;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+      --fill: #2a2a29; --fill-stroke: #e5e3de; --steel: #e5e3de; --stirrup: #6b6a66; --axis: #ff7a6b; --tension: #7fb3e8;
+      --ok: #6fd39a; --warn: #f0b45a; --bad: #ff7a6b;
+      --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+    --fill: #2a2a29; --fill-stroke: #e5e3de; --steel: #e5e3de; --stirrup: #6b6a66; --axis: #ff7a6b; --tension: #7fb3e8;
+    --ok: #6fd39a; --warn: #f0b45a; --bad: #ff7a6b;
+    --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+
+  /* ---------- Grundlayout wie Website ---------- */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 56px 20px 40px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border); }
+  a:hover { text-decoration-color: var(--accent); }
+  .back { display: inline-block; margin-bottom: 28px; color: var(--muted); text-decoration: none; font-size: 14px; }
+  .back:hover { color: var(--text); }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 16px; margin: 44px 0 16px; }
+  h3 { font-size: 15px; margin: 24px 0 8px; }
+  p { margin: 0 0 14px; }
+  .lead { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+  sub, sup { font-size: 0.72em; line-height: 0; }
+
+  /* ---------- Eingaben ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px 16px; }
+  .group { font-size: 13px; font-weight: 600; color: var(--muted); margin: 22px 0 8px; }
+  .group:first-child { margin-top: 0; }
+  label { display: block; font-size: 13px; color: var(--muted); }
+  label .sym { color: var(--text); font-style: italic; }
+  select {
+    width: 100%; margin-top: 4px; height: 36px;
+    font: inherit; font-size: 14px;
+    padding: 0 6px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--field); color: var(--text);
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+  /* Zahlenfelder: Einheit im Feld, Zahlen rechtsbündig in Monospace */
+  .inp {
+    display: flex; align-items: center; margin-top: 4px; height: 36px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--field); padding-right: 9px; min-width: 0;
+  }
+  .inp:focus-within { border-color: var(--accent); }
+  .inp input {
+    flex: 1; min-width: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 8px; background: transparent; color: var(--text);
+    padding: 0 6px 0 9px; font-family: var(--mono); font-size: 14px; text-align: right;
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  .inp input::-webkit-inner-spin-button, .inp input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .inp input:focus { outline: none; }
+  .inp input::placeholder { color: var(--muted); }
+  .inp span { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: 3px; white-space: nowrap; }
+  .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .error {
+    background: var(--error-bg); color: var(--error-fg);
+    padding: 10px 12px; border-radius: 8px; margin: 16px 0 0; font-size: 14px;
+  }
+
+  /* ---------- Hauptergebnis und Ampel ---------- */
+  .main-result { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 14px 0; }
+  .main-result .big { font-size: 22px; font-weight: 600; line-height: 1.35; }
+  .main-result .big small { font-size: 15px; font-weight: 400; color: var(--muted); }
+  .main-result p { margin: 4px 0 0; font-size: 14px; }
+  .lights { margin-top: 14px; display: grid; gap: 8px; }
+  .light { display: flex; gap: 10px; align-items: baseline; font-size: 14px; }
+  .light .dot { flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--muted); position: relative; top: 1px; }
+  .light.ok .dot { background: var(--ok); }
+  .light.warn .dot { background: var(--warn); }
+  .light.bad .dot { background: var(--bad); }
+  .light b { font-weight: 600; }
+  .light.warn b { color: var(--warn); }
+  .light.bad b { color: var(--bad); }
+  .light .why { color: var(--muted); }
+
+  /* ---------- Zeichnung ---------- */
+  .figure { border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+  .figure svg { display: block; width: 100%; height: auto; max-height: 420px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--muted); margin-top: 6px; padding: 0 4px; }
+  .legend span::before { content: ""; display: inline-block; width: 14px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+  .legend .l-na::before { border-color: var(--axis); border-top-style: dashed; }
+  .legend .l-c::before { border-color: var(--fill-stroke); }
+  .legend .l-t::before { border-color: var(--tension); }
+
+  /* ---------- Tabellen ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
+  th { font-weight: 600; font-size: 13px; color: var(--muted); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.unit { color: var(--muted); white-space: nowrap; font-size: 14px; }
+  .results tr:first-child td { border-top: 1px solid var(--border); }
+  .results td:first-child { color: var(--muted); }
+  .results tr.key td { font-weight: 600; color: var(--text); }
+  .results td.flag { white-space: nowrap; font-size: 14px; }
+  .results td.flag.ok { color: var(--ok); }
+  .results td.flag.warn { color: var(--warn); }
+  .results td.flag.bad { color: var(--bad); }
+  @media (max-width: 560px) { .results td { padding: 7px 4px; } }
+
+  /* ---------- Rechenweg (Formeln wie Codeblöcke der Website) ---------- */
+  details { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 14px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .formula {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    background: var(--tag-bg); padding: 14px; border-radius: 8px; line-height: 1.8; overflow-x: auto;
+  }
+  .formula .c { color: var(--muted); }
+  .steps h3:first-of-type { margin-top: 14px; }
+
+  /* ---------- Buttons wie .button der Website ---------- */
+  .btn {
+    font: inherit; font-size: 14px; line-height: 1.5; padding: 6px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--accent); cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .tools { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+
+  ul.list { margin: 0 0 14px; padding-left: 20px; font-size: 13px; color: var(--muted); }
+  ul.list li { margin: 2px 0; }
+
+  /* ---------- Fusszeile wie Website ---------- */
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  footer p { margin: 0 0 8px; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--text); }
+  .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .foot-row p { margin: 0; }
+  .theme { display: flex; gap: 2px; }
+  .theme[hidden] { display: none; }
+  .theme button {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
+    background: none; color: var(--muted); cursor: pointer;
+  }
+  .theme button:hover { color: var(--text); }
+  .theme button[aria-pressed="true"] { background: var(--tag-bg); color: var(--text); }
+  .theme svg { width: 16px; height: 16px; }
+
+  /* ---------- Druck / PDF ---------- */
+  @media print {
+    :root:root:root {
+      color-scheme: light;
+      --bg: #ffffff; --text: #1a1a1a; --muted: #555555; --border: #dddddd; --accent: #1a1a1a; --tag-bg: #f1f0ed;
+      --fill: #eeeeee; --fill-stroke: #1a1a1a; --steel: #1a1a1a; --stirrup: #888888; --axis: #c0392b; --tension: #2b6cb0;
+      --ok: #2e7d4f; --warn: #a86500; --bad: #c0392b; --field: #ffffff;
+    }
+    body { font-size: 10.5pt; line-height: 1.45; }
+    main { max-width: none; padding: 0; }
+    .back, .tools, .theme, #link-note { display: none !important; }
+    .figure, table, .formula, .main-result { break-inside: avoid; }
+    a { text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/tools/">← Tools</a>
+  <h1>Biegebemessung Rechteck&shy;querschnitt</h1>
+  <p class="lead">Erforderliche Biegebewehrung eines Rechteckquerschnitts aus Stahlbeton nach SIA 262:2025, mit Druckbewehrung, Mindestbewehrung, Stabwahl und Biegewiderstand. Abmessungen in mm, Moment in kNm, Festigkeiten in N/mm².</p>
+
+  <section id="inputs">
+    <div class="group">Querschnitt und Beanspruchung</div>
+    <div class="grid">
+      <label>Breite <span class="sym">b</span><span class="inp"><input id="b" type="number" step="any" inputmode="decimal" min="0"><span>mm</span></span></label>
+      <label>Höhe <span class="sym">h</span><span class="inp"><input id="h" type="number" step="any" inputmode="decimal" min="0"><span>mm</span></span></label>
+      <label>Überdeckung <span class="sym">c<sub>nom</sub></span><span class="inp"><input id="c" type="number" step="any" inputmode="decimal" min="0"><span>mm</span></span></label>
+      <label>Bügel <span class="sym">Ø<sub>w</sub></span><span class="inp"><input id="dw" type="number" step="any" inputmode="decimal" min="0"><span>mm</span></span></label>
+      <label>Biegemoment <span class="sym">M<sub>d</sub></span><span class="inp"><input id="Md" type="number" step="any" inputmode="decimal" min="0"><span>kNm</span></span></label>
+    </div>
+
+    <div class="group">Beton</div>
+    <div class="grid">
+      <label>Betonsorte<select id="conc"></select></label>
+      <label><span class="sym">f<sub>ck</sub></span><span class="inp"><input id="fck" type="number" step="any" inputmode="decimal" min="0"><span>N/mm²</span></span></label>
+      <label><span class="sym">f<sub>ctm</sub></span><span class="inp"><input id="fctm" type="number" step="any" inputmode="decimal" min="0"><span>N/mm²</span></span></label>
+      <label><span class="sym">γ<sub>c</sub></span><span class="inp"><input id="gc" type="number" step="any" inputmode="decimal" min="0"><span>–</span></span></label>
+      <label><span class="sym">η<sub>t</sub></span> (Einwirkungsdauer)<select id="etat">
+        <option value="1">1.0 (Normalfall)</option>
+        <option value="0.85">0.85 (früh hoch belastet)</option>
+        <option value="1.2">1.2 (stossartig)</option>
+      </select></label>
+    </div>
+
+    <div class="group">Betonstahl</div>
+    <div class="grid">
+      <label>Betonstahl<select id="steel"></select></label>
+      <label><span class="sym">f<sub>yk</sub></span><span class="inp"><input id="fyk" type="number" step="any" inputmode="decimal" min="0"><span>N/mm²</span></span></label>
+      <label><span class="sym">ε<sub>ud</sub></span><span class="inp"><input id="eud" type="number" step="any" inputmode="decimal" min="0"><span>–</span></span></label>
+      <label><span class="sym">γ<sub>s</sub></span><span class="inp"><input id="gs" type="number" step="any" inputmode="decimal" min="0"><span>–</span></span></label>
+      <label><span class="sym">E<sub>s</sub></span><span class="inp"><input id="Es" type="number" step="any" inputmode="decimal" min="0"><span>N/mm²</span></span></label>
+    </div>
+
+    <div class="group">Bemessung und Stabwahl</div>
+    <div class="grid">
+      <label><span class="sym">A<sub>s</sub>'</span> ab x/d &gt;<select id="lim">
+        <option value="0.35">0.35·435/f_yd</option>
+        <option value="0.50">0.50·435/f_yd</option>
+        <option value="none">keine Druckbewehrung</option>
+      </select></label>
+      <label>Zugbewehrung <span class="sym">Ø</span><select id="ds"></select></label>
+      <label>Anzahl Stäbe <span class="sym">n</span><span class="inp"><input id="n" type="number" step="1" inputmode="numeric" min="1" placeholder="auto"><span>Stk.</span></span></label>
+      <label>Druckbewehrung <span class="sym">Ø'</span><select id="ds2"></select></label>
+      <label>Anzahl Stäbe <span class="sym">n'</span><span class="inp"><input id="n2" type="number" step="1" inputmode="numeric" min="0" placeholder="auto"><span>Stk.</span></span></label>
+      <label>Grösstkorn <span class="sym">D<sub>max</sub></span><span class="inp"><input id="Dmax" type="number" step="any" inputmode="decimal" min="0"><span>mm</span></span></label>
+    </div>
+    <p class="note">Zugseite unten. Betonsorte und Betonstahl füllen die Werte nach SIA 262:2025 aus (Tabellen 3 und 9); jeder Wert lässt sich überschreiben. Anzahl Stäbe leer lassen für den Vorschlag des Rechners (mindestens 2 Stäbe je Lage, oben sonst 2 Montagestäbe).</p>
+  </section>
+  <div class="error" id="error" hidden></div>
+
+  <h2>Ergebnis</h2>
+  <div class="main-result" id="main-result"></div>
+
+  <h2>Querschnitt</h2>
+  <div class="figure">
+    <svg id="figure" role="img" aria-label="Querschnitt mit Bewehrung, Dehnungen und Spannungen"></svg>
+    <div class="legend">
+      <span class="l-na">Nulllinie</span>
+      <span class="l-c">Druck</span>
+      <span class="l-t">Zug</span>
+    </div>
+  </div>
+  <p class="note">Dehnungen und Spannungen im Bruchzustand für die gewählte Bewehrung. Massstab der Dehnungen und Spannungen schematisch.</p>
+
+  <h2>Werte</h2>
+  <table class="results" id="results"></table>
+
+  <details class="steps" id="steps-wrap">
+    <summary>Rechenweg</summary>
+    <div id="steps"></div>
+  </details>
+
+  <div class="tools">
+    <button class="btn" type="button" id="reset">Zurücksetzen</button>
+  </div>
+  <p class="note" id="link-note">Die Eingaben stehen in der Adresszeile. Ein kopierter Link öffnet den Rechner mit denselben Werten.</p>
+
+  <h2>Annahmen und Grenzen</h2>
+  <ul class="list">
+    <li><strong>Ebenbleiben der Querschnitte</strong> (Bernoulli): Die Dehnungen verlaufen linear über die Höhe.</li>
+    <li><strong>Starrer Verbund</strong> zwischen Beton und Bewehrung: Stahl und umgebender Beton haben dieselbe Dehnung.</li>
+    <li><strong>Betonzugfestigkeit vernachlässigt</strong>: gerissener Zustand im Bruchzustand (SIA 262, 4.1.4.3.5).</li>
+    <li><strong>Beton</strong>: rechteckiger Spannungsblock der Höhe 0.85·x mit f<sub>cd</sub>, Randstauchung ε<sub>c2d</sub> = 0.0035 (4.2.1.5, Figur 12). f<sub>cd</sub> = η<sub>fc</sub>·η<sub>t</sub>·f<sub>ck</sub>/γ<sub>c</sub> mit η<sub>fc</sub> = (40/f<sub>ck</sub>)<sup>1/3</sup> ≤ 1.0 (Gleichungen 2 und 26). Der Rechner rechnet mit den ungerundeten Werten; Tabelle 8 der Norm rundet (z. B. C25/30: 16.5 statt 16.67 N/mm²). Nur Normalbeton; für Leichtbeton gelten andere Werte (0.8·x).</li>
+    <li><strong>Betonstahl</strong>: linear elastisch bis f<sub>yd</sub> = f<sub>yk</sub>/γ<sub>s</sub>, danach ideal plastisch ohne Verfestigung (k<sub>s</sub> = 1.0, 4.2.2.6), gleich für Zug und Druck. Nennwerte der Stabdurchmesser. Ist die Stahldehnung grösser als ε<sub>ud</sub>, erscheint ein Hinweis: Dann versagt der Stahl, bevor der Beton ε<sub>c2d</sub> erreicht, und der Spannungsblock ist nur eine Näherung.</li>
+    <li><strong>Druckzonenhöhe</strong>: Ampel nach 4.1.4.2.5 und 4.1.4.2.6. Grün: x/d ≤ 0.35·435/f<sub>yd</sub>, Schnittgrössen dürfen ohne Nachweis des Verformungsvermögens umgelagert werden (nur Betonstahl der Klasse B oder C und Beton bis C50/60). Gelb: bis 0.5·435/f<sub>yd</sub>, Schnittgrössen nach Elastizitätstheorie ohne Umlagerung. Rot: darüber, nach Norm möglichst zu vermeiden.</li>
+    <li><strong>Druckbewehrung</strong>: Überschreitet x/d die gewählte Grenze, wird x auf die Grenze gesetzt und das restliche Moment über Druck- und Zugbewehrung abgetragen. Die Spannung in der Druckbewehrung folgt aus ihrer Dehnung; die von ihr verdrängte Betonfläche wird nicht abgezogen. Eine vorhandene Druckbewehrung zählt beim Biegewiderstand M<sub>Rd</sub> und bei x mit (4.1.4.2.6).</li>
+    <li><strong>Mindestbewehrung</strong> gegen sprödes Versagen nach 4.3.1.2: M<sub>Rd</sub> ≥ Rissmoment mit f<sub>ctd</sub> = f<sub>ct,eff</sub> = k<sub>t</sub>·f<sub>ctm</sub>, k<sub>t</sub> = 1/(1 + 0.5·t), t = h/3 in m (4.4.1.3). Die Mindestbewehrung zur Begrenzung der Rissbreiten (4.4.2) ist nicht enthalten.</li>
+    <li><strong>Stabwahl</strong>: alle Stäbe einer Lage, gleichmässig zwischen den Bügeln verteilt. Lichter Stababstand mindestens max(Ø, D<sub>max</sub>, 20 mm) nach 5.2.3.2.</li>
+    <li>Nicht enthalten: Normalkraft, schiefe Biegung, Querkraft und Torsion, mehrlagige Bewehrung, Plattenbalken, Vorspannung, Ermüdung, Brand, Gebrauchstauglichkeit (Risse, Durchbiegung), Verankerung und Bewehrungsüberdeckung nach Expositionsklasse.</li>
+  </ul>
+  <p class="note">Grundlagen: SIA 262:2025 Betonbau, Ziffern 2.4.2, 4.1.4.2.5–6, 4.2.1, 4.2.2, 4.3.1.2, 4.4.1.3, 5.2.3 und Tabellen 3, 8 und 9; Gleichgewicht der inneren Kräfte am Rechteckquerschnitt. Massgebend ist immer der Normtext.</p>
+  <p class="note">Geprüfte Testfälle: Bemessung mit Handrechnung (b = 300 mm, d = 550 mm, C30/37, B500B, M<sub>d</sub> = 250 kNm → A<sub>s</sub> = 1&#8239;129 mm²), Fall mit Druckbewehrung von Hand nachgerechnet, f<sub>cd</sub> gegen Tabelle 8, Mindestbewehrung gegen das Rissmoment, Kontrolle M<sub>Rd</sub>(A<sub>s,erf</sub>) = M<sub>d</sub> für viele Kombinationen und Biegewiderstand gegen eine unabhängige Rechnung mit Parabel-Rechteck-Diagramm und Faserintegration.</p>
+
+  <footer>
+    <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
+    <div class="foot-row">
+      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.ch/">Website</a></p>
+      <div class="theme" role="group" aria-label="Farbschema" hidden>
+        <button type="button" data-theme="light" aria-label="Hell" title="Hell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" data-theme="dark" aria-label="Dunkel" title="Dunkel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <button type="button" data-theme="system" aria-label="System" title="System">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Normwerte SIA 262:2025 (Vorlagen, jederzeit überschreibbar) ----------
+  // Tabelle 3: f_ck und f_ctm in N/mm²
+  const CONC = {
+    "C12/15": [12, 1.6], "C16/20": [16, 1.9], "C20/25": [20, 2.2], "C25/30": [25, 2.6], "C30/37": [30, 2.9],
+    "C35/45": [35, 3.2], "C40/50": [40, 3.5], "C45/55": [45, 3.8], "C50/60": [50, 4.1]
+  };
+  // Tabellen 5 und 9: f_yk in N/mm², ε_ud, Duktilitätsklasse
+  const STEEL = {
+    "B500A": { fyk: 500, eud: 0.020, duct: "A" },
+    "B500B": { fyk: 500, eud: 0.045, duct: "B" },
+    "B500C": { fyk: 500, eud: 0.065, duct: "C" },
+    "B700B": { fyk: 700, eud: 0.045, duct: "B" }
+  };
+  const DIAS = [6, 8, 10, 12, 14, 16, 18, 20, 22, 26, 30, 34, 40];
+
+  const DEFAULTS = {
+    b: 300, h: 600, c: 30, dw: 10, Md: 250,
+    conc: "C30/37", fck: 30, fctm: 2.9, gc: 1.5, etat: 1,
+    steel: "B500B", fyk: 500, eud: 0.045, gs: 1.15, Es: 200000,
+    lim: "0.35", ds: 20, n: "", ds2: 12, n2: "", Dmax: 32
+  };
+
+  /*CALC-START*/
+  // Rechenkern: reine Funktion ohne DOM. Einheiten N, mm, N/mm²; M_d in kNm.
+  const EC2D = 0.0035; // ε_c2d, SIA 262 Tabelle 8
+  const KBLOCK = 0.85; // Höhe des Spannungsblocks 0.85·x, Figur 12
+
+  function compute(p) {
+    const num = (k, min, strict) => {
+      const v = p[k];
+      return typeof v === "number" && isFinite(v) && (strict ? v > min : v >= min);
+    };
+    const names = { b: "Breite b", h: "Höhe h", fck: "f_ck", fctm: "f_ctm", gc: "γ_c", etat: "η_t", fyk: "f_yk", eud: "ε_ud", gs: "γ_s", Es: "E_s", ds: "Ø", ds2: "Ø'" };
+    for (const k in names) if (!num(k, 0, true)) return { error: names[k] + " muss eine Zahl grösser als 0 sein." };
+    for (const k of ["c", "dw", "Md", "Dmax"]) {
+      if (!num(k, 0, false)) return { error: { c: "Die Überdeckung c_nom", dw: "Der Bügeldurchmesser Ø_w", Md: "Das Moment M_d", Dmax: "Das Grösstkorn D_max" }[k] + " muss eine Zahl ab 0 sein." };
+    }
+    const intOrAuto = (v, min) => v === "" || (typeof v === "number" && Number.isInteger(v) && v >= min && v <= 200);
+    if (!intOrAuto(p.n, 1)) return { error: "Anzahl Stäbe n: ganze Zahl ab 1 oder leer (auto)." };
+    if (!intOrAuto(p.n2, 0)) return { error: "Anzahl Stäbe n': ganze Zahl ab 0 oder leer (auto)." };
+    if (["0.35", "0.50", "none"].indexOf(p.lim) < 0) return { error: "Ungültige Grenze für die Druckbewehrung." };
+
+    const b = p.b, h = p.h, Es = p.Es;
+    const etafc = Math.min(1, Math.cbrt(40 / p.fck));
+    const fcd = etafc * p.etat * p.fck / p.gc;
+    const fyd = p.fyk / p.gs;
+    const eyd = fyd / Es;
+    const d = h - p.c - p.dw - p.ds / 2;
+    const d2 = p.c + p.dw + p.ds2 / 2;
+    if (!(d > 0)) return { error: "Die statische Höhe d = h − c_nom − Ø_w − Ø/2 ist nicht positiv." };
+    if (!(d2 < d)) return { error: "Die Druckbewehrung liegt nicht oberhalb der Zugbewehrung (d' ≥ d)." };
+    const inner = b - 2 * (p.c + p.dw);
+    if (!(inner > 0)) return { error: "Der Querschnitt ist schmaler als Überdeckung und Bügel auf beiden Seiten." };
+
+    const xi35 = 0.35 * 435 / fyd, xi50 = 0.5 * 435 / fyd;
+    const xiY = EC2D / (EC2D + eyd); // Fliessbeginn der Zugbewehrung
+    const xiLim = p.lim === "0.35" ? xi35 : p.lim === "0.50" ? xi50 : null;
+    const M = p.Md * 1e6;
+
+    // Spannung einer Bewehrungslage in der Tiefe t bei Nulllinie x (Druck positiv)
+    const sig = (x, t) => Math.max(-fyd, Math.min(fyd, Es * EC2D * (x - t) / x));
+
+    // Einfach bewehrt: x aus dem Momentengleichgewicht um die Zugbewehrung
+    function single(Mx) {
+      if (Mx <= 0) return { mu: 0, a: 0, x: 0, z: d, Fc: 0, sigS: fyd, As: 0 };
+      const mu = Mx / (b * d * d * fcd);
+      if (1 - 2 * mu < 0) return { mu, fail: true };
+      const a = d * (1 - Math.sqrt(1 - 2 * mu)); // Höhe des Spannungsblocks
+      const x = a / KBLOCK;
+      const Fc = a * b * fcd;
+      const sigS = -sig(x, d);
+      if (!(sigS > 0)) return { mu, fail: true };
+      return { mu, a, x, z: d - a / 2, Fc, sigS, As: Fc / sigS };
+    }
+
+    // Bemessung
+    const s = single(M);
+    let des;
+    if (xiLim !== null && (s.fail || s.x / d > xiLim)) {
+      const x = xiLim * d, a = KBLOCK * x;
+      const Fc = a * b * fcd, z = d - a / 2, Mc = Fc * z, dM = M - Mc;
+      const sigS2 = sig(x, d2);
+      if (!(sigS2 > 0)) return { error: "Die Druckbewehrung liegt nicht in der Druckzone (d' ≥ x). Querschnitt vergrössern." };
+      const As2 = dM / (sigS2 * (d - d2));
+      const sigS = -sig(x, d);
+      des = { comp: true, mu: s.mu, x, a, Fc, z, Mc, dM, sigS2, As2, sigS, As: (Fc + As2 * sigS2) / sigS };
+    } else {
+      if (s.fail) return { error: "Das Moment ist für den Querschnitt ohne Druckbewehrung zu gross. Druckbewehrung zulassen oder Querschnitt vergrössern." };
+      des = Object.assign({ comp: false, As2: 0 }, s);
+    }
+    des.xi = des.x / d;
+
+    // Mindestbewehrung gegen sprödes Versagen (4.3.1.2, 4.4.1.3)
+    const t = h / 3 / 1000;
+    const kt = 1 / (1 + 0.5 * t);
+    const fctd = kt * p.fctm;
+    const Mcr = fctd * b * h * h / 6;
+    const mn = single(Mcr);
+    if (mn.fail) return { error: "Die Mindestbewehrung lässt sich für diesen Querschnitt nicht bestimmen." };
+    const AsMin = mn.As;
+    const AsErf = Math.max(des.As, AsMin);
+    const As2Erf = des.As2;
+
+    // Stabwahl
+    const A1 = Math.PI * p.ds * p.ds / 4, A2 = Math.PI * p.ds2 * p.ds2 / 4;
+    const nAuto = Math.max(2, Math.ceil(AsErf / A1 - 1e-9));
+    const n2Auto = As2Erf > 0 ? Math.max(2, Math.ceil(As2Erf / A2 - 1e-9)) : 2;
+    const n = p.n === "" ? nAuto : p.n;
+    const n2 = p.n2 === "" ? n2Auto : p.n2;
+    const As = n * A1, As2 = n2 * A2;
+    const sMin = Math.max(p.ds, p.Dmax, 20), sMin2 = Math.max(p.ds2, p.Dmax, 20);
+    const sClear = n > 1 ? (inner - n * p.ds) / (n - 1) : null;
+    const sClear2 = n2 > 1 ? (inner - n2 * p.ds2) / (n2 - 1) : null;
+
+    // Biegewiderstand der gewählten Bewehrung: x aus dem Gleichgewicht der Kräfte (Halbierung)
+    const res = resist(As, As2);
+    if (res.error) return res;
+    function resist(AsP, As2P) {
+      const f = x => KBLOCK * x * b * fcd + As2P * sig(x, d2) + AsP * sig(x, d);
+      let lo = 1e-9 * h, hi = h / KBLOCK;
+      if (f(hi) < 0) return { error: "Die Bewehrung ist so stark, dass die Druckzone über die ganze Höhe reicht. Weniger Bewehrung wählen oder Querschnitt vergrössern." };
+      for (let i = 0; i < 200; i++) {
+        const mid = (lo + hi) / 2;
+        if (f(mid) < 0) lo = mid; else hi = mid;
+      }
+      const x = (lo + hi) / 2, a = KBLOCK * x;
+      const Fc = a * b * fcd, sS = -sig(x, d), sS2 = sig(x, d2);
+      const MRd = Fc * (d - a / 2) + As2P * sS2 * (d - d2);
+      return { x, a, Fc, sigS: sS, sigS2: sS2, Fs: AsP * sS, Fs2: As2P * sS2, MRd, xi: x / d,
+               epsS: EC2D * (d - x) / x, epsS2: EC2D * (x - d2) / x };
+    }
+
+    // Ampel x/d (4.1.4.2.5 und 4.1.4.2.6)
+    const steel = STEEL[p.steel];
+    const ductOk = p.steel === "free" ? null : steel.duct !== "A";
+    const ampel = xi => xi <= xi35 + 1e-12 ? (ductOk === false || p.fck > 50 ? "warn" : "ok") : xi <= xi50 + 1e-12 ? "warn" : "bad";
+
+    return {
+      etafc, fcd, fyd, eyd, d, d2, inner, xi35, xi50, xiY, xiLim, M,
+      des, ampelDes: ampel(des.xi),
+      t, kt, fctd, Mcr, mn, AsMin, AsErf, As2Erf,
+      A1, A2, nAuto, n2Auto, n, n2, As, As2, sMin, sMin2, sClear, sClear2,
+      res, ampelRes: ampel(res.xi), ductOk,
+      util: M / res.MRd, okM: res.MRd >= M * (1 - 1e-9), okMin: As >= AsMin * (1 - 1e-9), okEud: res.epsS <= p.eud,
+      resist
+    };
+  }
+  /*CALC-END*/
+
+  // ---------- Zustand (in der Adresszeile) ----------
+  const clone = o => JSON.parse(JSON.stringify(o));
+  let state = clone(DEFAULTS);
+  try {
+    if (location.hash.length > 1) {
+      const s = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+      if (s && typeof s === "object") {
+        for (const k in DEFAULTS) {
+          if (!(k in s)) continue;
+          const v = s[k], dv = DEFAULTS[k];
+          if (k === "conc") { if (v === "free" || CONC[v]) state[k] = v; }
+          else if (k === "steel") { if (v === "free" || STEEL[v]) state[k] = v; }
+          else if (k === "lim") { if (["0.35", "0.50", "none"].indexOf(v) >= 0) state[k] = v; }
+          else if (k === "etat") { if ([1, 0.85, 1.2].indexOf(v) >= 0) state[k] = v; }
+          else if (k === "ds" || k === "ds2") { if (DIAS.indexOf(v) >= 0) state[k] = v; }
+          else if (k === "n" || k === "n2") { if (v === "" || (typeof v === "number" && isFinite(v))) state[k] = v; }
+          else if (typeof v === "number" && isFinite(v) && typeof dv === "number") state[k] = v;
+        }
+      }
+    }
+  } catch (e) { /* ungültiger Link: Standardwerte */ }
+
+  function save() {
+    try { history.replaceState(null, "", "#" + encodeURIComponent(JSON.stringify(state))); } catch (e) { /* z. B. in eingebetteten Vorschauen */ }
+  }
+
+  // ---------- Formatierung ----------
+  const clean = x => (Math.abs(x) < 1e-9 ? 0 : x);
+  const sig = (x, d) => clean(x).toLocaleString("de-CH", { maximumSignificantDigits: d || 4 });
+  const fix = (x, d) => clean(x).toLocaleString("de-CH", { minimumFractionDigits: 0, maximumFractionDigits: d === undefined ? 1 : d });
+  const fixed = (x, d) => clean(x).toLocaleString("de-CH", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const permil = x => fixed(x * 1000, 2) + " ‰";
+  const $ = id => document.getElementById(id);
+
+  // ---------- Oberfläche ----------
+  const NUM = ["b", "h", "c", "dw", "Md", "fck", "fctm", "gc", "fyk", "eud", "gs", "Es", "n", "n2", "Dmax"];
+  function fillSelects() {
+    $("conc").innerHTML = Object.keys(CONC).map(k => "<option value='" + k + "'>" + k + "</option>").join("") + "<option value='free'>frei</option>";
+    $("steel").innerHTML = Object.keys(STEEL).map(k => "<option value='" + k + "'>" + k + "</option>").join("") + "<option value='free'>frei</option>";
+    const o = DIAS.map(v => "<option value='" + v + "'>Ø " + v + "</option>").join("");
+    $("ds").innerHTML = o; $("ds2").innerHTML = o;
+  }
+  function toInputs() {
+    for (const k of NUM) $(k).value = state[k];
+    for (const k of ["conc", "steel", "lim", "etat", "ds", "ds2"]) $(k).value = String(state[k]);
+  }
+  function bind() {
+    for (const k of NUM) {
+      $(k).addEventListener("input", () => {
+        const raw = $(k).value;
+        state[k] = raw === "" ? ((k === "n" || k === "n2") ? "" : NaN) : parseFloat(raw);
+        if (k === "fck" || k === "fctm") { state.conc = "free"; $("conc").value = "free"; }
+        if (k === "fyk" || k === "eud") { state.steel = "free"; $("steel").value = "free"; }
+        update();
+      });
+    }
+    $("conc").addEventListener("change", () => {
+      state.conc = $("conc").value;
+      const c = CONC[state.conc];
+      if (c) { state.fck = c[0]; state.fctm = c[1]; $("fck").value = c[0]; $("fctm").value = c[1]; }
+      update();
+    });
+    $("steel").addEventListener("change", () => {
+      state.steel = $("steel").value;
+      const s = STEEL[state.steel];
+      if (s) { state.fyk = s.fyk; state.eud = s.eud; $("fyk").value = s.fyk; $("eud").value = s.eud; }
+      update();
+    });
+    for (const k of ["lim", "etat", "ds", "ds2"]) {
+      $(k).addEventListener("change", () => {
+        state[k] = k === "lim" ? $(k).value : parseFloat($(k).value);
+        update();
+      });
+    }
+  }
+
+  // ---------- Zeichnung ----------
+  const SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent) {
+    const n = document.createElementNS(SVGNS, tag);
+    for (const a in attrs) n.setAttribute(a, attrs[a]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  function draw(r) {
+    const svg = $("figure");
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    const b = state.b, h = state.h, U = Math.max(b, h);
+    const gap = 0.2 * U, We = 0.34 * U, Ws = 0.5 * U;
+    const X0 = b + gap, X1 = X0 + We + gap;
+    const W = X1 + Ws, fs = 0.03 * Math.max(W, h);
+    const mL = 4.2 * fs, mT = 1.6 * fs, mB = 2.6 * fs, mR = 3.4 * fs;
+    svg.setAttribute("viewBox", [-mL, -mT, W + mL + mR, h + mT + mB].join(" "));
+    const sw = { "vector-effect": "non-scaling-stroke" };
+    const text = (txt, x, y, attrs) => {
+      const t = el("text", Object.assign({ x, y, "font-size": fs, fill: "var(--text)", "font-family": "system-ui, sans-serif", "dominant-baseline": "middle" }, attrs || {}), svg);
+      t.innerHTML = txt; return t;
+    };
+    const sub = s => "<tspan font-size='" + (0.75 * fs) + "' dy='" + (0.25 * fs) + "'>" + s + "</tspan><tspan dy='" + (-0.25 * fs) + "'></tspan>";
+
+    // Querschnitt, Bügel, Stäbe
+    el("rect", Object.assign({ x: 0, y: 0, width: b, height: h, fill: "var(--fill)", stroke: "var(--fill-stroke)", "stroke-width": 1.5 }, sw), svg);
+    const cw = state.c + state.dw / 2;
+    if (state.dw > 0) el("rect", { x: cw, y: cw, width: b - 2 * cw, height: h - 2 * cw, rx: 2 * state.dw, fill: "none", stroke: "var(--stirrup)", "stroke-width": state.dw }, svg);
+    const row = (n, ds, yc) => {
+      if (n <= 0) return;
+      const x0 = state.c + state.dw + ds / 2, x1 = b - x0;
+      for (let i = 0; i < n; i++) {
+        const xc = n === 1 ? b / 2 : x0 + (x1 - x0) * i / (n - 1);
+        el("circle", { cx: xc, cy: yc, r: ds / 2, fill: "var(--steel)" }, svg);
+      }
+    };
+    row(r.n, state.ds, r.d);
+    row(r.n2, state.ds2, r.d2);
+
+    // Bemassung
+    const dim = (x1, y1, x2, y2, label, side) => {
+      el("line", Object.assign({ x1, y1, x2, y2, stroke: "var(--muted)", "stroke-width": 1 }, sw), svg);
+      const tk = 0.18 * fs;
+      if (x1 === x2) {
+        el("line", Object.assign({ x1: x1 - tk, y1, x2: x1 + tk, y2: y1, stroke: "var(--muted)", "stroke-width": 1 }, sw), svg);
+        el("line", Object.assign({ x1: x1 - tk, y1: y2, x2: x1 + tk, y2, stroke: "var(--muted)", "stroke-width": 1 }, sw), svg);
+        text(label, x1 - 0.3 * fs, (y1 + y2) / 2, { "text-anchor": "middle", fill: "var(--muted)", transform: "rotate(-90 " + (x1 - 0.3 * fs) + " " + ((y1 + y2) / 2) + ")", "dominant-baseline": "auto" });
+      } else {
+        el("line", Object.assign({ x1, y1: y1 - tk, x2: x1, y2: y1 + tk, stroke: "var(--muted)", "stroke-width": 1 }, sw), svg);
+        el("line", Object.assign({ x1: x2, y1: y1 - tk, x2, y2: y1 + tk, stroke: "var(--muted)", "stroke-width": 1 }, sw), svg);
+        text(label, (x1 + x2) / 2, y1 + 0.9 * fs, { "text-anchor": "middle", fill: "var(--muted)" });
+      }
+    };
+    dim(0, h + 0.8 * fs, b, h + 0.8 * fs, "b = " + fix(b, 0));
+    dim(-2.5 * fs, 0, -2.5 * fs, h, "h = " + fix(h, 0));
+    dim(-0.8 * fs, 0, -0.8 * fs, r.d, "d = " + fix(r.d, 0));
+
+    const R = r.res, x = R.x;
+    // Nulllinie über alles
+    el("line", Object.assign({ x1: 0, y1: x, x2: W, y2: x, stroke: "var(--axis)", "stroke-width": 1.2, "stroke-dasharray": "6 4" }, sw), svg);
+
+    // Dehnungen
+    const k = (We * 0.8) / (EC2D + Math.abs(R.epsS));
+    const ax0 = X0 + EC2D * k + 0.1 * We;
+    el("line", Object.assign({ x1: ax0, y1: 0, x2: ax0, y2: h, stroke: "var(--muted)", "stroke-width": 1 }, sw), svg);
+    const yBot = r.d;
+    el("polygon", Object.assign({ points: [ax0, 0, ax0 - EC2D * k, 0, ax0, x].join(" "), fill: "var(--fill)", stroke: "var(--fill-stroke)", "stroke-width": 1.2 }, sw), svg);
+    el("polygon", Object.assign({ points: [ax0, x, ax0 + R.epsS * k, yBot, ax0, yBot].join(" "), fill: "none", stroke: "var(--tension)", "stroke-width": 1.2 }, sw), svg);
+    text("ε" + sub("c2d") + " = " + permil(EC2D), ax0, -0.7 * fs, { "text-anchor": "middle" });
+    text("ε" + sub("s") + " = " + permil(R.epsS), ax0 + 0.15 * fs, yBot + 0.9 * fs, { "text-anchor": "start", fill: "var(--tension)" });
+
+    // Spannungsblock links der Achse, Kräfte rechts davon
+    const sx = X1 + 0.3 * Ws, bw = 0.25 * Ws;
+    el("line", Object.assign({ x1: sx, y1: 0, x2: sx, y2: h, stroke: "var(--muted)", "stroke-width": 1 }, sw), svg);
+    el("rect", Object.assign({ x: sx - bw, y: 0, width: bw, height: R.a, fill: "var(--fill)", stroke: "var(--fill-stroke)", "stroke-width": 1.2 }, sw), svg);
+    text("f" + sub("cd"), sx - bw / 2, -0.7 * fs, { "text-anchor": "middle" });
+    const Fmax = Math.max(R.Fc, R.Fs, Math.abs(R.Fs2), 1);
+    const L = F => 0.3 * Ws * Math.max(0.3, F / Fmax);
+    // Pfeil von x1 nach x2 (Spitze bei x2)
+    const arrow = (x1, x2, y, color) => {
+      el("line", Object.assign({ x1, y1: y, x2, y2: y, stroke: color, "stroke-width": 2 }, sw), svg);
+      const hd = 0.45 * fs * Math.sign(x2 - x1);
+      el("polygon", { points: [x2, y, x2 - hd, y - 0.28 * fs, x2 - hd, y + 0.28 * fs].join(" "), fill: color }, svg);
+    };
+    arrow(sx + L(R.Fc), sx, R.a / 2, "var(--fill-stroke)");
+    text("F" + sub("c") + " = " + fix(R.Fc / 1000, 0) + " kN", sx + L(R.Fc) + 0.3 * fs, R.a / 2, { "text-anchor": "start" });
+    if (Math.abs(R.Fs2) > 1e-6) {
+      if (R.Fs2 > 0) arrow(sx + L(R.Fs2), sx, r.d2, "var(--fill-stroke)");
+      else arrow(sx, sx + L(-R.Fs2), r.d2, "var(--tension)");
+    }
+    arrow(sx, sx + L(R.Fs), r.d, "var(--tension)");
+    text("F" + sub("s") + " = " + fix(R.Fs / 1000, 0) + " kN", sx, r.d + 1.0 * fs, { "text-anchor": "start", fill: "var(--tension)" });
+    text("x = " + fix(x, 0), X0 - 0.3 * fs, x + 0.8 * fs, { "text-anchor": "end", fill: "var(--axis)" });
+  }
+
+  // ---------- Ausgabe ----------
+  const LIGHT_TEXT = {
+    ok: "Umlagerung der Schnittgrössen ohne Nachweis des Verformungsvermögens zulässig (4.1.4.2.5).",
+    warn: "Schnittgrössen nach Elastizitätstheorie ohne Umlagerung; Umlagerung nur mit Nachweis des Verformungsvermögens.",
+    bad: "Zu hoch: nach 4.1.4.2.6 möglichst vermeiden. Druckbewehrung, grösseren Querschnitt oder höhere Betonfestigkeit wählen."
+  };
+  function lightWhy(r, cls, xi) {
+    if (cls === "warn" && xi <= r.xi35 + 1e-12) {
+      if (r.ductOk === false) return "x/d wäre klein genug, aber Betonstahl der Klasse A erlaubt keine Umlagerung ohne Nachweis (4.1.4.2.5).";
+      return "x/d wäre klein genug, aber für Beton über C50/60 gilt die Umlagerung ohne Nachweis nicht (4.1.4.2.5).";
+    }
+    return LIGHT_TEXT[cls];
+  }
+  const LIGHT_HEAD = { ok: "x/d in Ordnung", warn: "x/d erhöht", bad: "x/d zu hoch" };
+
+  function renderMain(r) {
+    const R = r.res;
+    let h = "<div class='big'>erf. A<sub>s</sub> = " + fix(r.AsErf, 0) + " mm²";
+    if (r.As2Erf > 0) h += " &nbsp;·&nbsp; erf. A<sub>s</sub>' = " + fix(r.As2Erf, 0) + " mm²";
+    h += "</div>";
+    h += "<p>Gewählt: unten <b>" + r.n + " Ø " + state.ds + "</b> = " + fix(r.As, 0) + " mm²" +
+      ", oben " + (r.n2 > 0 ? "<b>" + r.n2 + " Ø " + state.ds2 + "</b> = " + fix(r.As2, 0) + " mm²" + (r.As2Erf > 0 ? "" : " (Montagestäbe)") : "keine") + "</p>";
+    if (r.AsMin > r.des.As) h += "<p>Massgebend ist die Mindestbewehrung A<sub>s,min</sub> = " + fix(r.AsMin, 0) + " mm² (Biegung allein: " + fix(r.des.As, 0) + " mm²).</p>";
+
+    const lights = [];
+    const lt = (cls, head, why) => "<div class='light " + cls + "'><span class='dot'></span><span><b>" + head + "</b> " + why + "</span></div>";
+    lights.push(lt(r.ampelRes, LIGHT_HEAD[r.ampelRes] + ": x/d = " + fixed(R.xi, 3) + ".",
+      "<span class='why'>Grenzen " + fixed(r.xi35, 3) + " / " + fixed(r.xi50, 3) + ". " + lightWhy(r, r.ampelRes, R.xi) + "</span>"));
+    lights.push(lt(r.okM ? "ok" : "bad", "M<sub>Rd</sub> = " + fix(R.MRd / 1e6, 1) + " kNm " + (r.okM ? "≥" : "<") + " M<sub>d</sub> = " + fix(state.Md, 1) + " kNm.",
+      "<span class='why'>Ausnutzung " + fix(r.util * 100, 0) + " %." + (r.okM ? "" : " Mehr Bewehrung wählen.") + "</span>"));
+    if (!r.okMin) lights.push(lt("bad", "Mindestbewehrung nicht eingehalten.", "<span class='why'>A<sub>s</sub> = " + fix(r.As, 0) + " mm² &lt; A<sub>s,min</sub> = " + fix(r.AsMin, 0) + " mm².</span>"));
+    const tight = (s, sMin) => s !== null && s < sMin - 1e-9;
+    if (tight(r.sClear, r.sMin)) lights.push(lt("warn", "Stäbe unten zu eng.", "<span class='why'>Lichter Abstand " + fix(r.sClear, 0) + " mm &lt; " + fix(r.sMin, 0) + " mm (5.2.3.2). Grösseren Durchmesser oder zwei Lagen wählen (zwei Lagen rechnet der Rechner nicht).</span>"));
+    if (tight(r.sClear2, r.sMin2)) lights.push(lt("warn", "Stäbe oben zu eng.", "<span class='why'>Lichter Abstand " + fix(r.sClear2, 0) + " mm &lt; " + fix(r.sMin2, 0) + " mm (5.2.3.2).</span>"));
+    if (!r.okEud) lights.push(lt("warn", "Stahldehnung ε<sub>s</sub> = " + permil(R.epsS) + " &gt; ε<sub>ud</sub> = " + permil(state.eud) + ".", "<span class='why'>Der Stahl erreicht seine Bruchdehnung, bevor der Beton ε<sub>c2d</sub> erreicht; M<sub>Rd</sub> ist nur eine Näherung.</span>"));
+    if (R.epsS < r.eyd) lights.push(lt("warn", "Zugbewehrung fliesst nicht.", "<span class='why'>ε<sub>s</sub> = " + permil(R.epsS) + " &lt; ε<sub>yd</sub> = " + permil(r.eyd) + ": sprödes Versagen der Druckzone.</span>"));
+    if (r.des.comp && state.n2 !== "" && r.As2 < r.As2Erf * (1 - 1e-9)) lights.push(lt("warn", "Druckbewehrung kleiner als erforderlich.", "<span class='why'>Gewählt " + fix(r.As2, 0) + " mm² &lt; erf. " + fix(r.As2Erf, 0) + " mm²; x/d steigt.</span>"));
+    if (state.lim === "none" && r.des.xi > r.xi50) lights.push(lt("bad", "Ohne Druckbewehrung: x/d = " + fixed(r.des.xi, 3) + " in der Bemessung.", "<span class='why'>Druckbewehrung zulassen oder Querschnitt vergrössern.</span>"));
+    h += "<div class='lights'>" + lights.join("") + "</div>";
+    $("main-result").innerHTML = h;
+  }
+
+  function renderResults(r) {
+    const D = r.des, R = r.res;
+    const rows = [
+      ["Statische Höhe d / d'", fix(r.d, 1) + " / " + fix(r.d2, 1), "mm"],
+      ["f<sub>cd</sub> = η<sub>fc</sub>·η<sub>t</sub>·f<sub>ck</sub>/γ<sub>c</sub>", fixed(r.fcd, 2), "N/mm²"],
+      ["f<sub>yd</sub> = f<sub>yk</sub>/γ<sub>s</sub>", fix(r.fyd, 1), "N/mm²"],
+      ["<b>Bemessung</b>", "", ""],
+      ["x (Bemessung)", fix(D.x, 1), "mm"],
+      ["x/d (Bemessung)", fixed(D.xi, 3), "", r.ampelDes],
+      ["Hebelarm z", fix(D.z, 1), "mm"],
+      ["A<sub>s</sub> aus Biegung", fix(D.As, 0), "mm²"],
+      ["A<sub>s,min</sub> (sprödes Versagen)", fix(r.AsMin, 0), "mm²"],
+      ["erf. A<sub>s</sub>", fix(r.AsErf, 0), "mm²", null, true],
+      ["erf. A<sub>s</sub>' (Druckbewehrung)", fix(r.As2Erf, 0), "mm²", null, r.As2Erf > 0],
+      ["<b>Gewählte Bewehrung</b>", "", ""],
+      ["A<sub>s</sub> = " + r.n + " Ø " + state.ds, fix(r.As, 0), "mm²"],
+      ["A<sub>s</sub>' = " + r.n2 + " Ø " + state.ds2, fix(r.As2, 0), "mm²"],
+      ["Bewehrungsgehalt ρ = A<sub>s</sub>/(b·d)", fixed(r.As / (state.b * r.d) * 100, 2), "%"],
+      ["Lichter Abstand unten (min. " + fix(r.sMin, 0) + ")", r.sClear === null ? "–" : fix(r.sClear, 0), "mm", r.sClear === null ? null : r.sClear >= r.sMin - 1e-9 ? "ok" : "warn"],
+      ["Lichter Abstand oben (min. " + fix(r.sMin2, 0) + ")", r.sClear2 === null ? "–" : fix(r.sClear2, 0), "mm", r.sClear2 === null ? null : r.sClear2 >= r.sMin2 - 1e-9 ? "ok" : "warn"],
+      ["x", fix(R.x, 1), "mm"],
+      ["x/d", fixed(R.xi, 3), "", r.ampelRes],
+      ["ε<sub>s</sub> (Zugbewehrung)", permil(R.epsS), "", R.epsS >= r.eyd && r.okEud ? "ok" : "warn"],
+      ["σ<sub>s</sub>' (Druckbewehrung)", fix(R.sigS2, 0), "N/mm²"],
+      ["M<sub>Rd</sub>", fix(R.MRd / 1e6, 1), "kNm", r.okM ? "ok" : "bad", true],
+      ["Ausnutzung M<sub>d</sub>/M<sub>Rd</sub>", fix(r.util * 100, 0), "%", r.okM ? "ok" : "bad"]
+    ];
+    const FLAG = { ok: "✓", warn: "!", bad: "✗" };
+    $("results").innerHTML = rows.map(x => {
+      if (x[1] === "" && x[2] === "") return "<tr><td colspan='4' style='color:var(--text);padding-top:16px'>" + x[0] + "</td></tr>";
+      return "<tr" + (x[4] ? " class='key'" : "") + "><td>" + x[0] + "</td><td class='num'>" + x[1] + "</td><td class='unit'>" + x[2] +
+        "</td><td class='flag " + (x[3] || "") + "'>" + (x[3] ? FLAG[x[3]] : "") + "</td></tr>";
+    }).join("");
+  }
+
+  function renderSteps(r) {
+    const p = state, D = r.des, R = r.res, mn = r.mn;
+    const L = [];
+    const H = t => L.push("</div><h3>" + t + "</h3><div class='formula'>");
+    const l = s => L.push(s + "<br>");
+    const c = s => L.push("<span class='c'>" + s + "</span><br>");
+
+    H("1 Baustoffe (SIA 262, 2.4.2 und 4.2)");
+    l("η<sub>fc</sub> = (40/f<sub>ck</sub>)<sup>1/3</sup> = (40/" + fix(p.fck, 1) + ")<sup>1/3</sup> = " + fixed(Math.cbrt(40 / p.fck), 3) + (Math.cbrt(40 / p.fck) > 1 ? " → 1.0 (≤ 1.0)" : ""));
+    l("f<sub>cd</sub> = η<sub>fc</sub>·η<sub>t</sub>·f<sub>ck</sub>/γ<sub>c</sub> = " + fixed(r.etafc, 3) + "·" + fix(p.etat, 2) + "·" + fix(p.fck, 1) + "/" + fix(p.gc, 2) + " = " + fixed(r.fcd, 2) + " N/mm²");
+    l("f<sub>yd</sub> = f<sub>yk</sub>/γ<sub>s</sub> = " + fix(p.fyk, 1) + "/" + fix(p.gs, 2) + " = " + fix(r.fyd, 1) + " N/mm²");
+    l("ε<sub>yd</sub> = f<sub>yd</sub>/E<sub>s</sub> = " + fix(r.fyd, 1) + "/" + fix(p.Es, 0) + " = " + permil(r.eyd) + " &nbsp;·&nbsp; ε<sub>c2d</sub> = 3.5 ‰");
+
+    H("2 Geometrie");
+    l("d = h − c<sub>nom</sub> − Ø<sub>w</sub> − Ø/2 = " + fix(p.h) + " − " + fix(p.c) + " − " + fix(p.dw) + " − " + fix(p.ds / 2) + " = " + fix(r.d, 1) + " mm");
+    l("d' = c<sub>nom</sub> + Ø<sub>w</sub> + Ø'/2 = " + fix(p.c) + " + " + fix(p.dw) + " + " + fix(p.ds2 / 2) + " = " + fix(r.d2, 1) + " mm");
+
+    H("3 Grenzen der Druckzonenhöhe (4.1.4.2.5 und 4.1.4.2.6)");
+    l("(x/d)<sub>1</sub> = 0.35·435/f<sub>yd</sub> = 0.35·435/" + fix(r.fyd, 1) + " = " + fixed(r.xi35, 3) + " &nbsp;<span class='c'>Umlagerung ohne Nachweis</span>");
+    l("(x/d)<sub>2</sub> = 0.50·435/f<sub>yd</sub> = 0.50·435/" + fix(r.fyd, 1) + " = " + fixed(r.xi50, 3) + " &nbsp;<span class='c'>darüber möglichst vermeiden</span>");
+    c("Fliessbeginn der Zugbewehrung bei x/d = ε<sub>c2d</sub>/(ε<sub>c2d</sub> + ε<sub>yd</sub>) = " + fixed(r.xiY, 3));
+
+    H("4 Bemessung für M<sub>d</sub> = " + fix(p.Md, 1) + " kNm");
+    c("Gleichgewicht: F<sub>c</sub> = 0.85·x·b·f<sub>cd</sub>, Moment um die Zugbewehrung M<sub>d</sub> = F<sub>c</sub>·(d − 0.85·x/2)");
+    if (p.Md > 0) {
+      l("μ = M<sub>d</sub>/(b·d²·f<sub>cd</sub>) = " + sig(r.M, 5) + "/(" + fix(p.b) + "·" + fix(r.d, 1) + "²·" + fixed(r.fcd, 2) + ") = " + fixed(D.mu, 4));
+      if (D.mu <= 0.5) {
+        const a0 = r.d * (1 - Math.sqrt(1 - 2 * D.mu));
+        l("0.85·x = d·(1 − √(1 − 2μ)) = " + fix(r.d, 1) + "·(1 − √(1 − 2·" + fixed(D.mu, 4) + ")) = " + fix(a0, 1) + " mm");
+        l("x = " + fix(a0, 1) + "/0.85 = " + fix(a0 / 0.85, 1) + " mm &nbsp;→&nbsp; x/d = " + fixed(a0 / 0.85 / r.d, 3));
+      } else {
+        l("1 − 2μ &lt; 0: ohne Druckbewehrung keine Lösung");
+      }
+    }
+    if (D.comp) {
+      l("x/d &gt; Grenze " + fixed(r.xiLim, 3) + " → Druckbewehrung, x = " + fixed(r.xiLim, 3) + "·d = " + fix(D.x, 1) + " mm");
+      l("F<sub>c</sub> = 0.85·x·b·f<sub>cd</sub> = 0.85·" + fix(D.x, 1) + "·" + fix(p.b) + "·" + fixed(r.fcd, 2) + " = " + fix(D.Fc / 1000, 1) + " kN");
+      l("z = d − 0.85·x/2 = " + fix(D.z, 1) + " mm &nbsp;→&nbsp; M<sub>c</sub> = F<sub>c</sub>·z = " + fix(D.Mc / 1e6, 1) + " kNm");
+      l("ΔM = M<sub>d</sub> − M<sub>c</sub> = " + fix(p.Md, 1) + " − " + fix(D.Mc / 1e6, 1) + " = " + fix(D.dM / 1e6, 1) + " kNm");
+      const e2 = EC2D * (D.x - r.d2) / D.x;
+      l("ε<sub>s</sub>' = ε<sub>c2d</sub>·(x − d')/x = " + permil(e2) + " &nbsp;→&nbsp; σ<sub>s</sub>' = min(E<sub>s</sub>·ε<sub>s</sub>'; f<sub>yd</sub>) = " + fix(D.sigS2, 1) + " N/mm²");
+      l("A<sub>s</sub>' = ΔM/(σ<sub>s</sub>'·(d − d')) = " + sig(D.dM, 5) + "/(" + fix(D.sigS2, 1) + "·" + fix(r.d - r.d2, 1) + ") = " + fix(D.As2, 0) + " mm²");
+      l("A<sub>s</sub> = (F<sub>c</sub> + A<sub>s</sub>'·σ<sub>s</sub>')/σ<sub>s</sub> = (" + fix(D.Fc / 1000, 1) + " + " + fix(D.As2 * D.sigS2 / 1000, 1) + ")·10³/" + fix(D.sigS, 1) + " = " + fix(D.As, 0) + " mm²");
+    } else if (p.Md > 0) {
+      const es = EC2D * (r.d - D.x) / D.x;
+      l("ε<sub>s</sub> = ε<sub>c2d</sub>·(d − x)/x = " + permil(es) + (es >= r.eyd ? " ≥ ε<sub>yd</sub> → σ<sub>s</sub> = f<sub>yd</sub>" : " &lt; ε<sub>yd</sub> → σ<sub>s</sub> = E<sub>s</sub>·ε<sub>s</sub> = " + fix(D.sigS, 1) + " N/mm²"));
+      l("z = d − 0.85·x/2 = " + fix(D.z, 1) + " mm");
+      l("A<sub>s</sub> = M<sub>d</sub>/(z·σ<sub>s</sub>) = " + sig(r.M, 5) + "/(" + fix(D.z, 1) + "·" + fix(D.sigS, 1) + ") = " + fix(D.As, 0) + " mm²");
+    } else {
+      l("M<sub>d</sub> = 0 → A<sub>s</sub> = 0");
+    }
+
+    H("5 Mindestbewehrung gegen sprödes Versagen (4.3.1.2, 4.4.1.3)");
+    l("t = h/3 = " + fix(r.t * 1000, 1) + " mm = " + fixed(r.t, 3) + " m &nbsp;→&nbsp; k<sub>t</sub> = 1/(1 + 0.5·t) = " + fixed(r.kt, 3));
+    l("f<sub>ctd</sub> = f<sub>ct,eff</sub> = k<sub>t</sub>·f<sub>ctm</sub> = " + fixed(r.kt, 3) + "·" + fix(p.fctm, 2) + " = " + fixed(r.fctd, 2) + " N/mm²");
+    l("M<sub>cr</sub> = f<sub>ctd</sub>·b·h²/6 = " + fixed(r.fctd, 2) + "·" + fix(p.b) + "·" + fix(p.h) + "²/6 = " + fix(r.Mcr / 1e6, 1) + " kNm");
+    l("A<sub>s,min</sub> aus M<sub>Rd</sub> = M<sub>cr</sub>: z = " + fix(mn.z, 1) + " mm, A<sub>s,min</sub> = M<sub>cr</sub>/(z·f<sub>yd</sub>) = " + fix(r.AsMin, 0) + " mm²");
+    l("erf. A<sub>s</sub> = max(" + fix(D.As, 0) + "; " + fix(r.AsMin, 0) + ") = <b>" + fix(r.AsErf, 0) + " mm²</b>" + (r.As2Erf > 0 ? " &nbsp;·&nbsp; erf. A<sub>s</sub>' = <b>" + fix(r.As2Erf, 0) + " mm²</b>" : ""));
+
+    H("6 Stabwahl (5.2.3.2)");
+    l("A<sub>Ø" + p.ds + "</sub> = π·" + p.ds + "²/4 = " + fix(r.A1, 1) + " mm² &nbsp;→&nbsp; n = ⌈" + fix(r.AsErf, 0) + "/" + fix(r.A1, 1) + "⌉ = " + r.nAuto + (p.n === "" ? "" : " (gewählt " + r.n + ")") + " &nbsp;→&nbsp; A<sub>s</sub> = " + fix(r.As, 0) + " mm²");
+    l("A<sub>s</sub>': " + (r.As2Erf > 0 ? "n' = ⌈" + fix(r.As2Erf, 0) + "/" + fix(r.A2, 1) + "⌉ = " + r.n2Auto : "nicht erforderlich, 2 Montagestäbe") + (p.n2 === "" ? "" : " (gewählt " + r.n2 + ")") + " &nbsp;→&nbsp; A<sub>s</sub>' = " + fix(r.As2, 0) + " mm²");
+    if (r.sClear !== null) l("lichter Abstand unten = (b − 2·(c<sub>nom</sub> + Ø<sub>w</sub>) − n·Ø)/(n − 1) = (" + fix(r.inner, 0) + " − " + r.n + "·" + p.ds + ")/" + (r.n - 1) + " = " + fix(r.sClear, 0) + " mm " + (r.sClear >= r.sMin - 1e-9 ? "≥" : "&lt;") + " max(Ø; D<sub>max</sub>; 20) = " + fix(r.sMin, 0) + " mm");
+
+    H("7 Biegewiderstand der gewählten Bewehrung");
+    c("x aus dem Gleichgewicht der Kräfte, Stahlspannungen aus den Dehnungen (σ = E<sub>s</sub>·ε, höchstens f<sub>yd</sub>)");
+    l("0.85·x·b·f<sub>cd</sub> + A<sub>s</sub>'·σ<sub>s</sub>' = A<sub>s</sub>·σ<sub>s</sub> &nbsp;→&nbsp; x = " + fix(R.x, 1) + " mm, x/d = " + fixed(R.xi, 3));
+    l("ε<sub>s</sub> = " + permil(R.epsS) + " → σ<sub>s</sub> = " + fix(R.sigS, 1) + " N/mm² &nbsp;·&nbsp; ε<sub>s</sub>' = " + permil(R.epsS2) + " → σ<sub>s</sub>' = " + fix(R.sigS2, 1) + " N/mm²");
+    l("F<sub>c</sub> = " + fix(R.Fc / 1000, 1) + " kN, F<sub>s</sub>' = " + fix(R.Fs2 / 1000, 1) + " kN, F<sub>s</sub> = " + fix(R.Fs / 1000, 1) + " kN");
+    l("M<sub>Rd</sub> = F<sub>c</sub>·(d − 0.85·x/2) + F<sub>s</sub>'·(d − d') = " + fix(R.Fc / 1000, 1) + "·" + fix(r.d - R.a / 2, 1) + " + " + fix(R.Fs2 / 1000, 1) + "·" + fix(r.d - r.d2, 1) + " = <b>" + fix(R.MRd / 1e6, 1) + " kNm</b>");
+    l("M<sub>d</sub>/M<sub>Rd</sub> = " + fix(p.Md, 1) + "/" + fix(R.MRd / 1e6, 1) + " = " + fixed(r.util, 3) + (r.okM ? " ≤ 1.0 ✓" : " &gt; 1.0 ✗"));
+
+    $("steps").innerHTML = (L.join("") + "</div>").replace(/^<\/div>/, "");
+  }
+
+  function update() {
+    save();
+    const r = compute(state);
+    const err = $("error");
+    if (r.error) {
+      err.textContent = r.error;
+      err.hidden = false;
+      return; // letzte gültige Ausgabe bleibt stehen
+    }
+    err.hidden = true;
+    $("n").placeholder = "auto (" + r.nAuto + ")";
+    $("n2").placeholder = "auto (" + r.n2Auto + ")";
+    renderMain(r);
+    draw(r);
+    renderResults(r);
+    renderSteps(r);
+  }
+
+  $("reset").addEventListener("click", () => {
+    state = clone(DEFAULTS);
+    toInputs(); update();
+  });
+
+  fillSelects();
+  toInputs();
+  bind();
+  update();
+
+  window.addEventListener("beforeprint", () => { $("steps-wrap").open = true; });
+
+  // Hell / Dunkel / System: wie in src/layouts/Base.astro, gleicher Speicherschlüssel "theme".
+  (function () {
+    const root = document.documentElement;
+    const group = document.querySelector(".theme");
+    const buttons = group.querySelectorAll("button");
+    function apply(theme) {
+      if (theme === "light" || theme === "dark") root.dataset.theme = theme;
+      else { delete root.dataset.theme; theme = "system"; }
+      try {
+        if (theme === "system") localStorage.removeItem("theme");
+        else localStorage.setItem("theme", theme);
+      } catch (e) {}
+      buttons.forEach(b => b.setAttribute("aria-pressed", b.dataset.theme === theme));
+    }
+    buttons.forEach(b => b.addEventListener("click", () => apply(b.dataset.theme)));
+    apply(root.dataset.theme);
+    group.hidden = false;
+  })();
+
+  // Für Tests: Rechenkern von aussen erreichbar
+  window.__bb = { compute, DEFAULTS, CONC, STEEL };
+})();
+</script>
+</body>
+</html>
