@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>Lastkombinationen (SIA 260) | Josija Nydegger</title>
+<!-- Link-Vorschau (LinkedIn, WhatsApp usw.) und Suchmaschinen; Tool-Seiten haben kein Front Matter, darum von Hand -->
+<link rel="canonical" href="https://josija-nydegger.ch/tools/lastkombinationen/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Josija Nydegger">
+<meta property="og:locale" content="de_CH">
+<meta property="og:title" content="Lastkombinationen (SIA 260) | Josija Nydegger">
+<meta property="og:description" content="Lastkombinationen nach SIA 260:2013 für Tragsicherheit (Typ 2) und Gebrauchstauglichkeit: massgebende Bemessungslast q_d aus ständigen und veränderlichen Einwirkungen, mit Rechenweg.">
+<meta property="og:url" content="https://josija-nydegger.ch/tools/lastkombinationen/">
+<meta name="twitter:card" content="summary">
+<meta name="author" content="Josija Nydegger">
+<meta name="description" content="Lastkombinationen nach SIA 260:2013: Grundkombination für die Tragsicherheit (Typ 2) sowie seltene, häufige und quasi-ständige Lastfälle für die Gebrauchstauglichkeit, mit ψ-Werten nach Anhang A und Rechenweg.">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  /* Farben und Typografie wie style.css der Website (josija-nydegger.ch).
+     Zusätzliche Farben nur für Markierungen und Fehlermeldungen. */
+  :root {
+    color-scheme: light dark;
+    --bg: #fcfcfb;
+    --text: #1a1a1a;
+    --muted: #6b6a66;
+    --border: #e7e6e2;
+    --accent: #1a1a1a;
+    --tag-bg: #f1f0ed;
+    --ok: #2e7d4f;
+    --error-bg: #fbeceb;
+    --error-fg: #8a1f11;
+    --field: #ffffff;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+      --ok: #6fd39a; --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+    --ok: #6fd39a; --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+
+  /* ---------- Grundlayout wie Website ---------- */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 56px 20px 40px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border); }
+  a:hover { text-decoration-color: var(--accent); }
+  .back { display: inline-block; margin-bottom: 28px; color: var(--muted); text-decoration: none; font-size: 14px; }
+  .back:hover { color: var(--text); }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 16px; margin: 44px 0 16px; }
+  h3 { font-size: 15px; margin: 24px 0 8px; }
+  p { margin: 0 0 14px; }
+  .lead { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+  sub, sup { font-size: 0.72em; line-height: 0; }
+
+  /* ---------- Eingaben ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px 16px; }
+  .group { font-size: 13px; font-weight: 600; color: var(--muted); margin: 22px 0 8px; }
+  .group:first-child { margin-top: 0; }
+  label { display: block; font-size: 13px; color: var(--muted); }
+  label .sym { color: var(--text); font-style: italic; }
+  select, .txt {
+    width: 100%; margin-top: 4px; height: 36px;
+    font: inherit; font-size: 14px;
+    padding: 0 6px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--field); color: var(--text);
+  }
+  .txt { padding: 0 9px; }
+  select:focus, .txt:focus { outline: none; border-color: var(--accent); }
+  select:disabled { background: var(--tag-bg); color: var(--muted); }
+  /* Zahlenfelder: Einheit im Feld, Zahlen rechtsbündig in Monospace */
+  .inp {
+    display: flex; align-items: center; margin-top: 4px; height: 36px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--field); padding-right: 9px; min-width: 0;
+  }
+  .inp:focus-within { border-color: var(--accent); }
+  .inp input {
+    flex: 1; min-width: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 8px; background: transparent; color: var(--text);
+    padding: 0 6px 0 9px; font-family: var(--mono); font-size: 14px; text-align: right;
+    -moz-appearance: textfield; appearance: textfield;
+  }
+  .inp input::-webkit-inner-spin-button, .inp input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .inp input:focus { outline: none; }
+  .inp input::placeholder { color: var(--muted); }
+  .inp span { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: 3px; white-space: nowrap; }
+  .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .error {
+    background: var(--error-bg); color: var(--error-fg);
+    padding: 10px 12px; border-radius: 8px; margin: 16px 0 0; font-size: 14px;
+  }
+
+  /* ---------- Liste der Einwirkungen ---------- */
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .actions table { min-width: 620px; font-size: 14px; }
+  .actions th { padding: 4px; }
+  .actions td { padding: 4px; border-bottom: none; vertical-align: middle; }
+  .actions td select, .actions td .txt, .actions td .inp { margin-top: 0; }
+  .actions td.c-art select { width: 66px; }
+  .actions td.c-val .inp { width: 80px; }
+  .actions td.c-unit select { width: 86px; }
+  .actions td.c-type select { width: 170px; }
+  .actions input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--text); margin: 0 auto; display: block; }
+  .row-actions { display: flex; gap: 8px; margin: 10px 0 0; flex-wrap: wrap; }
+
+  /* ---------- Ergebnis ---------- */
+  .main-result { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 14px 0; }
+  .main-result .big { font-size: 22px; font-weight: 600; line-height: 1.35; }
+  .main-result p { margin: 4px 0 0; font-size: 14px; }
+
+  /* ---------- Tabellen ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
+  th { font-weight: 600; font-size: 13px; color: var(--muted); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.unit { color: var(--muted); white-space: nowrap; font-size: 14px; }
+  .results tr:first-child td { border-top: 1px solid var(--border); }
+  .results td:first-child { color: var(--muted); }
+  .combos table { font-size: 14px; }
+  .combos td.f { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .combos tr.gov td { font-weight: 600; }
+  .combos tr.gov td.f { color: var(--text); font-weight: 400; }
+  .combos .mark { color: var(--ok); font-size: 12px; font-weight: 600; white-space: nowrap; }
+  @media (max-width: 560px) { .results td, .combos td { padding: 7px 4px; } }
+
+  /* ---------- Rechenweg (Formeln wie Codeblöcke der Website) ---------- */
+  details { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 14px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .formula {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    background: var(--tag-bg); padding: 14px; border-radius: 8px; line-height: 1.8; overflow-x: auto;
+  }
+  .formula .c { color: var(--muted); }
+
+  /* ---------- Buttons wie .button der Website ---------- */
+  .btn {
+    font: inherit; font-size: 14px; line-height: 1.5; padding: 6px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--accent); cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn[aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
+  .btn-x { padding: 2px 10px; }
+  .tools { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+
+  ul.list { margin: 0 0 14px; padding-left: 20px; font-size: 13px; color: var(--muted); }
+  ul.list li { margin: 2px 0; }
+
+  /* ---------- Fusszeile wie Website ---------- */
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  footer p { margin: 0 0 8px; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--text); }
+  .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .foot-row p { margin: 0; }
+  .theme { display: flex; gap: 2px; }
+  .theme[hidden] { display: none; }
+  .theme button {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
+    background: none; color: var(--muted); cursor: pointer;
+  }
+  .theme button:hover { color: var(--text); }
+  .theme button[aria-pressed="true"] { background: var(--tag-bg); color: var(--text); }
+  .theme svg { width: 16px; height: 16px; }
+
+  /* ---------- Druck / PDF ---------- */
+  @media print {
+    :root:root:root {
+      color-scheme: light;
+      --bg: #ffffff; --text: #1a1a1a; --muted: #555555; --border: #dddddd; --accent: #1a1a1a; --tag-bg: #f1f0ed;
+      --ok: #2e7d4f; --field: #ffffff;
+    }
+    body { font-size: 10.5pt; line-height: 1.45; }
+    main { max-width: none; padding: 0; }
+    .back, .tools, .theme, .row-actions, .btn-x, #link-note { display: none !important; }
+    .actions table { min-width: 0; }
+    .scroll { overflow: visible; }
+    table, .formula, .main-result { break-inside: avoid; }
+    a { text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/tools/">← Tools</a>
+  <h1>Lastkombinationen</h1>
+  <p class="lead">Lastkombinationen nach SIA 260:2013 für die Tragsicherheit (Typ 2) und die Gebrauchstauglichkeit von Gebäuden. Aus ständigen und veränderlichen Einwirkungen entsteht die massgebende Bemessungslast q<sub>d</sub>. Werte in kN/m², kN/m oder kN.</p>
+
+  <section id="inputs">
+    <div class="group">Einwirkungen</div>
+    <div class="actions scroll">
+      <table>
+        <thead><tr><th>Name</th><th title="G ständig, Q veränderlich">Art</th><th>Wert</th><th>Einheit</th><th>Typ (ψ-Werte)</th><th title="günstig wirkend">günstig</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="row-actions">
+      <button class="btn" type="button" id="add-g">+ Ständige Einwirkung</button>
+      <button class="btn" type="button" id="add-q">+ Veränderliche Einwirkung</button>
+    </div>
+    <p class="note">Art: G = ständig, Q = veränderlich. Werte als charakteristische Werte (G<sub>k</sub>, Q<sub>k</sub>) eingeben, immer positiv. «Günstig» heisst: Die Einwirkung wirkt der massgebenden Richtung entgegen (z. B. Eigengewicht gegen Abheben durch Windsog). Günstige ständige Einwirkungen werden mit γ<sub>G,inf</sub> abgezogen, günstige veränderliche nicht angesetzt.</p>
+
+    <div class="group">Weitere Angaben</div>
+    <div class="grid">
+      <label>Bezugshöhe <span class="sym">h<sub>0</sub></span> (Schnee)<span class="inp"><input id="h0" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
+      <label>Lasteinzugsbreite <span class="sym">b<sub>e</sub></span><span class="inp"><input id="be" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
+      <label>Spannweite <span class="sym">L</span> (Balken-Tool)<span class="inp"><input id="L" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
+      <label>Nachweis<select id="show">
+        <option value="both">beide</option>
+        <option value="uls">Tragsicherheit</option>
+        <option value="sls">Gebrauchstauglichkeit</option>
+      </select></label>
+    </div>
+    <p class="note">h<sub>0</sub> = Meereshöhe + Zuschlag nach der Karte in SIA 261, Anhang D (nicht anwendbar für Bauwerke über 2000 m ü. M.); nur für Schneelasten nötig. Begehbare Dächer zählen zu den Kategorien A bis G (SIA 261, Tabelle 8, Fussnote 5). Mit b<sub>e</sub> werden Flächenlasten in kN/m² zu Linienlasten in kN/m (q = b<sub>e</sub>·q<sub>Fläche</sub>). L braucht es nur für die Übergabe ans Balken-Tool.</p>
+  </section>
+  <div class="error" id="error" hidden></div>
+
+  <h2>Ergebnis</h2>
+  <div class="main-result" id="main-result"></div>
+  <h3>Kennwerte</h3>
+  <table class="results" id="results"></table>
+  <div class="tools">
+    <a class="btn" id="to-beam" href="/tools/balken/">Ins Balken-Tool übernehmen</a>
+  </div>
+  <p class="note" id="beam-note"></p>
+
+  <section id="uls-wrap">
+    <h2>Tragsicherheit, Grundkombination (Typ 2)</h2>
+    <div class="combos scroll" id="uls"></div>
+  </section>
+  <section id="sls-wrap">
+    <h2>Gebrauchstauglichkeit</h2>
+    <h3>Seltene Lastfälle (charakteristisch)</h3>
+    <div class="combos scroll" id="sls-sel"></div>
+    <h3>Häufige Lastfälle</h3>
+    <div class="combos scroll" id="sls-hf"></div>
+    <h3>Quasi-ständige Lastfälle</h3>
+    <div class="combos scroll" id="sls-qs"></div>
+  </section>
+
+  <details class="steps" id="steps-wrap">
+    <summary>Rechenweg</summary>
+    <div id="steps"></div>
+  </details>
+
+  <div class="tools">
+    <button class="btn" type="button" id="reset">Zurücksetzen</button>
+  </div>
+  <p class="note" id="link-note">Die Eingaben stehen in der Adresszeile. Ein kopierter Link öffnet den Rechner mit denselben Werten.</p>
+
+  <h2>Annahmen und Grenzen</h2>
+  <ul class="list">
+    <li><strong>Andauernde und vorübergehende Bemessungssituationen</strong> (SIA 260, 4.4.3.4 und 4.4.4.4), Gebäude nach Anhang A.</li>
+    <li><strong>Tragsicherheit Typ 2</strong> (Tragwiderstand, STR) mit Gleichung (16): E<sub>d</sub> = E&#123;γ<sub>G</sub>·G<sub>k</sub>, γ<sub>Q1</sub>·Q<sub>k1</sub>, ψ<sub>0i</sub>·Q<sub>ki</sub>&#125;. Jede veränderliche Einwirkung wird der Reihe nach Leiteinwirkung, die übrigen sind Begleiteinwirkungen; der grösste Wert ist massgebend. Begleiteinwirkungen gehen nach Gl. (16) mit ψ<sub>0</sub>·Q<sub>k</sub> ein, <strong>ohne</strong> Lastbeiwert γ<sub>Q</sub> (anders als SN EN 1990). Nach 4.2.6 genügt es in der Regel, eine einzige veränderliche Begleiteinwirkung zu berücksichtigen; das Tool setzt alle übrigen an und liegt damit auf der sicheren Seite.</li>
+    <li><strong>Gebrauchstauglichkeit</strong> mit γ<sub>F</sub> = 1.0 (4.4.4.3): seltene (Gl. 20), häufige (Gl. 21) und quasi-ständige Lastfälle (Gl. 22). «Charakteristisch» im Sinne der Eurocodes entspricht hier den seltenen Lastfällen.</li>
+    <li><strong>Lasten als Summe</strong>: Das Tool addiert die Einwirkungen zu einer einzigen Last. Das stimmt, wenn alle Einwirkungen gleich verteilt sind und dieselbe Auswirkung haben (z. B. Flächenlasten auf dieselbe Decke). Ungünstigste Laststellungen (z. B. feldweise Nutzlast) und unterschiedliche Lastbilder sind nicht erfasst.</li>
+    <li><strong>Günstig wirkende Einwirkungen</strong>: ständige mit γ<sub>G,inf</sub> und negativem Vorzeichen (4.4.2.6), veränderliche werden nicht angesetzt. Nach Fussnote 1 zu Tabelle 1 wird eine ständige Einwirkung als Ganzes entweder mit γ<sub>G,sup</sub> oder mit γ<sub>G,inf</sub> multipliziert; das Tool übernimmt die Einteilung pro Zeile, wie eingegeben.</li>
+    <li><strong>Schnee</strong>: ψ<sub>0</sub> = 1 − 60/h<sub>0</sub>, ψ<sub>1</sub> = 1 − 250/h<sub>0</sub>, ψ<sub>2</sub> = 1 − 1000/h<sub>0</sub> (Tabelle 2). Negative Werte (tiefe Lagen) setzt das Tool auf 0. Den charakteristischen Wert der Schneelast (SIA 261, 5.2) selbst bestimmen.</li>
+    <li>Charakteristische Werte der Einwirkungen nach SIA 261 selbst festlegen; das Tool enthält keine Lastwerte.</li>
+    <li><strong>Nicht enthalten</strong>: aussergewöhnliche Bemessungssituationen (Anprall, Brand, Erdbeben, Gl. 17), Lagesicherheit (Typ 1, EQU), Baugrund (Typ 3, GEO) und Einwirkungen aus dem Baugrund (Erd- und Wasserdruck), Ermüdung (Typ 4), Vorspannung, Brücken (Anhänge B bis F), Strassen- und Bahnverkehrslasten.</li>
+  </ul>
+  <p class="note">Grundlagen: SIA 260:2013 Grundlagen der Projektierung von Tragwerken, Ziffern 4.4.2.6, 4.4.3.4, 4.4.4.3, 4.4.4.4, Tabelle 1 (Lastbeiwerte) und Anhang A, Tabelle 2 (Reduktionsbeiwerte für Gebäude); SIA 261:2020, 5.2 und Anhang D (Bezugshöhe h<sub>0</sub>). Massgebend ist immer der Normtext.</p>
+  <p class="note">Geprüfte Testfälle (von Hand nachgerechnet): nur ständige Lasten, eine Nutzlast, zwei veränderliche Einwirkungen mit massgebender kleinerer Einwirkung (Wind 3.0 vor Lagerlast 5.0 wegen ψ<sub>0</sub> = 1.0 der Lagerlast), günstig wirkendes Eigengewicht gegen Windsog, Schnee nach Höhenlage, Umrechnung mit der Lasteinzugsbreite und ungültige Eingaben.</p>
+
+  <footer>
+    <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
+    <div class="foot-row">
+      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.ch/">Website</a></p>
+      <div class="theme" role="group" aria-label="Farbschema" hidden>
+        <button type="button" data-theme="light" aria-label="Hell" title="Hell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" data-theme="dark" aria-label="Dunkel" title="Dunkel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <button type="button" data-theme="system" aria-label="System" title="System">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+/*CALC-START*/
+// Rechenkern: reine Funktion ohne DOM. Alle Normwerte aus SIA 260:2013.
+
+// Lastbeiwerte für den Nachweis der Tragsicherheit, Grenzzustand Typ 2: SIA 260:2013, Tabelle 1
+const GAMMA = {
+  G_sup: 1.35, // ständige Einwirkungen, ungünstig wirkend, γ_G,sup (Tabelle 1, Typ 2)
+  G_inf: 0.80, // ständige Einwirkungen, günstig wirkend, γ_G,inf (Tabelle 1, Typ 2)
+  Q: 1.50      // veränderliche Einwirkungen im Allgemeinen, γ_Q (Tabelle 1, Typ 2)
+};
+
+// Reduktionsbeiwerte für Gebäude [ψ0, ψ1, ψ2]: SIA 260:2013, Anhang A, Tabelle 2
+const QTYPES = {
+  A: { name: "Nutzlast Kat. A, Wohnflächen", psi: [0.7, 0.5, 0.3] },          // Tabelle 2
+  B: { name: "Nutzlast Kat. B, Büroflächen", psi: [0.7, 0.5, 0.3] },          // Tabelle 2
+  C: { name: "Nutzlast Kat. C, Versammlungsräume", psi: [0.7, 0.7, 0.6] },    // Tabelle 2
+  D: { name: "Nutzlast Kat. D, Verkaufsflächen", psi: [0.7, 0.7, 0.6] },      // Tabelle 2
+  E: { name: "Nutzlast Kat. E, Lagerflächen", psi: [1.0, 0.9, 0.8] },         // Tabelle 2
+  F: { name: "Verkehrslast Kat. F, Fahrzeuge unter 3.5 t", psi: [0.7, 0.7, 0.6] }, // Tabelle 2
+  G: { name: "Verkehrslast Kat. G, Fahrzeuge 3.5 bis 16 t", psi: [0.7, 0.5, 0.3] }, // Tabelle 2
+  H: { name: "Kat. H, nicht begehbare Dächer", psi: [0, 0, 0] },              // Tabelle 2; Bezeichnung nach SIA 261:2020, Tabelle 8
+  snow: { name: "Schnee", psi: null },                                         // Tabelle 2: 1 − 60/h0, 1 − 250/h0, 1 − 1000/h0
+  wind: { name: "Wind", psi: [0.6, 0.5, 0] },                                  // Tabelle 2
+  temp: { name: "Temperatur", psi: [0.6, 0.5, 0] }                             // Tabelle 2
+};
+// Schnee: SIA 260:2013, Tabelle 2, h0 = Bezugshöhe nach SIA 261 (Anhang D) in m.
+// Negative Werte (h0 klein) werden auf 0 gesetzt (Annahme des Tools, siehe "Annahmen und Grenzen").
+function snowPsi(h0) {
+  return [1 - 60 / h0, 1 - 250 / h0, 1 - 1000 / h0].map(v => Math.max(0, v));
+}
+
+const UNITS = ["kN/m2", "kN/m", "kN"];
+
+function compute(p) {
+  const num = v => typeof v === "number" && isFinite(v);
+  if (!p || !Array.isArray(p.actions)) return { error: "Keine Einwirkungen angegeben." };
+  const A = p.actions;
+  if (A.length === 0) return { error: "Mindestens eine Einwirkung angeben." };
+  if (A.length > 30) return { error: "Höchstens 30 Einwirkungen." };
+  const needSnow = A.some(a => a && a.kind === "Q" && a.type === "snow");
+  if (needSnow && !(num(p.h0) && p.h0 > 0)) return { error: "Für Schnee die Bezugshöhe h0 grösser als 0 angeben." };
+  const be = p.be === "" || p.be === undefined || p.be === null ? null : p.be;
+  if (be !== null && !(num(be) && be > 0)) return { error: "Die Lasteinzugsbreite b_e muss grösser als 0 sein oder leer bleiben." };
+
+  const rows = [];
+  for (let i = 0; i < A.length; i++) {
+    const a = A[i], nr = "Zeile " + (i + 1) + ": ";
+    if (!a || typeof a !== "object") return { error: nr + "ungültige Angabe." };
+    if (a.kind !== "G" && a.kind !== "Q") return { error: nr + "Art muss ständig (G) oder veränderlich (Q) sein." };
+    if (!num(a.value)) return { error: nr + "Wert fehlt oder ist keine Zahl." };
+    if (a.value < 0) return { error: nr + "Wert positiv eingeben; für entgegenwirkende Einwirkungen «günstig» wählen." };
+    if (UNITS.indexOf(a.unit) < 0) return { error: nr + "ungültige Einheit." };
+    if (a.kind === "Q" && !QTYPES[a.type]) return { error: nr + "Typ der veränderlichen Einwirkung fehlt." };
+    const name = (typeof a.name === "string" && a.name.trim()) ? a.name.trim().slice(0, 60) : (a.kind === "G" ? "G" : "Q") + (i + 1);
+    let unit = a.unit, conv = 1;
+    if (unit === "kN/m2" && be !== null) { unit = "kN/m"; conv = be; }
+    const psi = a.kind === "Q" ? (a.type === "snow" ? snowPsi(p.h0) : QTYPES[a.type].psi.slice()) : null;
+    rows.push({ i, name, kind: a.kind, type: a.kind === "Q" ? a.type : null, fav: !!a.fav, valueIn: a.value, unitIn: a.unit, conv, v: a.value * conv, unit, psi });
+  }
+  const units = rows.map(r => r.unit).filter((u, k, s) => s.indexOf(u) === k);
+  if (units.length > 1) {
+    return { error: "Die Einheiten passen nicht zusammen (" + units.join(", ").replace(/2/g, "²") + "). Gleiche Einheiten verwenden" +
+      (units.indexOf("kN/m2") >= 0 && units.indexOf("kN/m") >= 0 ? " oder für kN/m² eine Lasteinzugsbreite b_e angeben." : ".") };
+  }
+  const unit = units[0];
+
+  const G = rows.filter(r => r.kind === "G");
+  const Qall = rows.filter(r => r.kind === "Q");
+  const Q = Qall.filter(r => !r.fav);         // ungünstig wirkende veränderliche Einwirkungen
+  const Qignored = Qall.filter(r => r.fav);   // günstig wirkende veränderliche: nicht angesetzt
+
+  // Ein Summand: Faktor·(ψ)·Wert, Vorzeichen −1 für günstige ständige Einwirkungen
+  const term = (r, gamma, psiIdx, sign) => {
+    const psi = psiIdx === null ? null : r.psi[psiIdx];
+    const val = sign * gamma * (psi === null ? 1 : psi) * r.v;
+    return { i: r.i, name: r.name, kind: r.kind, sign, gamma, psi, psiIdx, v: r.v, val };
+  };
+  const gTermsULS = () => G.map(r => term(r, r.fav ? GAMMA.G_inf : GAMMA.G_sup, null, r.fav ? -1 : 1));
+  const gTermsSLS = () => G.map(r => term(r, 1, null, r.fav ? -1 : 1));
+  const sum = ts => ts.reduce((s, t) => s + t.val, 0);
+  const pick = combos => {
+    let k = 0;
+    combos.forEach((c, j) => { if (c.value > combos[k].value + 1e-12) k = j; });
+    combos.forEach((c, j) => { c.gov = j === k; });
+    return { combos, max: combos[k].value, gov: k };
+  };
+  // Leiteinwirkung der Reihe nach; ohne veränderliche Einwirkung eine Kombination nur mit G
+  const build = (gTerms, leadTerm, accTerm) => {
+    if (Q.length === 0) { const t = gTerms(); return pick([{ lead: null, terms: t, value: sum(t) }]); }
+    return pick(Q.map(L => {
+      const t = gTerms().concat([leadTerm(L)], Q.filter(r => r !== L).map(accTerm));
+      return { lead: L.i, leadName: L.name, terms: t, value: sum(t) };
+    }));
+  };
+
+  // Tragsicherheit Typ 2, SIA 260:2013 4.4.3.4, Gl. (16): γG·Gk + γQ1·Qk1 + ψ0i·Qki (Begleiteinwirkungen ohne γQ)
+  const uls = build(gTermsULS, L => term(L, GAMMA.Q, null, 1), r => term(r, 1, 0, 1));
+  // Gebrauchstauglichkeit, γF = 1.0 (4.4.4.3)
+  const sel = build(gTermsSLS, L => term(L, 1, null, 1), r => term(r, 1, 0, 1));  // Gl. (20) selten
+  const hf = build(gTermsSLS, L => term(L, 1, 1, 1), r => term(r, 1, 2, 1));    // Gl. (21) häufig
+  const qsT = gTermsSLS().concat(Q.map(r => term(r, 1, 2, 1)));                   // Gl. (22) quasi-ständig
+  const qs = pick([{ lead: null, terms: qsT, value: sum(qsT) }]);
+
+  return { rows, unit, be, h0: needSnow ? p.h0 : null, G, Q, Qignored, uls, sel, hf, qs,
+    qd: uls.max, qk: sel.max, qf: hf.max, qqs: qs.max, gamma: GAMMA };
+}
+/*CALC-END*/
+
+(function () {
+  "use strict";
+
+  const DEFAULTS = {
+    actions: [
+      { name: "Eigengewicht Platte", kind: "G", value: 6.0, unit: "kN/m2", type: "", fav: false },
+      { name: "Dachaufbau", kind: "G", value: 1.5, unit: "kN/m2", type: "", fav: false },
+      { name: "Schnee", kind: "Q", value: 1.2, unit: "kN/m2", type: "snow", fav: false },
+      { name: "Wind Druck", kind: "Q", value: 0.6, unit: "kN/m2", type: "wind", fav: false }
+    ],
+    h0: 800, be: 5, L: 6, show: "both"
+  };
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  // ---------- Zustand (in der Adresszeile) ----------
+  function sanitize(s) {
+    const d = clone(DEFAULTS);
+    if (!s || typeof s !== "object") return d;
+    const num = v => typeof v === "number" && isFinite(v);
+    if (Array.isArray(s.actions) && s.actions.length >= 1 && s.actions.length <= 30) {
+      const ok = s.actions.every(a => a && typeof a === "object" && (a.kind === "G" || a.kind === "Q") &&
+        (num(a.value) || a.value === "") && UNITS.indexOf(a.unit) >= 0 && (a.kind === "G" || QTYPES[a.type]));
+      if (ok) d.actions = s.actions.map(a => ({
+        name: typeof a.name === "string" ? a.name.slice(0, 60) : "", kind: a.kind, value: a.value,
+        unit: a.unit, type: a.kind === "Q" ? a.type : "", fav: !!a.fav
+      }));
+    }
+    if (num(s.h0)) d.h0 = s.h0;
+    if (s.be === "" || num(s.be)) d.be = s.be;
+    if (num(s.L)) d.L = s.L;
+    if (["both", "uls", "sls"].indexOf(s.show) >= 0) d.show = s.show;
+    return d;
+  }
+  let state = clone(DEFAULTS);
+  try {
+    if (location.hash.length > 1) state = sanitize(JSON.parse(decodeURIComponent(location.hash.slice(1))));
+  } catch (e) { state = clone(DEFAULTS); /* ungültiger Link: Standardwerte */ }
+
+  function save() {
+    try { history.replaceState(null, "", "#" + encodeURIComponent(JSON.stringify(state))); } catch (e) { /* z. B. in eingebetteten Vorschauen */ }
+  }
+
+  // ---------- Formatierung ----------
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const clean = x => (Math.abs(x) < 1e-9 ? 0 : x);
+  const f2 = x => clean(x).toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fN = x => clean(x).toLocaleString("de-CH", { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+  const uHtml = u => u.replace("kN/m2", "kN/m²");
+  const PSI_NAMES = ["ψ<sub>0</sub>", "ψ<sub>1</sub>", "ψ<sub>2</sub>"];
+
+  // ---------- Liste der Einwirkungen ----------
+  function typeOptions(sel) {
+    return Object.keys(QTYPES).map(k => "<option value='" + k + "'" + (k === sel ? " selected" : "") + ">" + esc(QTYPES[k].name) + "</option>").join("");
+  }
+  function renderRows() {
+    const tb = $("rows");
+    tb.innerHTML = "";
+    state.actions.forEach((a, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td class='c-name'><input class='txt' type='text' maxlength='60' aria-label='Name Zeile " + (i + 1) + "'></td>" +
+        "<td class='c-art'><select aria-label='Art Zeile " + (i + 1) + "' title='G ständig, Q veränderlich'><option value='G'>G</option><option value='Q'>Q</option></select></td>" +
+        "<td class='c-val'><span class='inp'><input type='number' step='any' inputmode='decimal' min='0' aria-label='Wert Zeile " + (i + 1) + "'></span></td>" +
+        "<td class='c-unit'><select aria-label='Einheit Zeile " + (i + 1) + "'><option value='kN/m2'>kN/m²</option><option value='kN/m'>kN/m</option><option value='kN'>kN</option></select></td>" +
+        "<td class='c-type'><select aria-label='Typ Zeile " + (i + 1) + "'></select></td>" +
+        "<td><input type='checkbox' aria-label='günstig wirkend Zeile " + (i + 1) + "'></td>" +
+        "<td><button class='btn btn-x' type='button' aria-label='Zeile " + (i + 1) + " entfernen' title='Entfernen'>×</button></td>";
+      const [nameI, kindS, valI, unitS, typeS, favC, delB] = [
+        tr.querySelector("input.txt"), tr.querySelectorAll("select")[0], tr.querySelector("input[type=number]"),
+        tr.querySelectorAll("select")[1], tr.querySelectorAll("select")[2], tr.querySelector("input[type=checkbox]"), tr.querySelector("button")
+      ];
+      nameI.value = a.name; kindS.value = a.kind; valI.value = a.value; unitS.value = a.unit; favC.checked = a.fav;
+      const syncType = () => {
+        if (a.kind === "Q") { typeS.innerHTML = typeOptions(a.type); typeS.disabled = false; }
+        else { typeS.innerHTML = "<option value=''>–</option>"; typeS.disabled = true; }
+      };
+      syncType();
+      nameI.addEventListener("input", () => { a.name = nameI.value; update(); });
+      kindS.addEventListener("change", () => { a.kind = kindS.value; if (a.kind === "Q" && !QTYPES[a.type]) a.type = "B"; if (a.kind === "G") a.type = ""; syncType(); update(); });
+      valI.addEventListener("input", () => { a.value = valI.value === "" ? "" : parseFloat(valI.value); update(); });
+      unitS.addEventListener("change", () => { a.unit = unitS.value; update(); });
+      typeS.addEventListener("change", () => { a.type = typeS.value; update(); });
+      favC.addEventListener("change", () => { a.fav = favC.checked; update(); });
+      delB.disabled = state.actions.length <= 1;
+      delB.addEventListener("click", () => { state.actions.splice(i, 1); renderRows(); update(); });
+      tb.appendChild(tr);
+    });
+    $("add-g").disabled = $("add-q").disabled = state.actions.length >= 30;
+  }
+  function addRow(kind) {
+    const unit = state.actions.length ? state.actions[state.actions.length - 1].unit : "kN/m2";
+    state.actions.push({ name: "", kind, value: "", unit, type: kind === "Q" ? "B" : "", fav: false });
+    renderRows(); update();
+    const inputs = $("rows").querySelectorAll("input.txt");
+    inputs[inputs.length - 1].focus();
+  }
+
+  // ---------- Ausgabe ----------
+  // Formel einer Kombination mit Zahlen, z. B. 1.35·6.00 + 1.50·0.60·1.20
+  function formula(c) {
+    return c.terms.map((t, k) => {
+      const parts = [];
+      if (t.gamma !== 1) parts.push(f2(t.gamma));
+      if (t.psi !== null) parts.push(f2(t.psi));
+      parts.push(f2(t.v));
+      const s = parts.join("·");
+      return (t.sign < 0 ? (k === 0 ? "−" : " − ") : (k === 0 ? "" : " + ")) + s;
+    }).join("") || "0";
+  }
+  function symbolic(c, kindLabel) {
+    return c.terms.map((t, k) => {
+      let s;
+      const nm = "<span class='c'>" + esc(t.name) + "</span>";
+      const id = (t.kind === "G" ? "G" : "Q") + "<sub>k</sub>";
+      const g = t.gamma === 1 ? "" : (t.kind === "G" ? (t.sign < 0 ? "γ<sub>G,inf</sub>·" : "γ<sub>G,sup</sub>·") : "γ<sub>Q</sub>·");
+      s = g + (t.psi !== null ? PSI_NAMES[t.psiIdx] + "·" : "") + id + "(" + nm + ")";
+      return (t.sign < 0 ? (k === 0 ? "−" : " − ") : (k === 0 ? "" : " + ")) + s;
+    }).join("");
+  }
+  function comboTable(res, unit) {
+    const rows = res.combos.map(c =>
+      "<tr" + (c.gov ? " class='gov'" : "") + "><td>" + (c.lead === null ? "–" : esc(c.leadName)) +
+      (c.gov && res.combos.length > 1 ? " <span class='mark'>massgebend</span>" : "") +
+      "</td><td class='f'>" + formula(c) + "</td><td class='num'>" + f2(c.value) + "</td><td class='unit'>" + uHtml(unit) + "</td></tr>").join("");
+    return "<table><thead><tr><th>Leiteinwirkung</th><th>Formel</th><th style='text-align:right'>Ergebnis</th><th></th></tr></thead><tbody>" + rows + "</tbody></table>";
+  }
+
+  function beamLink(r) {
+    const a = $("to-beam"), n = $("beam-note");
+    const okL = typeof state.L === "number" && isFinite(state.L) && state.L > 0;
+    let msg = "";
+    if (r.unit !== "kN/m") msg = "Übergabe ans Balken-Tool nur für Linienlasten in kN/m (bei kN/m² eine Lasteinzugsbreite b<sub>e</sub> angeben).";
+    else if (!(r.qd > 0)) msg = "Übergabe nur für eine Bemessungslast q<sub>d</sub> grösser als 0.";
+    else if (!okL) msg = "Für die Übergabe eine Spannweite L grösser als 0 angeben.";
+    if (msg) {
+      a.setAttribute("aria-disabled", "true"); a.href = "/tools/balken/"; a.tabIndex = -1;
+      n.innerHTML = msg; return;
+    }
+    const q = Math.round(r.qd * 1000) / 1000;
+    // Format des Balken-Tools: #{"t":"einfeld","e":{a,qa,b,qb,spans:[{L,q}],loads:[]}}; E und I ergänzt es selbst
+    const s = { t: "einfeld", e: { a: 0, qa: 0, b: 0, qb: 0, spans: [{ L: state.L, q }], loads: [] } };
+    a.href = "/tools/balken/#" + encodeURIComponent(JSON.stringify(s));
+    a.removeAttribute("aria-disabled"); a.tabIndex = 0;
+    n.innerHTML = "Öffnet einen Einfeldträger mit L = " + fN(state.L) + " m und q = " + f2(q) + " kN/m auf der ganzen Länge (ohne Kragarme, ohne Punktlasten). E und I dort ergänzen.";
+  }
+
+  function render(r) {
+    const u = uHtml(r.unit);
+    const showU = state.show !== "sls", showS = state.show !== "uls";
+    let h = "";
+    if (showU) {
+      const g = r.uls.combos[r.uls.gov];
+      h += "<div class='big'>q<sub>d</sub> = " + f2(r.qd) + " " + u + "</div>" +
+        "<p>Tragsicherheit Typ 2, " + (g.lead === null ? "nur ständige Einwirkungen" : "Leiteinwirkung: <b>" + esc(g.leadName) + "</b>") + ".</p>";
+    } else {
+      h += "<div class='big'>q<sub>selten</sub> = " + f2(r.qk) + " " + u + "</div><p>Gebrauchstauglichkeit, seltene Lastfälle.</p>";
+    }
+    if (r.qd < 0) h += "<p>Die günstig wirkenden Einwirkungen überwiegen: Die massgebende Richtung tritt nicht auf.</p>";
+    if (r.Qignored.length) h += "<p>Nicht angesetzt (günstig wirkend, veränderlich): " + r.Qignored.map(x => esc(x.name)).join(", ") + ".</p>";
+    $("main-result").innerHTML = h;
+
+    const rows = [];
+    if (showU) rows.push(["q<sub>d</sub> (Tragsicherheit, Gl. 16)", r.qd]);
+    if (showS) rows.push(["q<sub>k</sub> (seltene Lastfälle, Gl. 20)", r.qk], ["q<sub>häufig</sub> (Gl. 21)", r.qf], ["q<sub>quasi-ständig</sub> (Gl. 22)", r.qqs]);
+    $("results").innerHTML = rows.map(x => "<tr><td>" + x[0] + "</td><td class='num'>" + f2(x[1]) + "</td><td class='unit'>" + u + "</td></tr>").join("");
+
+    $("uls-wrap").hidden = !showU;
+    $("sls-wrap").hidden = !showS;
+    $("uls").innerHTML = comboTable(r.uls, r.unit);
+    $("sls-sel").innerHTML = comboTable(r.sel, r.unit);
+    $("sls-hf").innerHTML = comboTable(r.hf, r.unit);
+    $("sls-qs").innerHTML = comboTable(r.qs, r.unit);
+    beamLink(r);
+    renderSteps(r);
+  }
+
+  function renderSteps(r) {
+    const L = [];
+    const H = t => L.push("</div><h3>" + t + "</h3><div class='formula'>");
+    const l = s => L.push(s + "<br>");
+    const c = s => L.push("<span class='c'>" + s + "</span><br>");
+    const u = uHtml(r.unit);
+
+    H("1 Einwirkungen");
+    r.rows.forEach(x => {
+      let s = (x.kind === "G" ? "G" : "Q") + "<sub>k</sub> " + esc(x.name) + " = " + fN(x.valueIn) + " " + uHtml(x.unitIn);
+      if (x.conv !== 1) s += " · b<sub>e</sub> " + fN(x.conv) + " m = " + f2(x.v) + " kN/m";
+      s += x.kind === "G" ? (x.fav ? " &nbsp;<span class='c'>günstig</span>" : "") : " &nbsp;<span class='c'>" + esc(QTYPES[x.type].name) + (x.fav ? ", günstig: nicht angesetzt" : "") + "</span>";
+      l(s);
+    });
+    if (r.rows.some(x => x.conv !== 1)) c("Flächenlast in Linienlast: q = b<sub>e</sub>·q<sub>Fläche</sub>");
+
+    H("2 Lastbeiwerte (SIA 260, Tabelle 1, Typ 2)");
+    l("γ<sub>G,sup</sub> = " + f2(r.gamma.G_sup) + " (ungünstig) &nbsp;·&nbsp; γ<sub>G,inf</sub> = " + f2(r.gamma.G_inf) + " (günstig, 4.4.2.6) &nbsp;·&nbsp; γ<sub>Q</sub> = " + f2(r.gamma.Q));
+    c("Gebrauchstauglichkeit: γ<sub>F</sub> = 1.0 (4.4.4.3)");
+
+    if (r.Q.length || r.Qignored.length) {
+      H("3 Reduktionsbeiwerte (SIA 260, Anhang A, Tabelle 2)");
+      r.rows.filter(x => x.kind === "Q").forEach(x => {
+        let s = esc(x.name) + ": ψ<sub>0</sub> = " + f2(x.psi[0]) + ", ψ<sub>1</sub> = " + f2(x.psi[1]) + ", ψ<sub>2</sub> = " + f2(x.psi[2]);
+        if (x.type === "snow") s += " &nbsp;<span class='c'>(1 − 60/h<sub>0</sub>, 1 − 250/h<sub>0</sub>, 1 − 1000/h<sub>0</sub> mit h<sub>0</sub> = " + fN(r.h0) + " m, mindestens 0)</span>";
+        l(s);
+      });
+    }
+
+    H("4 Tragsicherheit, Grundkombination (4.4.3.4, Gl. 16)");
+    c("E<sub>d</sub> = E&#123;γ<sub>G</sub>·G<sub>k</sub>, γ<sub>Q1</sub>·Q<sub>k1</sub>, ψ<sub>0i</sub>·Q<sub>ki</sub>&#125;: jede veränderliche Einwirkung der Reihe nach als Leiteinwirkung, Begleiteinwirkungen mit ψ<sub>0</sub>·Q<sub>k</sub> ohne γ<sub>Q</sub>");
+    r.uls.combos.forEach(cb => {
+      l((cb.lead === null ? "nur ständig" : "Leiteinwirkung " + esc(cb.leadName)) + ": " + symbolic(cb));
+      l("&nbsp;&nbsp;= " + formula(cb) + " = " + f2(cb.value) + " " + u + (cb.gov ? " ← massgebend" : ""));
+    });
+    l("q<sub>d</sub> = max = <b>" + f2(r.qd) + " " + u + "</b>");
+
+    H("5 Gebrauchstauglichkeit (4.4.4.4)");
+    c("Seltene Lastfälle, Gl. (20): G<sub>k</sub> + Q<sub>k1</sub> + ψ<sub>0i</sub>·Q<sub>ki</sub>");
+    r.sel.combos.forEach(cb => l((cb.lead === null ? "nur ständig" : esc(cb.leadName)) + ": " + formula(cb) + " = " + f2(cb.value) + " " + u + (cb.gov && r.sel.combos.length > 1 ? " ← massgebend" : "")));
+    c("Häufige Lastfälle, Gl. (21): G<sub>k</sub> + ψ<sub>11</sub>·Q<sub>k1</sub> + ψ<sub>2i</sub>·Q<sub>ki</sub>");
+    r.hf.combos.forEach(cb => l((cb.lead === null ? "nur ständig" : esc(cb.leadName)) + ": " + formula(cb) + " = " + f2(cb.value) + " " + u + (cb.gov && r.hf.combos.length > 1 ? " ← massgebend" : "")));
+    c("Quasi-ständige Lastfälle, Gl. (22): G<sub>k</sub> + ψ<sub>2i</sub>·Q<sub>ki</sub>");
+    l(formula(r.qs.combos[0]) + " = " + f2(r.qqs) + " " + u);
+
+    $("steps").innerHTML = (L.join("") + "</div>").replace(/^<\/div>/, "");
+  }
+
+  function update() {
+    save();
+    const p = {
+      actions: state.actions.map(a => Object.assign({}, a, { value: a.value === "" ? NaN : a.value })),
+      h0: state.h0, be: state.be, L: state.L
+    };
+    const r = compute(p);
+    const err = $("error");
+    if (r.error) {
+      err.textContent = r.error;
+      err.hidden = false;
+      return; // letzte gültige Ausgabe bleibt stehen
+    }
+    err.hidden = true;
+    render(r);
+  }
+
+  function bindGlobal() {
+    const numIn = (id, k, allowEmpty) => {
+      $(id).value = state[k];
+      $(id).addEventListener("input", () => { const v = $(id).value; state[k] = v === "" ? (allowEmpty ? "" : NaN) : parseFloat(v); update(); });
+    };
+    numIn("h0", "h0"); numIn("be", "be", true); numIn("L", "L");
+    $("show").value = state.show;
+    $("show").addEventListener("change", () => { state.show = $("show").value; update(); });
+  }
+
+  $("add-g").addEventListener("click", () => addRow("G"));
+  $("add-q").addEventListener("click", () => addRow("Q"));
+  $("reset").addEventListener("click", () => {
+    state = clone(DEFAULTS);
+    ["h0", "be", "L"].forEach(k => { $(k).value = state[k]; });
+    $("show").value = state.show;
+    renderRows(); update();
+  });
+
+  bindGlobal();
+  renderRows();
+  update();
+
+  window.addEventListener("beforeprint", () => { $("steps-wrap").open = true; });
+
+  // Hell / Dunkel / System: wie in src/layouts/Base.astro, gleicher Speicherschlüssel "theme".
+  (function () {
+    const root = document.documentElement;
+    const group = document.querySelector(".theme");
+    const buttons = group.querySelectorAll("button");
+    function apply(theme) {
+      if (theme === "light" || theme === "dark") root.dataset.theme = theme;
+      else { delete root.dataset.theme; theme = "system"; }
+      try {
+        if (theme === "system") localStorage.removeItem("theme");
+        else localStorage.setItem("theme", theme);
+      } catch (e) {}
+      buttons.forEach(b => b.setAttribute("aria-pressed", b.dataset.theme === theme));
+    }
+    buttons.forEach(b => b.addEventListener("click", () => apply(b.dataset.theme)));
+    apply(root.dataset.theme);
+    group.hidden = false;
+  })();
+
+  // Für Tests: Rechenkern von aussen erreichbar
+  window.__lk = { compute, DEFAULTS };
+})();
+</script>
+</body>
+</html>
