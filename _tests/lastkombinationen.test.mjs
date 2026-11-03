@@ -15,7 +15,7 @@ const file = process.argv[2] || path.join(here, '..', 'public', 'tools', 'lastko
 const html = fs.readFileSync(file, 'utf8');
 const m = /\/\*CALC-START\*\/([\s\S]*?)\/\*CALC-END\*\//.exec(html);
 if (!m) { console.log('FEHLER: CALC-START/CALC-END nicht gefunden'); process.exit(1); }
-const { compute, GAMMA, QTYPES } = new Function(m[1] + '\nreturn { compute, GAMMA, QTYPES };')();
+const { compute, snowLoad, SNOW, GAMMA, QTYPES } = new Function(m[1] + '\nreturn { compute, snowLoad, SNOW, GAMMA, QTYPES };')();
 
 let fails = 0;
 const chk = (name, got, exp, tol = 1e-9) => {
@@ -137,6 +137,47 @@ yes('ψ Temperatur = 0.6/0.5/0 (Tabelle 2)', QTYPES.temp.psi.join() === '0.6,0.5
   chk('6) Einzellasten in kN', compute({ actions: [G(10, { unit: 'kN' }), Q(20, 'C', { unit: 'kN' })] }).qd, 43.5);
 }
 
+// ---------- 6b) Schneelast auf dem Dach nach SIA 261:2020, 5.2 ----------
+// Gl. (10): s_k = [1 + (h0/350)²]·0.4 ≥ 0.9 kN/m²; Gl. (9): q_k = μ1·Ce·CT·s_k
+// Figur 2: μ1 = 0.8 bis 30°, linear auf 0 bei 60°; 5.3.4: Schneefänger μ1 = 0.8; Figur 4: bis 1.0
+chk('SIA 261 Gl. (10): 0.4 kN/m²', SNOW.SK0, 0.4);
+chk('SIA 261 Gl. (10): Mindestwert 0.9 kN/m²', SNOW.SKMIN, 0.9);
+yes('SIA 261 5.2.4: Ce = 1.0 / 0.8 / 1.2', SNOW.CE.join() === '1,0.8,1.2');
+const S = o => Object.assign({ calc: true, alpha: 5, Ce: 1, CT: 1, Lr: '', Br: '', stop: false }, o);
+{
+  // h0 = 800: s_k = [1 + (800/350)²]·0.4 = [1 + 5.22449]·0.4 = 2.489796; α = 5° → μ1 = 0.8
+  // q_k = 0.8·1.0·1.0·2.489796 = 1.991837
+  const sn = snowLoad(S(), 800);
+  chk('6b) s_k bei h0 = 800', sn.sk, (1 + (800 / 350) ** 2) * 0.4);
+  chk('6b) s_k = 2.4898', sn.sk, 2.489796, 1e-6);
+  chk('6b) μ1 bei α = 5°', sn.mu1, 0.8);
+  chk('6b) q_k = 1.9918', sn.qk, 1.991837, 1e-6);
+  // h0 = 300: [1 + (300/350)²]·0.4 = [1 + 0.734694]·0.4 = 0.693878 < 0.9 → s_k = 0.9; q_k = 0.8·0.9 = 0.72
+  const lo = snowLoad(S(), 300);
+  chk('6b) s_k-Mindestwert bei h0 = 300', lo.sk, 0.9);
+  chk('6b) q_k bei h0 = 300', lo.qk, 0.72);
+  // α = 30° → 0.8; α = 45° → 0.8·15/30 = 0.4; α = 60° → 0; α = 45° mit Schneefänger → 0.8
+  chk('6b) μ1 bei α = 30°', snowLoad(S({ alpha: 30 }), 800).mu1, 0.8);
+  chk('6b) μ1 bei α = 45°', snowLoad(S({ alpha: 45 }), 800).mu1, 0.4);
+  chk('6b) μ1 bei α = 60°', snowLoad(S({ alpha: 60 }), 800).mu1, 0);
+  chk('6b) μ1 bei α = 45° mit Schneefänger (5.3.4)', snowLoad(S({ alpha: 45, stop: true }), 800).mu1, 0.8);
+  // Ce = 1.2, CT = 0.9: q_k = 0.8·1.2·0.9·2.489796 = 2.151184
+  chk('6b) q_k mit Ce = 1.2, CT = 0.9', snowLoad(S({ Ce: 1.2, CT: 0.9 }), 800).qk, 0.8 * 1.2 * 0.9 * 2.489796, 1e-6);
+  // Figur 4: α = 3°, 40 × 22 m → max 40 m → μ1 = 1.0; 22 × 21 m → 0.8 + 0.2·2/5 = 0.88
+  chk('6b) Figur 4: 40 × 22 m → 1.0', snowLoad(S({ alpha: 3, Lr: 40, Br: 22 }), 800).mu1, 1.0);
+  chk('6b) Figur 4: 22 × 21 m → 0.88', snowLoad(S({ alpha: 3, Lr: 22, Br: 21 }), 800).mu1, 0.88);
+  chk('6b) Figur 4: Breite 15 m ≤ 20 m → 0.8', snowLoad(S({ alpha: 3, Lr: 40, Br: 15 }), 800).mu1, 0.8);
+  chk('6b) Figur 4: α = 12° (nicht quasi-horizontal) → 0.8', snowLoad(S({ alpha: 12, Lr: 40, Br: 40 }), 800).mu1, 0.8);
+  // In der Kombination: G = 3.0, Schnee berechnet (h0 = 800, α = 5°): q_d = 1.35·3 + 1.5·1.991837 = 4.05 + 2.987755 = 7.037755
+  const r = compute({ actions: [G(3.0), Q(99, 'snow')], h0: 800, snow: S() });
+  chk('6b) Kombination mit berechnetem Schnee (Eingabe 99 ignoriert)', r.qd, 4.05 + 1.5 * 1.991837, 1e-6);
+  yes('6b) Schnee-Zeile als berechnet markiert', r.rows[1].auto === true);
+  // ohne calc gilt der eingegebene Wert: 4.05 + 1.5·1.2 = 5.85
+  chk('6b) Schneerechner aus: Eingabe gilt', compute({ actions: [G(3.0), Q(1.2, 'snow')], h0: 800, snow: S({ calc: false }) }).qd, 5.85);
+  // mit Lasteinzugsbreite 4 m: Schnee 1.991837·4 = 7.967347 kN/m, G 12 kN/m → 16.2 + 11.95102 = 28.15102
+  chk('6b) berechneter Schnee mit b_e = 4 m', compute({ actions: [G(3.0), Q(0, 'snow')], h0: 800, be: 4, snow: S() }).qd, 16.2 + 1.5 * 4 * 1.991837, 1e-6);
+}
+
 // ---------- 7) Ungültige Eingaben ----------
 const err = (name, p) => yes(name + ' → Fehlermeldung', !!(compute(p) || {}).error);
 err('keine Liste', {});
@@ -153,6 +194,13 @@ err('Schnee ohne h0', { actions: [G(1), Q(1, 'snow')] });
 err('Schnee mit h0 = 0', { actions: [G(1), Q(1, 'snow')], h0: 0 });
 err('b_e negativ', { actions: [G(1)], be: -2 });
 err('mehr als 30 Zeilen', { actions: Array.from({ length: 31 }, () => G(1)) });
+err('Schneerechner: Einheit kN/m', { actions: [G(1, { unit: 'kN/m' }), Q(1, 'snow', { unit: 'kN/m' })], h0: 800, snow: S() });
+err('Schneerechner: α = 90°', { actions: [G(1), Q(1, 'snow')], h0: 800, snow: S({ alpha: 90 }) });
+err('Schneerechner: α negativ', { actions: [G(1), Q(1, 'snow')], h0: 800, snow: S({ alpha: -5 }) });
+err('Schneerechner: Ce = 0.9', { actions: [G(1), Q(1, 'snow')], h0: 800, snow: S({ Ce: 0.9 }) });
+err('Schneerechner: CT = 1.2', { actions: [G(1), Q(1, 'snow')], h0: 800, snow: S({ CT: 1.2 }) });
+err('Schneerechner: Dachlänge 0', { actions: [G(1), Q(1, 'snow')], h0: 800, snow: S({ Lr: 0 }) });
+yes('Schneerechner ohne Schnee-Zeile ohne Wirkung', !compute({ actions: [G(1)], snow: S({ alpha: 999 }) }).error);
 yes('b_e leer erlaubt', !compute({ actions: [G(1)], be: '' }).error);
 
 console.log(fails ? fails + ' FEHLER' : 'Alle Tests bestanden');

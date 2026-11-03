@@ -62,8 +62,8 @@ Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächst
 
 ## 7. Lastkombinationen nach SIA 260 (Einwirkungen)
 
-- **Umgesetzt** (`tools/lastkombinationen/`, Nov. 2026): Liste von Einwirkungen (G/Q, Einheit, ψ-Typ, günstig), Grundkombination Typ 2 (Gl. 16) mit jeder Q als Leiteinwirkung, seltene, häufige und quasi-ständige Lastfälle (Gl. 20–22), Lasteinzugsbreite, Übergabe von q_d ans Balken-Tool. Normwerte SIA 260:2013 Tabelle 1 und 2.
-- **Mögliche Erweiterungen:** aussergewöhnliche Situationen (Gl. 17), Typ 1 (EQU) und Typ 3 (GEO), Erd- und Wasserdruck, mehrere Lastbilder statt einer Summe, Übergabe an den Durchlaufträger mit feldweiser Nutzlast.
+- **Umgesetzt** (`tools/lastkombinationen/`, Nov. 2026): Liste von Einwirkungen (G/Q, Einheit, ψ-Typ, günstig), Grundkombination Typ 2 (Gl. 16) mit jeder Q als Leiteinwirkung, seltene, häufige und quasi-ständige Lastfälle (Gl. 20–22), Lasteinzugsbreite, Übergabe von q_d ans Balken-Tool. Normwerte SIA 260:2013 Tabelle 1 und 2. Schneelast auf Dächern nach SIA 261:2020 (Lastmodell 1, μ1 nach Figur 2, 5.3.4, Figur 4), ergänzt Nov. 2026.
+- **Mögliche Erweiterungen:** Schnee Lastmodell 2, Shed- und Tonnendächer (μ2, μ3), Höhensprünge (Figur 5), Schneeüberhang (5.3.7); aussergewöhnliche Situationen (Gl. 17), Typ 1 (EQU) und Typ 3 (GEO), Erd- und Wasserdruck, mehrere Lastbilder statt einer Summe, Übergabe an den Durchlaufträger mit feldweiser Nutzlast.
 
 ## Für alle Tools
 

@@ -19,8 +19,8 @@ export const tools: Tool[] = [
       en: 'Load combinations (SIA 260)'
     },
     description: {
-      de: 'Lastkombinationen nach SIA 260:2013 für Tragsicherheit (Typ 2) und Gebrauchstauglichkeit: massgebende Bemessungslast aus ständigen und veränderlichen Einwirkungen, mit Rechenweg und Übergabe ans Balken-Tool.',
-      en: 'Load combinations to SIA 260:2013 for ultimate limit state (type 2) and serviceability: governing design load from permanent and variable actions, with step-by-step calculation and transfer to the beam tool.'
+      de: 'Lastkombinationen nach SIA 260:2013 für Tragsicherheit (Typ 2) und Gebrauchstauglichkeit: massgebende Bemessungslast aus ständigen und veränderlichen Einwirkungen, Schneelast nach SIA 261, mit Rechenweg und Übergabe ans Balken-Tool.',
+      en: 'Load combinations to SIA 260:2013 for ultimate limit state (type 2) and serviceability: governing design load from permanent and variable actions, snow load to SIA 261, with step-by-step calculation and transfer to the beam tool.'
     },
     tags: {
       de: ['Einwirkungen', 'Bemessung', 'SIA 260'],

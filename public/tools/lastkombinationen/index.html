@@ -11,7 +11,7 @@
 <meta property="og:site_name" content="Josija Nydegger">
 <meta property="og:locale" content="de_CH">
 <meta property="og:title" content="Lastkombinationen (SIA 260) | Josija Nydegger">
-<meta property="og:description" content="Lastkombinationen nach SIA 260:2013 für Tragsicherheit (Typ 2) und Gebrauchstauglichkeit: massgebende Bemessungslast q_d aus ständigen und veränderlichen Einwirkungen, mit Rechenweg.">
+<meta property="og:description" content="Lastkombinationen nach SIA 260:2013 für Tragsicherheit (Typ 2) und Gebrauchstauglichkeit: massgebende Bemessungslast q_d aus ständigen und veränderlichen Einwirkungen, Schneelast nach SIA 261:2020, mit Rechenweg.">
 <meta property="og:url" content="https://josija-nydegger.ch/tools/lastkombinationen/">
 <meta name="twitter:card" content="summary">
 <meta name="author" content="Josija Nydegger">
@@ -121,6 +121,10 @@
   .actions td.c-unit select { width: 86px; }
   .actions td.c-type select { width: 170px; }
   .actions input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--text); margin: 0 auto; display: block; }
+  label.check { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text); }
+  label.check input { width: 16px; height: 16px; margin: 0; accent-color: var(--text); flex: none; }
+  label[hidden] { display: none; }
+  .actions td.c-val input:disabled { color: var(--muted); }
   .row-actions { display: flex; gap: 8px; margin: 10px 0 0; flex-wrap: wrap; }
 
   /* ---------- Ergebnis ---------- */
@@ -220,9 +224,27 @@
     </div>
     <p class="note">Art: G = ständig, Q = veränderlich. Werte als charakteristische Werte (G<sub>k</sub>, Q<sub>k</sub>) eingeben, immer positiv. «Günstig» heisst: Die Einwirkung wirkt der massgebenden Richtung entgegen (z. B. Eigengewicht gegen Abheben durch Windsog). Günstige ständige Einwirkungen werden mit γ<sub>G,inf</sub> abgezogen, günstige veränderliche nicht angesetzt.</p>
 
+    <div id="snow-wrap">
+      <div class="group">Schneelast (SIA 261)</div>
+      <label class="check"><input type="checkbox" id="snow-calc"><span>Schneelast auf dem Dach berechnen (q<sub>k</sub> = μ<sub>1</sub>·C<sub>e</sub>·C<sub>T</sub>·s<sub>k</sub>)</span></label>
+      <div class="grid" style="margin-top:10px">
+        <label>Bezugshöhe <span class="sym">h<sub>0</sub></span><span class="inp"><input id="h0" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
+        <label data-snow>Dachneigung <span class="sym">α</span><span class="inp"><input id="s-alpha" type="number" step="any" inputmode="decimal" min="0"><span>°</span></span></label>
+        <label data-snow>Windexposition <span class="sym">C<sub>e</sub></span><select id="s-ce">
+          <option value="1">1.0 normal</option>
+          <option value="0.8">0.8 stark ausgesetzt</option>
+          <option value="1.2">1.2 geschützt</option>
+        </select></label>
+        <label data-snow>Thermischer Beiwert <span class="sym">C<sub>T</sub></span><span class="inp"><input id="s-ct" type="number" step="any" inputmode="decimal" min="0"><span>–</span></span></label>
+        <label data-snow>Dachlänge (optional)<span class="inp"><input id="s-lr" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
+        <label data-snow>Dachbreite (optional)<span class="inp"><input id="s-br" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
+      </div>
+      <label class="check" data-snow style="margin-top:10px"><input type="checkbox" id="s-stop"><span>Schneefänger oder Brüstung am unteren Dachrand (μ<sub>1</sub> = 0.8, SIA 261 5.3.4)</span></label>
+      <p class="note">h<sub>0</sub> = Meereshöhe + Zuschlag nach der Karte in SIA 261, Anhang D; nicht anwendbar für Bauwerke über 2000 m ü. M. (5.1.4). h<sub>0</sub> bestimmt die ψ-Werte des Schnees und, falls berechnet, s<sub>k</sub>. Dachlänge und -breite braucht es nur für quasi-horizontale Dächer (α &lt; 10°) über 20 × 20 m (Figur 4). Berechnet wird Lastmodell 1 (gleichmässige Ablagerung); der Wert ersetzt die Eingabe in allen Schnee-Zeilen (Einheit kN/m²).</p>
+    </div>
+
     <div class="group">Weitere Angaben</div>
     <div class="grid">
-      <label>Bezugshöhe <span class="sym">h<sub>0</sub></span> (Schnee)<span class="inp"><input id="h0" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
       <label>Lasteinzugsbreite <span class="sym">b<sub>e</sub></span><span class="inp"><input id="be" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
       <label>Spannweite <span class="sym">L</span> (Balken-Tool)<span class="inp"><input id="L" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
       <label>Nachweis<select id="show">
@@ -231,7 +253,7 @@
         <option value="sls">Gebrauchstauglichkeit</option>
       </select></label>
     </div>
-    <p class="note">h<sub>0</sub> = Meereshöhe + Zuschlag nach der Karte in SIA 261, Anhang D (nicht anwendbar für Bauwerke über 2000 m ü. M.); nur für Schneelasten nötig. Begehbare Dächer zählen zu den Kategorien A bis G (SIA 261, Tabelle 8, Fussnote 5). Mit b<sub>e</sub> werden Flächenlasten in kN/m² zu Linienlasten in kN/m (q = b<sub>e</sub>·q<sub>Fläche</sub>). L braucht es nur für die Übergabe ans Balken-Tool.</p>
+    <p class="note">Begehbare Dächer zählen zu den Kategorien A bis G (SIA 261, Tabelle 8, Fussnote 5). Mit b<sub>e</sub> werden Flächenlasten in kN/m² zu Linienlasten in kN/m (q = b<sub>e</sub>·q<sub>Fläche</sub>). L braucht es nur für die Übergabe ans Balken-Tool.</p>
   </section>
   <div class="error" id="error" hidden></div>
 
@@ -275,12 +297,12 @@
     <li><strong>Gebrauchstauglichkeit</strong> mit γ<sub>F</sub> = 1.0 (4.4.4.3): seltene (Gl. 20), häufige (Gl. 21) und quasi-ständige Lastfälle (Gl. 22). «Charakteristisch» im Sinne der Eurocodes entspricht hier den seltenen Lastfällen.</li>
     <li><strong>Lasten als Summe</strong>: Das Tool addiert die Einwirkungen zu einer einzigen Last. Das stimmt, wenn alle Einwirkungen gleich verteilt sind und dieselbe Auswirkung haben (z. B. Flächenlasten auf dieselbe Decke). Ungünstigste Laststellungen (z. B. feldweise Nutzlast) und unterschiedliche Lastbilder sind nicht erfasst.</li>
     <li><strong>Günstig wirkende Einwirkungen</strong>: ständige mit γ<sub>G,inf</sub> und negativem Vorzeichen (4.4.2.6), veränderliche werden nicht angesetzt. Nach Fussnote 1 zu Tabelle 1 wird eine ständige Einwirkung als Ganzes entweder mit γ<sub>G,sup</sub> oder mit γ<sub>G,inf</sub> multipliziert; das Tool übernimmt die Einteilung pro Zeile, wie eingegeben.</li>
-    <li><strong>Schnee</strong>: ψ<sub>0</sub> = 1 − 60/h<sub>0</sub>, ψ<sub>1</sub> = 1 − 250/h<sub>0</sub>, ψ<sub>2</sub> = 1 − 1000/h<sub>0</sub> (Tabelle 2). Negative Werte (tiefe Lagen) setzt das Tool auf 0. Den charakteristischen Wert der Schneelast (SIA 261, 5.2) selbst bestimmen.</li>
+    <li><strong>Schnee</strong>: ψ<sub>0</sub> = 1 − 60/h<sub>0</sub>, ψ<sub>1</sub> = 1 − 250/h<sub>0</sub>, ψ<sub>2</sub> = 1 − 1000/h<sub>0</sub> (Tabelle 2). Negative Werte (tiefe Lagen) setzt das Tool auf 0. Die Schneelast auf dem Dach kann das Tool nach SIA 261, 5.2 berechnen: q<sub>k</sub> = μ<sub>1</sub>·C<sub>e</sub>·C<sub>T</sub>·s<sub>k</sub> (Gl. 9) mit s<sub>k</sub> = [1 + (h<sub>0</sub>/350)²]·0.4 kN/m² ≥ 0.9 kN/m² (Gl. 10); μ<sub>1</sub> nach Figur 2 (0.8 bis 30°, linear auf 0 bei 60°), 5.3.4 (Schneefänger, Brüstung: 0.8) und Figur 4 (quasi-horizontale Dächer über 20 × 20 m: bis 1.0). Nur Lastmodell 1 (gleichmässige Ablagerung) für Pult- und Satteldächer. Nicht enthalten: Lastmodell 2 (Windverfrachtung), Shed- und Tonnendächer (μ<sub>2</sub>, μ<sub>3</sub>), Höhensprünge (Figur 5), Schneeüberhang (5.3.7), Schneeräumung auf begehbaren Dächern (5.1.5) und Bauwerke über 2000 m ü. M. (5.1.4).</li>
     <li>Charakteristische Werte der Einwirkungen nach SIA 261 selbst festlegen; das Tool enthält keine Lastwerte.</li>
     <li><strong>Nicht enthalten</strong>: aussergewöhnliche Bemessungssituationen (Anprall, Brand, Erdbeben, Gl. 17), Lagesicherheit (Typ 1, EQU), Baugrund (Typ 3, GEO) und Einwirkungen aus dem Baugrund (Erd- und Wasserdruck), Ermüdung (Typ 4), Vorspannung, Brücken (Anhänge B bis F), Strassen- und Bahnverkehrslasten.</li>
   </ul>
-  <p class="note">Grundlagen: SIA 260:2013 Grundlagen der Projektierung von Tragwerken, Ziffern 4.4.2.6, 4.4.3.4, 4.4.4.3, 4.4.4.4, Tabelle 1 (Lastbeiwerte) und Anhang A, Tabelle 2 (Reduktionsbeiwerte für Gebäude); SIA 261:2020, 5.2 und Anhang D (Bezugshöhe h<sub>0</sub>). Massgebend ist immer der Normtext.</p>
-  <p class="note">Geprüfte Testfälle (von Hand nachgerechnet): nur ständige Lasten, eine Nutzlast, zwei veränderliche Einwirkungen mit massgebender kleinerer Einwirkung (Wind 3.0 vor Lagerlast 5.0 wegen ψ<sub>0</sub> = 1.0 der Lagerlast), günstig wirkendes Eigengewicht gegen Windsog, Schnee nach Höhenlage, Umrechnung mit der Lasteinzugsbreite und ungültige Eingaben.</p>
+  <p class="note">Grundlagen: SIA 260:2013 Grundlagen der Projektierung von Tragwerken, Ziffern 4.4.2.6, 4.4.3.4, 4.4.4.3, 4.4.4.4, Tabelle 1 (Lastbeiwerte) und Anhang A, Tabelle 2 (Reduktionsbeiwerte für Gebäude); SIA 261:2020, 5.1 bis 5.3, Figuren 2 und 4, Anhang D (Schneelast, Bezugshöhe h<sub>0</sub>). Massgebend ist immer der Normtext.</p>
+  <p class="note">Geprüfte Testfälle (von Hand nachgerechnet): nur ständige Lasten, eine Nutzlast, zwei veränderliche Einwirkungen mit massgebender kleinerer Einwirkung (Wind 3.0 vor Lagerlast 5.0 wegen ψ<sub>0</sub> = 1.0 der Lagerlast), günstig wirkendes Eigengewicht gegen Windsog, Schnee nach Höhenlage, Schneelast auf dem Dach (s<sub>k</sub> mit Mindestwert, μ<sub>1</sub> nach Neigung, mit Schneefänger und nach Figur 4, C<sub>e</sub>), Umrechnung mit der Lasteinzugsbreite und ungültige Eingaben.</p>
 
   <footer>
     <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
@@ -332,6 +354,42 @@ function snowPsi(h0) {
   return [1 - 60 / h0, 1 - 250 / h0, 1 - 1000 / h0].map(v => Math.max(0, v));
 }
 
+// Schneelast auf Dächern, Lastmodell 1 (gleichmässige Ablagerung): SIA 261:2020, 5.2 und 5.3
+const SNOW = {
+  CE: [1.0, 0.8, 1.2],  // 5.2.4: normale Windexposition 1.0, dem Wind stark ausgesetzt 0.8, vor Wind geschützt 1.2
+  SK0: 0.4,             // 5.2.6, Gl. (10): s_k = [1 + (h0/350)²]·0.4 kN/m²
+  H350: 350,            // 5.2.6, Gl. (10)
+  SKMIN: 0.9,           // 5.2.6, Gl. (10): s_k ≥ 0.9 kN/m²
+  MU1: 0.8,             // Figur 2: μ1 = 0.8 für 0° ≤ α ≤ 30°, linear auf 0 bei α = 60°
+  MU_STOP: 0.8,         // 5.3.4: Schneefänger, Schneestopper oder Brüstung am unteren Dachrand: μ1 = 0.8
+  ALPHA_FIG4: 10,       // 5.3.5: quasi-horizontales Dach, Neigung kleiner als ca. 10°
+  L_FIG4: 20            // 5.3.5 und Figur 4: Länge und Breite > 20 m; μ1 von 0.8 (20 m) linear auf 1.0 (25 m)
+};
+function snowLoad(s, h0) {
+  const num = v => typeof v === "number" && isFinite(v);
+  if (!s || typeof s !== "object") return { error: "Angaben zur Schneelast fehlen." };
+  if (!(num(s.alpha) && s.alpha >= 0 && s.alpha < 90)) return { error: "Dachneigung α zwischen 0° und 90° angeben." };
+  if (SNOW.CE.indexOf(s.Ce) < 0) return { error: "Ungültige Windexposition C_e." };
+  if (!(num(s.CT) && s.CT > 0 && s.CT <= 1)) return { error: "Thermischer Beiwert C_T grösser als 0 und höchstens 1.0 angeben (in der Regel 1.0, SIA 261 5.2.5)." };
+  const opt = v => (v === "" || v === undefined || v === null ? null : v);
+  const Lr = opt(s.Lr), Br = opt(s.Br);
+  if (Lr !== null && !(num(Lr) && Lr > 0)) return { error: "Dachlänge grösser als 0 angeben oder leer lassen." };
+  if (Br !== null && !(num(Br) && Br > 0)) return { error: "Dachbreite grösser als 0 angeben oder leer lassen." };
+  const skRaw = (1 + Math.pow(h0 / SNOW.H350, 2)) * SNOW.SK0;            // Gl. (10)
+  const sk = Math.max(skRaw, SNOW.SKMIN);
+  // μ1 nach Figur 2 bzw. 5.3.4
+  const mu2 = s.alpha <= 30 ? SNOW.MU1 : s.alpha < 60 ? SNOW.MU1 * (60 - s.alpha) / 30 : 0;
+  let mu1 = s.stop ? SNOW.MU_STOP : mu2, src = s.stop ? "stop" : "fig2";
+  // Figur 4: quasi-horizontales Dach, Länge und Breite > 20 m
+  let fig4 = null;
+  if (s.alpha < SNOW.ALPHA_FIG4 && Lr !== null && Br !== null && Lr > SNOW.L_FIG4 && Br > SNOW.L_FIG4) {
+    fig4 = Math.min(1.0, 0.8 + 0.2 * (Math.max(Lr, Br) - 20) / 5);
+    if (fig4 > mu1) { mu1 = fig4; src = "fig4"; }
+  }
+  const qk = mu1 * s.Ce * s.CT * sk;                                        // Gl. (9)
+  return { h0, skRaw, sk, mu1, mu2, src, fig4, Ce: s.Ce, CT: s.CT, alpha: s.alpha, Lr, Br, stop: !!s.stop, qk };
+}
+
 const UNITS = ["kN/m2", "kN/m", "kN"];
 
 function compute(p) {
@@ -342,6 +400,11 @@ function compute(p) {
   if (A.length > 30) return { error: "Höchstens 30 Einwirkungen." };
   const needSnow = A.some(a => a && a.kind === "Q" && a.type === "snow");
   if (needSnow && !(num(p.h0) && p.h0 > 0)) return { error: "Für Schnee die Bezugshöhe h0 grösser als 0 angeben." };
+  let snow = null;
+  if (needSnow && p.snow && p.snow.calc) {
+    snow = snowLoad(p.snow, p.h0);
+    if (snow.error) return { error: snow.error };
+  }
   const be = p.be === "" || p.be === undefined || p.be === null ? null : p.be;
   if (be !== null && !(num(be) && be > 0)) return { error: "Die Lasteinzugsbreite b_e muss grösser als 0 sein oder leer bleiben." };
 
@@ -350,15 +413,18 @@ function compute(p) {
     const a = A[i], nr = "Zeile " + (i + 1) + ": ";
     if (!a || typeof a !== "object") return { error: nr + "ungültige Angabe." };
     if (a.kind !== "G" && a.kind !== "Q") return { error: nr + "Art muss ständig (G) oder veränderlich (Q) sein." };
-    if (!num(a.value)) return { error: nr + "Wert fehlt oder ist keine Zahl." };
-    if (a.value < 0) return { error: nr + "Wert positiv eingeben; für entgegenwirkende Einwirkungen «günstig» wählen." };
+    const auto = snow !== null && a.kind === "Q" && a.type === "snow";
+    if (auto && a.unit !== "kN/m2") return { error: nr + "Die berechnete Schneelast ist eine Flächenlast: Einheit kN/m² wählen." };
+    const value = auto ? snow.qk : a.value;
+    if (!num(value)) return { error: nr + "Wert fehlt oder ist keine Zahl." };
+    if (value < 0) return { error: nr + "Wert positiv eingeben; für entgegenwirkende Einwirkungen «günstig» wählen." };
     if (UNITS.indexOf(a.unit) < 0) return { error: nr + "ungültige Einheit." };
     if (a.kind === "Q" && !QTYPES[a.type]) return { error: nr + "Typ der veränderlichen Einwirkung fehlt." };
     const name = (typeof a.name === "string" && a.name.trim()) ? a.name.trim().slice(0, 60) : (a.kind === "G" ? "G" : "Q") + (i + 1);
     let unit = a.unit, conv = 1;
     if (unit === "kN/m2" && be !== null) { unit = "kN/m"; conv = be; }
     const psi = a.kind === "Q" ? (a.type === "snow" ? snowPsi(p.h0) : QTYPES[a.type].psi.slice()) : null;
-    rows.push({ i, name, kind: a.kind, type: a.kind === "Q" ? a.type : null, fav: !!a.fav, valueIn: a.value, unitIn: a.unit, conv, v: a.value * conv, unit, psi });
+    rows.push({ i, name, kind: a.kind, type: a.kind === "Q" ? a.type : null, fav: !!a.fav, auto, valueIn: value, unitIn: a.unit, conv, v: value * conv, unit, psi });
   }
   const units = rows.map(r => r.unit).filter((u, k, s) => s.indexOf(u) === k);
   if (units.length > 1) {
@@ -404,7 +470,7 @@ function compute(p) {
   const qsT = gTermsSLS().concat(Q.map(r => term(r, 1, 2, 1)));                   // Gl. (22) quasi-ständig
   const qs = pick([{ lead: null, terms: qsT, value: sum(qsT) }]);
 
-  return { rows, unit, be, h0: needSnow ? p.h0 : null, G, Q, Qignored, uls, sel, hf, qs,
+  return { rows, unit, be, h0: needSnow ? p.h0 : null, snow, G, Q, Qignored, uls, sel, hf, qs,
     qd: uls.max, qk: sel.max, qf: hf.max, qqs: qs.max, gamma: GAMMA };
 }
 /*CALC-END*/
@@ -419,7 +485,8 @@ function compute(p) {
       { name: "Schnee", kind: "Q", value: 1.2, unit: "kN/m2", type: "snow", fav: false },
       { name: "Wind Druck", kind: "Q", value: 0.6, unit: "kN/m2", type: "wind", fav: false }
     ],
-    h0: 800, be: 5, L: 6, show: "both"
+    h0: 800, be: 5, L: 6, show: "both",
+    snow: { calc: true, alpha: 5, Ce: 1, CT: 1, Lr: "", Br: "", stop: false }
   };
   const clone = o => JSON.parse(JSON.stringify(o));
 
@@ -437,6 +504,16 @@ function compute(p) {
       }));
     }
     if (num(s.h0)) d.h0 = s.h0;
+    if (s.snow && typeof s.snow === "object") {
+      const n = s.snow, o = d.snow;
+      if (typeof n.calc === "boolean") o.calc = n.calc;
+      if (num(n.alpha)) o.alpha = n.alpha;
+      if (SNOW.CE.indexOf(n.Ce) >= 0) o.Ce = n.Ce;
+      if (num(n.CT)) o.CT = n.CT;
+      if (n.Lr === "" || num(n.Lr)) o.Lr = n.Lr;
+      if (n.Br === "" || num(n.Br)) o.Br = n.Br;
+      if (typeof n.stop === "boolean") o.stop = n.stop;
+    } else if (Array.isArray(s.actions)) d.snow.calc = false; // ältere Links ohne Schneerechner: Werte wie eingegeben
     if (s.be === "" || num(s.be)) d.be = s.be;
     if (num(s.L)) d.L = s.L;
     if (["both", "uls", "sls"].indexOf(s.show) >= 0) d.show = s.show;
@@ -489,6 +566,7 @@ function compute(p) {
       syncType();
       nameI.addEventListener("input", () => { a.name = nameI.value; update(); });
       kindS.addEventListener("change", () => { a.kind = kindS.value; if (a.kind === "Q" && !QTYPES[a.type]) a.type = "B"; if (a.kind === "G") a.type = ""; syncType(); update(); });
+      valI.dataset.row = i;
       valI.addEventListener("input", () => { a.value = valI.value === "" ? "" : parseFloat(valI.value); update(); });
       unitS.addEventListener("change", () => { a.unit = unitS.value; update(); });
       typeS.addEventListener("change", () => { a.type = typeS.value; update(); });
@@ -597,11 +675,24 @@ function compute(p) {
     r.rows.forEach(x => {
       let s = (x.kind === "G" ? "G" : "Q") + "<sub>k</sub> " + esc(x.name) + " = " + fN(x.valueIn) + " " + uHtml(x.unitIn);
       if (x.conv !== 1) s += " · b<sub>e</sub> " + fN(x.conv) + " m = " + f2(x.v) + " kN/m";
+      if (x.auto) s += " &nbsp;<span class='c'>berechnet, siehe Schneelast</span>";
       s += x.kind === "G" ? (x.fav ? " &nbsp;<span class='c'>günstig</span>" : "") : " &nbsp;<span class='c'>" + esc(QTYPES[x.type].name) + (x.fav ? ", günstig: nicht angesetzt" : "") + "</span>";
       l(s);
     });
     if (r.rows.some(x => x.conv !== 1)) c("Flächenlast in Linienlast: q = b<sub>e</sub>·q<sub>Fläche</sub>");
 
+    if (r.snow) {
+      const S = r.snow;
+      H("1a Schneelast auf dem Dach (SIA 261, 5.2)");
+      l("s<sub>k</sub> = [1 + (h<sub>0</sub>/350)²]·0.4 = [1 + (" + fN(S.h0) + "/350)²]·0.4 = " + f2(S.skRaw) + " kN/m²" +
+        (S.skRaw < S.sk ? " &lt; 0.90 → s<sub>k</sub> = 0.90 kN/m²" : "") + " &nbsp;<span class='c'>Gl. (10)</span>");
+      if (S.src === "stop") l("μ<sub>1</sub> = 0.80 (Schneefänger oder Brüstung, 5.3.4)");
+      else if (S.alpha <= 30) l("μ<sub>1</sub> = 0.80 (α = " + fN(S.alpha) + "° ≤ 30°, Figur 2)");
+      else if (S.alpha < 60) l("μ<sub>1</sub> = 0.8·(60° − α)/30° = 0.8·(60 − " + fN(S.alpha) + ")/30 = " + f2(S.mu2) + " (Figur 2)");
+      else l("μ<sub>1</sub> = 0 (α ≥ 60°, Figur 2 und 5.3.3)");
+      if (S.src === "fig4") l("Figur 4, quasi-horizontales Dach " + fN(S.Lr) + " × " + fN(S.Br) + " m: μ<sub>1</sub> = 0.8 + 0.2·(max(L; B) − 20)/5 ≤ 1.0 = " + f2(S.mu1));
+      l("q<sub>k</sub> = μ<sub>1</sub>·C<sub>e</sub>·C<sub>T</sub>·s<sub>k</sub> = " + f2(S.mu1) + "·" + f2(S.Ce) + "·" + f2(S.CT) + "·" + f2(S.sk) + " = <b>" + f2(S.qk) + " kN/m²</b> &nbsp;<span class='c'>Gl. (9), Lastmodell 1</span>");
+    }
     H("2 Lastbeiwerte (SIA 260, Tabelle 1, Typ 2)");
     l("γ<sub>G,sup</sub> = " + f2(r.gamma.G_sup) + " (ungünstig) &nbsp;·&nbsp; γ<sub>G,inf</sub> = " + f2(r.gamma.G_inf) + " (günstig, 4.4.2.6) &nbsp;·&nbsp; γ<sub>Q</sub> = " + f2(r.gamma.Q));
     c("Gebrauchstauglichkeit: γ<sub>F</sub> = 1.0 (4.4.4.3)");
@@ -638,9 +729,10 @@ function compute(p) {
     save();
     const p = {
       actions: state.actions.map(a => Object.assign({}, a, { value: a.value === "" ? NaN : a.value })),
-      h0: state.h0, be: state.be, L: state.L
+      h0: state.h0, be: state.be, L: state.L, snow: state.snow
     };
     const r = compute(p);
+    syncSnowUi(r);
     const err = $("error");
     if (r.error) {
       err.textContent = r.error;
@@ -651,12 +743,47 @@ function compute(p) {
     render(r);
   }
 
+  // Schnee-Abschnitt nur mit Schnee-Zeile; berechnete Werte in den Schnee-Zeilen anzeigen
+  function syncSnowUi(r) {
+    const has = state.actions.some(a => a.kind === "Q" && a.type === "snow");
+    $("snow-wrap").hidden = !has;
+    document.querySelectorAll("[data-snow]").forEach(e => { e.hidden = !state.snow.calc; });
+    $("rows").querySelectorAll("input[type=number]").forEach(inp => {
+      const a = state.actions[+inp.dataset.row];
+      const auto = !!a && state.snow.calc && a.kind === "Q" && a.type === "snow";
+      const was = inp.disabled;
+      inp.disabled = auto;
+      inp.title = auto ? "berechnet im Abschnitt Schneelast" : "";
+      if (auto && r && !r.error && r.snow) inp.value = Math.round(r.snow.qk * 1000) / 1000;
+      else if (!auto && was && a) inp.value = a.value;
+    });
+  }
+
   function bindGlobal() {
     const numIn = (id, k, allowEmpty) => {
       $(id).value = state[k];
       $(id).addEventListener("input", () => { const v = $(id).value; state[k] = v === "" ? (allowEmpty ? "" : NaN) : parseFloat(v); update(); });
     };
     numIn("h0", "h0"); numIn("be", "be", true); numIn("L", "L");
+    const sIn = (id, k, allowEmpty) => {
+      $(id).value = state.snow[k];
+      $(id).addEventListener("input", () => { const v = $(id).value; state.snow[k] = v === "" ? (allowEmpty ? "" : NaN) : parseFloat(v); update(); });
+    };
+    sIn("s-alpha", "alpha"); sIn("s-ct", "CT"); sIn("s-lr", "Lr", true); sIn("s-br", "Br", true);
+    $("s-ce").value = String(state.snow.Ce);
+    $("s-ce").addEventListener("change", () => { state.snow.Ce = parseFloat($("s-ce").value); update(); });
+    $("snow-calc").checked = state.snow.calc;
+    $("snow-calc").addEventListener("change", () => {
+      // beim Ausschalten den zuletzt berechneten Wert als Startwert in die Schnee-Zeilen übernehmen
+      if (!$("snow-calc").checked) {
+        const r = compute({ actions: state.actions.map(a => Object.assign({}, a, { value: a.value === "" ? NaN : a.value })), h0: state.h0, be: state.be, snow: state.snow });
+        if (!r.error && r.snow) state.actions.forEach(a => { if (a.kind === "Q" && a.type === "snow") a.value = Math.round(r.snow.qk * 1000) / 1000; });
+      }
+      state.snow.calc = $("snow-calc").checked;
+      update();
+    });
+    $("s-stop").checked = state.snow.stop;
+    $("s-stop").addEventListener("change", () => { state.snow.stop = $("s-stop").checked; update(); });
     $("show").value = state.show;
     $("show").addEventListener("change", () => { state.show = $("show").value; update(); });
   }
@@ -666,6 +793,8 @@ function compute(p) {
   $("reset").addEventListener("click", () => {
     state = clone(DEFAULTS);
     ["h0", "be", "L"].forEach(k => { $(k).value = state[k]; });
+    $("s-alpha").value = state.snow.alpha; $("s-ct").value = state.snow.CT; $("s-lr").value = state.snow.Lr; $("s-br").value = state.snow.Br;
+    $("s-ce").value = String(state.snow.Ce); $("snow-calc").checked = state.snow.calc; $("s-stop").checked = state.snow.stop;
     $("show").value = state.show;
     renderRows(); update();
   });
@@ -696,7 +825,7 @@ function compute(p) {
   })();
 
   // Für Tests: Rechenkern von aussen erreichbar
-  window.__lk = { compute, DEFAULTS };
+  window.__lk = { compute, snowLoad, DEFAULTS };
 })();
 </script>
 </body>
