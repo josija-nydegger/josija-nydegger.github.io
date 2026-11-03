@@ -77,7 +77,11 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px 16px; }
   .group { font-size: 13px; font-weight: 600; color: var(--muted); margin: 22px 0 8px; }
   .group:first-child { margin-top: 0; }
+  #snow-wrap > .group { margin-top: 22px; }
   label { display: block; font-size: 13px; color: var(--muted); }
+  /* Felder einer Zeile auf gleicher Höhe, auch wenn eine Beschriftung umbricht */
+  .grid > label { display: flex; flex-direction: column; }
+  .grid > label > .lbl { flex: 1; }
   label .sym { color: var(--text); font-style: italic; }
   select, .txt {
     width: 100%; margin-top: 4px; height: 36px;
@@ -123,9 +127,11 @@
   .actions input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--text); margin: 0 auto; display: block; }
   label.check { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text); }
   label.check input { width: 16px; height: 16px; margin: 0; accent-color: var(--text); flex: none; }
-  label[hidden] { display: none; }
+  label[hidden], .grid > label[hidden] { display: none; }
   .actions td.c-val input:disabled { color: var(--muted); }
   .row-actions { display: flex; gap: 8px; margin: 10px 0 0; flex-wrap: wrap; }
+  .quick { margin: 14px 0 0; padding: 8px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 14px; color: var(--muted); }
+  .quick b { color: var(--text); font-size: 17px; font-weight: 600; }
 
   /* ---------- Ergebnis ---------- */
   .main-result { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 14px 0; }
@@ -222,22 +228,23 @@
       <button class="btn" type="button" id="add-g">+ Ständige Einwirkung</button>
       <button class="btn" type="button" id="add-q">+ Veränderliche Einwirkung</button>
     </div>
+    <p class="quick" id="quick" aria-live="polite"></p>
     <p class="note">Art: G = ständig, Q = veränderlich. Werte als charakteristische Werte (G<sub>k</sub>, Q<sub>k</sub>) eingeben, immer positiv. «Günstig» heisst: Die Einwirkung wirkt der massgebenden Richtung entgegen (z. B. Eigengewicht gegen Abheben durch Windsog). Günstige ständige Einwirkungen werden mit γ<sub>G,inf</sub> abgezogen, günstige veränderliche nicht angesetzt.</p>
 
     <div id="snow-wrap">
       <div class="group">Schneelast (SIA 261)</div>
       <label class="check"><input type="checkbox" id="snow-calc"><span>Schneelast auf dem Dach berechnen (q<sub>k</sub> = μ<sub>1</sub>·C<sub>e</sub>·C<sub>T</sub>·s<sub>k</sub>)</span></label>
       <div class="grid" style="margin-top:10px">
-        <label>Bezugshöhe <span class="sym">h<sub>0</sub></span><span class="inp"><input id="h0" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
-        <label data-snow>Dachneigung <span class="sym">α</span><span class="inp"><input id="s-alpha" type="number" step="any" inputmode="decimal" min="0"><span>°</span></span></label>
-        <label data-snow>Windexposition <span class="sym">C<sub>e</sub></span><select id="s-ce">
+        <label><span class="lbl">Bezugshöhe <span class="sym">h<sub>0</sub></span></span><span class="inp"><input id="h0" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
+        <label data-snow><span class="lbl">Dachneigung <span class="sym">α</span></span><span class="inp"><input id="s-alpha" type="number" step="any" inputmode="decimal" min="0"><span>°</span></span></label>
+        <label data-snow><span class="lbl">Windexposition <span class="sym">C<sub>e</sub></span></span><select id="s-ce">
           <option value="1">1.0 normal</option>
           <option value="0.8">0.8 stark ausgesetzt</option>
           <option value="1.2">1.2 geschützt</option>
         </select></label>
-        <label data-snow>Thermischer Beiwert <span class="sym">C<sub>T</sub></span><span class="inp"><input id="s-ct" type="number" step="any" inputmode="decimal" min="0"><span>–</span></span></label>
-        <label data-snow>Dachlänge (optional)<span class="inp"><input id="s-lr" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
-        <label data-snow>Dachbreite (optional)<span class="inp"><input id="s-br" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
+        <label data-snow><span class="lbl">Thermischer Beiwert <span class="sym">C<sub>T</sub></span></span><span class="inp"><input id="s-ct" type="number" step="any" inputmode="decimal" min="0"><span>–</span></span></label>
+        <label data-snow><span class="lbl">Dachlänge (optional)</span><span class="inp"><input id="s-lr" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
+        <label data-snow><span class="lbl">Dachbreite (optional)</span><span class="inp"><input id="s-br" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
       </div>
       <label class="check" data-snow style="margin-top:10px"><input type="checkbox" id="s-stop"><span>Schneefänger oder Brüstung am unteren Dachrand (μ<sub>1</sub> = 0.8, SIA 261 5.3.4)</span></label>
       <p class="note">h<sub>0</sub> = Meereshöhe + Zuschlag nach der Karte in SIA 261, Anhang D; nicht anwendbar für Bauwerke über 2000 m ü. M. (5.1.4). h<sub>0</sub> bestimmt die ψ-Werte des Schnees und, falls berechnet, s<sub>k</sub>. Dachlänge und -breite braucht es nur für quasi-horizontale Dächer (α &lt; 10°) über 20 × 20 m (Figur 4). Berechnet wird Lastmodell 1 (gleichmässige Ablagerung); der Wert ersetzt die Eingabe in allen Schnee-Zeilen (Einheit kN/m²).</p>
@@ -245,9 +252,9 @@
 
     <div class="group">Weitere Angaben</div>
     <div class="grid">
-      <label>Lasteinzugsbreite <span class="sym">b<sub>e</sub></span><span class="inp"><input id="be" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
-      <label>Spannweite <span class="sym">L</span> (Balken-Tool)<span class="inp"><input id="L" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
-      <label>Nachweis<select id="show">
+      <label><span class="lbl">Lasteinzugsbreite <span class="sym">b<sub>e</sub></span></span><span class="inp"><input id="be" type="number" step="any" inputmode="decimal" min="0" placeholder="–"><span>m</span></span></label>
+      <label><span class="lbl">Spannweite <span class="sym">L</span> (Balken-Tool)</span><span class="inp"><input id="L" type="number" step="any" inputmode="decimal" min="0"><span>m</span></span></label>
+      <label><span class="lbl">Nachweis</span><select id="show">
         <option value="both">beide</option>
         <option value="uls">Tragsicherheit</option>
         <option value="sls">Gebrauchstauglichkeit</option>
@@ -648,6 +655,9 @@ function compute(p) {
     if (r.qd < 0) h += "<p>Die günstig wirkenden Einwirkungen überwiegen: Die massgebende Richtung tritt nicht auf.</p>";
     if (r.Qignored.length) h += "<p>Nicht angesetzt (günstig wirkend, veränderlich): " + r.Qignored.map(x => esc(x.name)).join(", ") + ".</p>";
     $("main-result").innerHTML = h;
+    const gq = r.uls.combos[r.uls.gov];
+    $("quick").innerHTML = "Bemessungslast <b>q<sub>d</sub> = " + f2(r.qd) + " " + u + "</b> · " +
+      (gq.lead === null ? "nur ständige Einwirkungen" : "Leiteinwirkung " + esc(gq.leadName));
 
     const rows = [];
     if (showU) rows.push(["q<sub>d</sub> (Tragsicherheit, Gl. 16)", r.qd]);
@@ -737,6 +747,7 @@ function compute(p) {
     if (r.error) {
       err.textContent = r.error;
       err.hidden = false;
+      $("quick").innerHTML = "q<sub>d</sub> = – (Eingaben prüfen)";
       return; // letzte gültige Ausgabe bleibt stehen
     }
     err.hidden = true;
