@@ -5,6 +5,7 @@
 // ohne Base-Layout. Das Skript unten bündelt Astro in eine eigene Datei unter /_astro/.
 // Installierbar als App (nur dieses Tool): manifest.webmanifest, sw.js und icons/ in public/tools/einheiten/.
 import { categories } from '../../../lib/einheiten';
+import Umami from '../../../components/Umami.astro';
 
 const title = 'Einheiten-Umrechner | Josija Nydegger';
 const description = 'Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: kN/cm² in MPa, kNm in Nmm, kN/m³ in kg/m³ mit wählbarem g, Bewehrung aus Ø und Abstand, Bauphysik, Durchfluss, Neigung in % und 1:n, °C und K. Freitext-Eingabe, offline als App nutzbar.';
@@ -35,6 +36,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
 <!-- Symbol und Name auf dem iOS-Home-Bildschirm (eigenes Symbol pro Tool, Quelle icons/icon.svg) -->
 <link rel="apple-touch-icon" href="/tools/einheiten/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Einheiten">
+<Umami />
 <!-- App (nur dieses Tool): Manifest und Farbe der Titelleiste -->
 <link rel="manifest" href="/tools/einheiten/manifest.webmanifest">
 <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
@@ -253,7 +255,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
 <main>
   <div class="top">
     <a class="back" href="/tools/">← Tools</a>
-    <button class="link-btn" type="button" id="copy-url" title="Link mit der aktuellen Eingabe kopieren" hidden>URL kopieren</button>
+    <button class="link-btn" type="button" id="copy-url" data-umami-event="URL kopieren" data-umami-event-tool="einheiten" title="Link mit der aktuellen Eingabe kopieren" hidden>URL kopieren</button>
   </div>
   <h1>Einheiten-Umrechner</h1>
   <p class="lead">Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bewehrung, Bettung, Bauphysik und Energie, Durchfluss, Geschwindigkeit, Frequenz, Neigungen und Temperaturen. Eingabe als Text, z. B. «12.5 kN/cm2 in MPa», «3.5 kN/m * 6 m» oder «d12 s15».</p>
@@ -377,7 +379,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
   <footer>
     <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
     <div class="foot-row">
-      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.ch/">Website</a></p>
+      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.ch/">Website</a> - <a href="/datenschutz.html">Datenschutz</a></p>
       <div class="theme" role="group" aria-label="Farbschema" hidden>
         <button type="button" data-theme="light" aria-label="Hell" title="Hell">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -773,6 +775,11 @@ input.focus();
   apply(root.dataset.theme);
   group.hidden = false;
 })();
+
+// Besucherstatistik (Umami): zählen, wie oft die App installiert wird (ohne weitere Angaben)
+window.addEventListener('appinstalled', () => {
+  (window as { umami?: { track: (name: string) => void } }).umami?.track('App installiert');
+});
 
 // Offline-Betrieb als App: Service Worker nur für dieses Tool (Scope /tools/einheiten/), nicht in "npm run dev"
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

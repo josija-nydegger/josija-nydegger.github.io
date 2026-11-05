@@ -4,6 +4,7 @@
 import Nav from '../components/Nav.astro';
 import Seo from '../components/Seo.astro';
 import PersonJsonLd from '../components/PersonJsonLd.astro';
+import Umami from '../components/Umami.astro';
 import { i18n, otherLang, type Lang } from '../data/i18n';
 import { site, absoluteUrl } from '../data/site';
 import { counterpartUrl, type Post } from '../lib/posts';
@@ -47,6 +48,7 @@ const deUrl = lang === 'de' ? path : otherUrl;
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/style.css">
+  <Umami />
   <slot name="head" />
 </head>
 <body>
@@ -61,7 +63,7 @@ const deUrl = lang === 'de' ? path : otherUrl;
   <slot />
 
   <footer>
-    <span>© {new Date().getFullYear()} {site.author.name}</span>
+    <span>© {new Date().getFullYear()} {site.author.name} · <a href={t.privacyUrl}>{t.privacy}</a></span>
     <div class="theme" role="group" aria-label={t.themeLabel} hidden>
       <button type="button" data-theme="light" aria-label={t.themeLight} title={t.themeLight}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -105,6 +107,12 @@ const deUrl = lang === 'de' ? path : otherUrl;
     });
     document.querySelectorAll(".email-wrap").forEach(function (w) { w.hidden = false; });
   })();
+
+  // Besucherstatistik (Umami, siehe src/components/Umami.astro): Klicks auf PDFs zählen, nur der Dateiname.
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href$=".pdf"]');
+    if (a && window.umami) window.umami.track("PDF-Download", { datei: a.pathname.split("/").pop() });
+  });
 
   // Lebenslauf: Button "Als PDF speichern" öffnet den Druckdialog.
   // Während des Druckens wird der Seitentitel (= vorgeschlagener Dateiname) durch data-print ersetzt.

@@ -22,6 +22,8 @@
 <!-- Symbol und Name auf dem iOS-Home-Bildschirm (eigenes Symbol pro Tool, Quelle icons/icon.svg) -->
 <link rel="apple-touch-icon" href="/tools/balken/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Balken">
+<!-- Besucherstatistik ohne Cookies (Umami), gleiche Zeile wie src/components/Umami.astro; Adressen ohne #, Eingaben gehen nicht mit -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="a01c13a5-a222-435b-afdf-eaf312d81a40" data-domains="josija-nydegger.ch" data-exclude-search="true" data-exclude-hash="true" data-do-not-track="true"></script>
 <style>
 /* Layout: ruhige Seite im Stil von josija-nydegger.ch. Tabs oben, darunter Eingaben links,
    Zeichnung und Ergebnisse rechts; auf dem Handy untereinander. Trennung durch Linien statt Karten. */
@@ -254,7 +256,7 @@ footer a:hover{color:var(--text)}
 <main>
   <div class="top">
     <a class="back" href="/tools/">← Tools</a>
-    <button class="link-btn" type="button" id="copy-url" title="Link mit den aktuellen Eingaben kopieren" hidden>URL kopieren</button>
+    <button class="link-btn" type="button" id="copy-url" data-umami-event="URL kopieren" data-umami-event-tool="balken" title="Link mit den aktuellen Eingaben kopieren" hidden>URL kopieren</button>
   </div>
   <div class="intro">
     <h1>Balken mit Auskragung</h1>
@@ -299,7 +301,7 @@ footer a:hover{color:var(--text)}
   <footer>
     <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
     <div class="foot-row">
-      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.ch/">Website</a></p>
+      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.ch/">Website</a> - <a href="/datenschutz.html">Datenschutz</a></p>
       <div class="theme" role="group" aria-label="Farbschema" hidden>
         <button type="button" data-theme="light" aria-label="Hell" title="Hell">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
