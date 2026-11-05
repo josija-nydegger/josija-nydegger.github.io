@@ -11,9 +11,10 @@ function fe(m,EI){
   let xs=new Set([0,tot,...s,...m.points.map(p=>p.x)]);for(let i=0;i<=1200;i++)xs.add(tot*i/1200);
   xs=[...xs].filter(x=>x>=0&&x<=tot).sort((a,b)=>a-b).filter((x,i,a)=>i===0||x-a[i-1]>1e-9);
   const N=xs.length,dof=2*N,K=Array.from({length:dof},()=>new Float64Array(dof)),F=new Float64Array(dof);
-  const q=x=>{if(x<m.a)return m.qa;if(x>s[n])return m.qb;for(let i=0;i<n;i++)if(x>=s[i]&&x<=s[i+1])return m.spans[i].q;return 0;};
+  const lin=(x0,x1,q1,q2)=>x=>q1+((q2==null?q1:q2)-q1)*(x-x0)/(x1-x0);
+  const qf=x=>{if(x<m.a)return lin(0,m.a,m.qa,m.qa2);if(x>s[n])return lin(s[n],tot,m.qb,m.qb2);for(let i=0;i<n;i++)if(x>=s[i]&&x<=s[i+1])return lin(s[i],s[i+1],m.spans[i].q,m.spans[i].q2);return()=>0;};
   for(let e=0;e<N-1;e++){const L=xs[e+1]-xs[e],k=[[12,6*L,-12,6*L],[6*L,4*L*L,-6*L,2*L*L],[-12,-6*L,12,-6*L],[6*L,2*L*L,-6*L,4*L*L]].map(r=>r.map(v=>v*EI/L**3));
-    const w=q((xs[e]+xs[e+1])/2),f=[w*L/2,w*L*L/12,w*L/2,-w*L*L/12],id=[2*e,2*e+1,2*e+2,2*e+3]; // w positiv nach unten
+    const g=qf((xs[e]+xs[e+1])/2),w1=g(xs[e]),w2=g(xs[e+1]),f=[L*(7*w1+3*w2)/20,L*L*(3*w1+2*w2)/60,L*(3*w1+7*w2)/20,-L*L*(2*w1+3*w2)/60],id=[2*e,2*e+1,2*e+2,2*e+3]; // w positiv nach unten
     for(let i=0;i<4;i++){F[id[i]]+=f[i];for(let j=0;j<4;j++)K[id[i]][id[j]]+=k[i][j];}}
   for(const p of m.points){const i=xs.findIndex(x=>Math.abs(x-p.x)<1e-9);F[2*i]+=p.P;}
   const sup=s.map(x=>xs.findIndex(v=>Math.abs(v-x)<1e-9)),fixed=new Set(sup.map(i=>2*i));
@@ -55,6 +56,24 @@ cases.forEach((m,c)=>{
   // Querkraft: Sprung an jedem Auflager = Auflagerkraft
   a.R.forEach((R,j)=>chk('Fall '+(c+1)+' Q-Sprung '+String.fromCharCode(65+j)+' = R',a.QR[j]-a.QL[j],R+(m.points.filter(p=>Math.abs(p.x-a.s[j])<1e-9).reduce((s,p)=>s-p.P,0)),1e-6));
   chk('Fall '+(c+1)+' R_A vs FE',a.R[0],b.R[0],1e-4);
+});
+// Dreiecks- und Trapezlasten
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0,q2:12}],points:[],EI});
+chk('Dreieck Einfeld w(L/2) = 5pL⁴/(768EI)',r.defl.W(3),5*12*6**4/(768*EI),1e-9);
+{ const L=6,p=12,xm=L*Math.sqrt(1-Math.sqrt(8/15)); chk('Dreieck Einfeld max w = p·x(7L⁴−10L²x²+3x⁴)/(360·L·EI)',r.defl.max.v,p*xm*(7*L**4-10*L*L*xm*xm+3*xm**4)/(360*L*EI),1e-7); chk('  Lage x = L·√(1−√(8/15))',r.defl.max.x,xm,1e-5); }
+chk('Dreieck Einfeld Q_A = pL/6',r.QR[0],12); chk('Dreieck Einfeld Q_B = −pL/3',r.QL[1],-24);
+r=solve({a:3,b:0,qa:10,qa2:0,qb:0,spans:[{L:4,q:0}],points:[],EI});
+// Kragarm mit Dreieckslast, Maximum am freien Ende: w = 11pa⁴/(120EI) + Verdrehung am Auflager A · a
+chk('Dreieck Kragarm (max am Ende) w_Ende',r.defl.tipL,11*10*3**4/(120*EI)+(10*9/3)*4/(3*EI)*3,1e-9);
+const tc=[
+ {a:1.2,qa:0,qa2:6,b:0.8,qb:4,qb2:0,spans:[{L:5,q:2,q2:8},{L:4,q:8,q2:0},{L:5,q:0,q2:5}],points:[{x:3,P:10}]},
+ {a:0,qa:0,b:2,qb:3,qb2:1,spans:[{L:6,q:10,q2:0}],points:[]},
+];
+tc.forEach((m,c)=>{
+  const a=solve({...m,EI}), b=fe(m,EI);
+  let maxErr=0,maxW=0; b.xs.forEach((x,i)=>{maxErr=Math.max(maxErr,Math.abs(a.defl.W(x)-b.w[i]));maxW=Math.max(maxW,Math.abs(b.w[i]));});
+  chk('Trapez Fall '+(c+1)+' w(x) überall vs FE (rel. Fehler < 1e-5)',maxErr/maxW+1,1,1e-5);
+  a.R.forEach((R,j)=>chk('Trapez Fall '+(c+1)+' R'+String.fromCharCode(65+j)+' vs FE',R,b.R[j],1e-4));
 });
 console.log(fails?fails+' FEHLER':'Alle Tests bestanden');
 process.exitCode=fails?1:0;

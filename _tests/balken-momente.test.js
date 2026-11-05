@@ -14,9 +14,10 @@ function fe(m){
   let xs=new Set([0,tot,...s,...m.points.map(p=>p.x)]);for(let i=0;i<=2000;i++)xs.add(tot*i/2000);
   xs=[...xs].filter(x=>x>=0&&x<=tot).sort((a,b)=>a-b).filter((x,i,a)=>i===0||x-a[i-1]>1e-9);
   const N=xs.length,dof=2*N,K=Array.from({length:dof},()=>new Float64Array(dof)),F=new Float64Array(dof);
-  const q=x=>{if(x<m.a)return m.qa;if(x>s[n])return m.qb;for(let i=0;i<n;i++)if(x>=s[i]&&x<=s[i+1])return m.spans[i].q;return 0;};
+  const lin=(x0,x1,q1,q2)=>x=>q1+((q2==null?q1:q2)-q1)*(x-x0)/(x1-x0);
+  const qf=x=>{if(x<m.a)return lin(0,m.a,m.qa,m.qa2);if(x>s[n])return lin(s[n],tot,m.qb,m.qb2);for(let i=0;i<n;i++)if(x>=s[i]&&x<=s[i+1])return lin(s[i],s[i+1],m.spans[i].q,m.spans[i].q2);return()=>0;};
   for(let e=0;e<N-1;e++){const L=xs[e+1]-xs[e],k=[[12,6*L,-12,6*L],[6*L,4*L*L,-6*L,2*L*L],[-12,-6*L,12,-6*L],[6*L,2*L*L,-6*L,4*L*L]].map(r=>r.map(v=>v/L**3));
-    const w=q((xs[e]+xs[e+1])/2),f=[-w*L/2,-w*L*L/12,-w*L/2,w*L*L/12],id=[2*e,2*e+1,2*e+2,2*e+3];
+    const g=qf((xs[e]+xs[e+1])/2),w1=g(xs[e]),w2=g(xs[e+1]),f=[-L*(7*w1+3*w2)/20,-L*L*(3*w1+2*w2)/60,-L*(3*w1+7*w2)/20,L*L*(2*w1+3*w2)/60],id=[2*e,2*e+1,2*e+2,2*e+3];
     for(let i=0;i<4;i++){F[id[i]]+=f[i];for(let j=0;j<4;j++)K[id[i]][id[j]]+=k[i][j];}}
   for(const p of m.points){const i=xs.findIndex(x=>Math.abs(x-p.x)<1e-9);F[2*i]-=p.P;}
   const sup=s.map(x=>xs.findIndex(v=>Math.abs(v-x)<1e-9)),fixed=new Set(sup.map(i=>2*i));
@@ -31,7 +32,7 @@ function fe(m){
   // Stützmomente: Element rechts vom Knoten (bzw. links am rechten Ende), Moment = EI*w'' am Knoten
   const Msup=sup.map(i=>{const e=i<N-1?i:i-1,L=xs[e+1]-xs[e],ue=[u[2*e],u[2*e+1],u[2*e+2],u[2*e+3]],xi=i<N-1?0:1;
     const B=[(-6+12*xi)/L**2,(-4+6*xi)/L,(6-12*xi)/L**2,(-2+6*xi)/L];let M=B.reduce((a,v,k)=>a+v*ue[k],0);
-    const w=q(xs[e]+L/2);M+= i<N-1? -w*L*L/12 : -w*L*L/12;return -(-M);});
+    const w=qf(xs[e]+L/2)(xs[e]+L/2);M+= i<N-1? -w*L*L/12 : -w*L*L/12;return -(-M);});
   return {R};
 }
 const qL2=(q,L)=>q*L*L;
@@ -52,5 +53,45 @@ const cases=[
 ];
 cases.forEach((m,c)=>{const a=solve(m),b=fe(m);a.R.forEach((v,j)=>chk('Fall '+(c+1)+' R'+String.fromCharCode(65+j)+' vs FE',v,b.R[j],1e-4));
   const sumR=a.R.reduce((x,y)=>x+y,0);chk('Fall '+(c+1)+' ΣR = ΣF',sumR,a.F);});
+// 3) Geneigte Punktlasten: P_v = P·cos α wie eine senkrechte Last, P_h = P·sin α nur Normalkraft (A fest, übrige verschieblich)
+const inc=(F,al,x)=>({x,P:F*Math.cos(al*Math.PI/180),H:F*Math.sin(al*Math.PI/180)});
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0}],points:[inc(20,30,3)]});
+chk('Geneigt 30°: R_A = P·cos α/2',r.R[0],20*Math.cos(Math.PI/6)/2); chk('Geneigt 30°: max M = P·cos α·L/4',r.Mpos.v,20*Math.cos(Math.PI/6)*6/4);
+chk('Geneigt 30°: H_A = −P·sin α',r.HA,-10); chk('Geneigt 30°: N zwischen A und Last (Zug)',r.N(1.5,true),10); chk('Geneigt 30°: N rechts der Last',r.N(4.5,true),0);
+chk('Geneigt 30°: max N',r.Nmax.v,10); chk('Geneigt 30°: min N',r.Nmin.v,0);
+r=solve({a:2,b:0,qa:0,qb:0,spans:[{L:5,q:0}],points:[inc(10,-45,0)]});
+chk('Kragarm −45°: M_A = −P·cos α·a',r.Ms[0],-10*Math.SQRT1_2*2); chk('Kragarm −45°: H_A',r.HA,10*Math.SQRT1_2);
+chk('Kragarm −45°: N im Kragarm (Zug)',r.N(1,true),10*Math.SQRT1_2); chk('Kragarm −45°: N im Feld',r.N(4,true),0);
+r=solve({a:0,b:2,qa:0,qb:0,spans:[{L:5,q:0}],points:[inc(12,-90,7)]});
+chk('Waagrecht −90° am rechten Ende: ΣR',r.R[0]+r.R[1],0); chk('Waagrecht −90°: M = 0',Math.max(Math.abs(r.Mpos.v),Math.abs(r.Mneg.v)),0);
+chk('Waagrecht −90°: N Druck auf ganzer Länge',r.N(3,true),-12); chk('Waagrecht −90°: Nmin',r.Nmin.v,-12);
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0}],points:[inc(10,90,0),inc(10,-90,6)]});
+chk('Zwei waagrechte Lasten gegeneinander: H_A',r.HA,0); chk('Zwei waagrechte Lasten gegeneinander: N Druck',r.N(3,true),-10);
+{ const m={a:1,b:1.5,qa:2,qb:3,spans:[{L:4,q:5},{L:6,q:5},{L:3,q:0}],points:[inc(25,40,6),inc(8,-20,0.5),inc(15,60,12)]};
+  const a=solve(m), v=solve(Object.assign({},m,{points:m.points.map(p=>({x:p.x,P:p.P}))})), b=fe(Object.assign({},m,{points:m.points.map(p=>({x:p.x,P:p.P}))}));
+  a.R.forEach((x,j)=>chk('Geneigt Durchlauf R'+String.fromCharCode(65+j)+' = senkrechter Anteil vs FE',x,b.R[j],1e-4));
+  a.Ms.forEach((x,j)=>chk('Geneigt Durchlauf M'+String.fromCharCode(65+j)+' = nur senkrechter Anteil',x,v.Ms[j]));
+  chk('Geneigt Durchlauf H_A = −ΣH',a.HA,-m.points.reduce((s,p)=>s+p.H,0));
+  chk('Geneigt Durchlauf N am rechten Ende = 0',a.N(13.5-1e-6,true),0); }
+// ohne H (alte Aufrufe) keine Normalkraft
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0}],points:[{x:3,P:10}]});
+if(r.hasH){fails++;console.log('FAIL ohne H: hasH sollte false sein');} else console.log('OK   ohne H: keine Normalkraft');
+// 4) Dreiecks- und Trapezlasten (q links, q2 rechts)
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0,q2:12}],points:[]});
+chk('Dreieck Einfeld R_A = pL/6',r.R[0],12); chk('Dreieck Einfeld R_B = pL/3',r.R[1],24);
+chk('Dreieck Einfeld max M = pL²/(9√3)',r.Mpos.v,12*36/(9*Math.sqrt(3)),1e-6); chk('  bei x = L/√3',r.Mpos.x,6/Math.sqrt(3),1e-6);
+r=solve({a:2,b:1.5,qa:0,qa2:9,qb:0,qb2:4,spans:[{L:5,q:0}],points:[]});
+chk('Dreieck Kragarm links (max am Auflager) M_A = −pa²/6',r.Ms[0],-9*4/6); chk('Dreieck Kragarm rechts (max am Ende) M_B = −pb²/3',r.Ms[1],-4*1.5*1.5/3);
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:5,q:0,q2:10},{L:5,q:0}],points:[]});
+chk('Zweifeld, Dreieck in Feld 1 bis B: M_B = −pL²/30',r.Ms[1],-10*25/30);
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:4,q:3,q2:3},{L:4,q:3}],points:[]});
+chk('Trapez mit q2 = q wie Gleichlast: M_B = −qL²/8',r.Ms[1],-3*16/8);
+const tcases=[
+ {a:1.2,qa:0,qa2:6,b:0.8,qb:4,qb2:0,spans:[{L:5,q:2,q2:8},{L:4,q:8,q2:0},{L:5,q:0,q2:5}],points:[{x:3,P:10}]},
+ {a:0,qa:0,b:2,qb:3,qb2:1,spans:[{L:6,q:10,q2:0}],points:[]},
+ {a:0.5,qa:2,qa2:2,b:0,qb:0,spans:[{L:3,q:0,q2:4},{L:6,q:4,q2:4},{L:2.5,q:6,q2:1},{L:4,q:0}],points:[{x:7,P:15}]},
+];
+tcases.forEach((m,c)=>{const a=solve(m),b=fe(m);a.R.forEach((v,j)=>chk('Trapez Fall '+(c+1)+' R'+String.fromCharCode(65+j)+' vs FE',v,b.R[j],1e-4));
+  chk('Trapez Fall '+(c+1)+' ΣR = ΣF',a.R.reduce((x,y)=>x+y,0),a.F);});
 console.log(fails?fails+' FEHLER':'Alle Tests bestanden');
 process.exitCode=fails?1:0;

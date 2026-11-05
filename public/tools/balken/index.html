@@ -32,6 +32,7 @@
   --hog:#b5552a; --hog-fill:rgba(181,85,42,.16);
   --shear:#3f7d4f; --shear-fill:rgba(63,125,79,.16);
   --defl:#7a5aa6; --defl-fill:rgba(122,90,166,.16);
+  --axial:#8a6a12; --axial-fill:rgba(138,106,18,.16);
   --warn:#b3261e;
   --f-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
   --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -44,6 +45,7 @@
     --hog:#e48a5a; --hog-fill:rgba(228,138,90,.2);
     --shear:#7fc48f; --shear-fill:rgba(127,196,143,.2);
     --defl:#b49ae0; --defl-fill:rgba(180,154,224,.2);
+    --axial:#d9b45a; --axial-fill:rgba(217,180,90,.2);
     --warn:#ff8a80;
     color-scheme:dark;
   }
@@ -55,6 +57,7 @@
   --hog:#e48a5a; --hog-fill:rgba(228,138,90,.2);
   --shear:#7fc48f; --shear-fill:rgba(127,196,143,.2);
   --defl:#b49ae0; --defl-fill:rgba(180,154,224,.2);
+  --axial:#d9b45a; --axial-fill:rgba(217,180,90,.2);
   --warn:#ff8a80;
   color-scheme:dark;
 }
@@ -107,6 +110,8 @@ select{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;b
 .seghead,.segrow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.1fr) 30px;gap:8px;align-items:center}
 .seghead{font-size:12.5px;color:var(--muted);line-height:1.2}
 .segrow .nm{font-size:14px}
+/* Trapezlasten: zwei q-Spalten (links, rechts), Einheit im Spaltenkopf */
+.segs.tri .seghead,.segs.tri .segrow{grid-template-columns:minmax(0,1.15fr) minmax(0,.95fr) minmax(0,.85fr) minmax(0,.85fr) 30px;gap:6px}
 .segrow .nm small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
 .total{margin-top:10px;font-size:13px;color:var(--muted)}
 .total b{font:500 13px var(--f-mono);color:var(--text)}
@@ -120,6 +125,11 @@ select{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;b
   .prow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 30px}
   .prow .fsel{grid-column:1/-1}
 }
+/* Geneigte Punktlasten: Stelle über die ganze Breite, darunter x, Last, Winkel; zuletzt die Anteile */
+.prow.ang{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 30px}
+.prow.ang .fsel{grid-column:1/-1}
+.comp{grid-column:1/-1;font:12px var(--f-mono);color:var(--muted);line-height:1.3}
+.opt{margin:0 0 12px}
 .oor .inp{border-color:var(--warn)}
 .del{height:34px;width:30px;padding:0;border:0;border-radius:8px;background:none;color:var(--muted);font:18px/1 var(--f-sans);cursor:pointer}
 .del:hover{background:var(--tag-bg);color:var(--warn)}
@@ -142,6 +152,8 @@ select{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;b
 .shear-d{fill:var(--shear);stroke:var(--bg);stroke-width:1.5}
 .defl-f{fill:var(--defl-fill)}
 .defl-d{fill:var(--defl);stroke:var(--bg);stroke-width:1.5}
+.axial-f{fill:var(--axial-fill)}
+.axial-d{fill:var(--axial);stroke:var(--bg);stroke-width:1.5}
 
 /* Auswahl oben: welche Verläufe angezeigt werden */
 .view{border:0;margin:0 0 20px;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px}
@@ -238,7 +250,7 @@ footer a:hover{color:var(--text)}
 
 /* Druck / PDF */
 @media print{
-  :root:root:root{color-scheme:light;--bg:#ffffff;--text:#1a1a1a;--muted:#555555;--border:#dddddd;--accent:#1a1a1a;--tag-bg:#f1f0ed;--field:#ffffff;--load-fill:#eeeeee;--sag:#2c6aa6;--sag-fill:rgba(44,106,166,.16);--hog:#b5552a;--hog-fill:rgba(181,85,42,.16);--shear:#3f7d4f;--shear-fill:rgba(63,125,79,.16);--defl:#7a5aa6;--defl-fill:rgba(122,90,166,.16);--warn:#b3261e}
+  :root:root:root{color-scheme:light;--bg:#ffffff;--text:#1a1a1a;--muted:#555555;--border:#dddddd;--accent:#1a1a1a;--tag-bg:#f1f0ed;--field:#ffffff;--load-fill:#eeeeee;--sag:#2c6aa6;--sag-fill:rgba(44,106,166,.16);--hog:#b5552a;--hog-fill:rgba(181,85,42,.16);--shear:#3f7d4f;--shear-fill:rgba(63,125,79,.16);--defl:#7a5aa6;--defl-fill:rgba(122,90,166,.16);--axial:#8a6a12;--axial-fill:rgba(138,106,18,.16);--warn:#b3261e}
   body{font-size:10.5pt;line-height:1.45}
   main{max-width:none;padding:0}
   .back,.link-btn,.tabs,.btn,.del,.actions,.theme,.small.link,.view{display:none!important}
@@ -289,12 +301,13 @@ footer a:hover{color:var(--text)}
 
   <h2 class="big">Annahmen und Grenzen</h2>
   <p class="small"><strong>Nur ein Lastfall:</strong> Gerechnet wird genau die eingegebene Lastanordnung. Bei Durchlaufträgern entstehen die massgebenden Feldmomente, Stützmomente und Querkräfte aus veränderlichen Lasten (z. B. Nutzlast) oft erst bei feldweise ungünstiger Laststellung, etwa mit Last nur in jedem zweiten Feld. Solche Laststellungen einzeln eingeben und die ungünstigsten Werte verwenden, sonst werden besonders die Feldmomente unterschätzt.</p>
-  <p class="small">Linear-elastisches Verhalten nach Theorie 1. Ordnung. Die Biegesteifigkeit EI ist über die ganze Trägerlänge konstant, Schubverformungen sind vernachlässigt. Alle Auflager sind gelenkig und starr, also ohne Setzungen und ohne Einspannung. Die Lasten wirken senkrecht nach unten; das Eigengewicht ist nicht automatisch enthalten.</p>
+  <p class="small">Linear-elastisches Verhalten nach Theorie 1. Ordnung. Die Biegesteifigkeit EI ist über die ganze Trägerlänge konstant, Schubverformungen sind vernachlässigt. Alle Auflager sind gelenkig und starr, also ohne Setzungen und ohne Einspannung. Linienlasten wirken senkrecht nach unten, als Gleichlast oder (zuschaltbar) als Dreiecks- bzw. Trapezlast mit linearem Verlauf innerhalb eines Abschnitts; das Eigengewicht ist nicht automatisch enthalten.</p>
+  <p class="small"><strong>Geneigte Punktlasten:</strong> Die Last greift in der Trägerachse an und wird in P·cos α (senkrecht) und P·sin α (waagrecht) zerlegt. Der waagrechte Anteil erzeugt nur Normalkraft und wird vollständig vom festen Auflager A aufgenommen, die übrigen Auflager sind waagrecht verschieblich. Ein Versatz der Last zur Achse (Moment aus Exzentrizität), die Längsverformung und Effekte nach Theorie 2. Ordnung sind nicht berücksichtigt.</p>
   <p class="small">Die Durchbiegung gilt für elastisches Material ohne Kriechen und bei Beton für den ungerissenen Zustand. Rissbildung (Beton) und Kriechen (Beton, Holz) können sie ein Mehrfaches grösser machen. Die E-Modul-Vorlagen stammen aus SIA 263:2013, SIA 262:2025, SIA 265:2021 und SN EN 1999-1-1; massgebend sind die jeweils aktuelle Norm und die Angaben zum Produkt.</p>
   <p class="small"><strong>Holz:</strong> Die Vorlagen sind die Mittelwerte E<sub>m,mean</sub> gemäss SIA 265, die für die Gebrauchstauglichkeit und damit für die Durchbiegung verwendet werden. Für die Tragsicherheit (Knicken, Kippen) gelten die tieferen 5 %-Fraktilwerte parallel zur Faser E<sub>0,05</sub> (C24: 7 400 N/mm², GL24h: 9 600 N/mm²).</p>
-  <p class="small">Vorzeichen: Querkraft Q positiv, wenn die Summe der Kräfte links vom Schnitt nach oben zeigt. Biegemoment M positiv bei Zug unten. Durchbiegung w positiv nach unten.</p>
-  <p class="small">Grundlagen: Gleichgewichtsbedingungen, Superposition, die Dreimomentengleichung nach Clapeyron mit den Belastungsgliedern für Gleich- und Einzellasten und die Differentialgleichung der Biegelinie EI·w″ = −M.</p>
-  <p class="small">Geprüft gegen Tabellenwerte: Zweifeldträger mit Gleichlast M<sub>B</sub> = −qL²/8 und max M<sub>F</sub> = 9/128·qL²; Dreifeldträger mit Gleichlast M<sub>B</sub> = M<sub>C</sub> = −0.1·qL², Endfeld 0.08·qL², Mittelfeld 0.025·qL²; Zweifeldträger mit Einzellast in Feldmitte M<sub>B</sub> = −3PL/32. Durchbiegung: Einfeldträger mit Gleichlast 5qL⁴/(384EI), Kragarm mit Einzellast am Ende PL³/(3EI), Zweifeldträger mit Gleichlast max w = qL⁴/(185EI). Querkräfte und Durchbiegungen zusätzlich gegen eine unabhängige Finite-Elemente-Rechnung.</p>
+  <p class="small">Vorzeichen: Normalkraft N positiv bei Zug, waagrechte Kräfte (P<sub>h</sub>, H<sub>A</sub>) positiv nach rechts. Querkraft Q positiv, wenn die Summe der Kräfte links vom Schnitt nach oben zeigt. Biegemoment M positiv bei Zug unten. Durchbiegung w positiv nach unten.</p>
+  <p class="small">Grundlagen: Gleichgewichtsbedingungen, Superposition, die Dreimomentengleichung nach Clapeyron mit den Belastungsgliedern für Gleich-, Trapez- und Einzellasten und die Differentialgleichung der Biegelinie EI·w″ = −M.</p>
+  <p class="small">Geprüft gegen Tabellenwerte: Zweifeldträger mit Gleichlast M<sub>B</sub> = −qL²/8 und max M<sub>F</sub> = 9/128·qL²; Dreifeldträger mit Gleichlast M<sub>B</sub> = M<sub>C</sub> = −0.1·qL², Endfeld 0.08·qL², Mittelfeld 0.025·qL²; Zweifeldträger mit Einzellast in Feldmitte M<sub>B</sub> = −3PL/32. Durchbiegung: Einfeldträger mit Gleichlast 5qL⁴/(384EI), Kragarm mit Einzellast am Ende PL³/(3EI), Zweifeldträger mit Gleichlast max w = qL⁴/(185EI). Querkräfte und Durchbiegungen zusätzlich gegen eine unabhängige Finite-Elemente-Rechnung. Geneigte Punktlasten: Einfeldträger mit P unter 30° (R = P·cos α/2, N = P·sin α zwischen A und Last), Last am Kragarmende unter −45°, waagrechte Lasten (nur Normalkraft) sowie ein Dreifeldträger mit mehreren geneigten Lasten gegen dieselbe Rechnung mit nur senkrechten Anteilen. Dreieckslasten: Einfeldträger R = pL/6 und pL/3, max M = pL²/(9√3), w(L/2) = 5pL⁴/(768EI) und max w an der Stelle L·√(1−√(8/15)); Kragarme mit Dreieckslast; Zweifeldträger mit Dreieck in einem Feld M<sub>B</sub> = −pL²/30; Durchlaufträger mit Trapezlasten gegen die Finite-Elemente-Rechnung.</p>
 
   <footer>
     <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
@@ -317,22 +330,31 @@ footer a:hover{color:var(--text)}
 
 <script>
 /*CALC-START*/
-// Träger: Kragarm links a, Felder spans[{L,q}], Kragarm rechts b, Linienlasten qa/qb auf den Kragarmen.
+// Träger: Kragarm links a, Felder spans[{L,q,q2}], Kragarm rechts b, Linienlasten qa/qb (qa2/qb2) auf den Kragarmen.
+// Linienlasten sind trapezförmig: q am linken, q2 am rechten Ende des Abschnitts (q2 fehlt = Gleichlast q).
+// Punktlasten points[{x,P,H}]: P senkrechter Anteil (nach unten positiv), H waagrechter Anteil (nach rechts positiv, optional).
 // Stützmomente über die Dreimomentengleichung (EI konstant), danach Auflagerkräfte und M(x).
+// Normalkraft N(x) aus H: Auflager A ist fest und nimmt H_A = −ΣH auf, die übrigen Auflager sind verschieblich.
 function solve(m){
   const n=m.spans.length, s=[m.a];
   for(let i=0;i<n;i++) s.push(s[i]+m.spans[i].L);
   const tot=s[n]+m.b, E=1e-12;
+  const tq=(q1,q2)=>({q1,q2:q2==null?q1:q2}), on=l=>l.q1>0||l.q2>0;
+  const LA=tq(m.qa,m.qa2), LB=tq(m.qb,m.qb2), LS=m.spans.map(sp=>tq(sp.q,sp.q2));
   const lines=[];
-  if(m.qa>0&&m.a>0) lines.push({s:0,e:m.a,q:m.qa});
-  for(let i=0;i<n;i++) if(m.spans[i].q>0) lines.push({s:s[i],e:s[i+1],q:m.spans[i].q});
-  if(m.qb>0&&m.b>0) lines.push({s:s[n],e:tot,q:m.qb});
-  const pts=m.points.filter(p=>p.P>0&&p.x>=-E&&p.x<=tot+E);
+  if(on(LA)&&m.a>0) lines.push({s:0,e:m.a,q1:LA.q1,q2:LA.q2});
+  for(let i=0;i<n;i++) if(on(LS[i])) lines.push({s:s[i],e:s[i+1],q1:LS[i].q1,q2:LS[i].q2});
+  if(on(LB)&&m.b>0) lines.push({s:s[n],e:tot,q1:LB.q1,q2:LB.q2});
+  // Linienlast von l.s bis zum Schnitt x: Resultierende und Moment um x (q linear, Steigung k)
+  const lineF=(l,x)=>{ const c=Math.max(0,Math.min(x,l.e)-l.s), k=(l.q2-l.q1)/(l.e-l.s); return l.q1*c+k*c*c/2; };
+  const lineM=(l,x)=>{ const c=Math.max(0,Math.min(x,l.e)-l.s); if(!(c>0)) return 0; const k=(l.q2-l.q1)/(l.e-l.s), d=x-l.s; return l.q1*(d*c-c*c/2)+k*(d*c*c/2-c*c*c/3); };
+  const pts=m.points.filter(p=>(p.P>0||Math.abs(p.H||0)>1e-12)&&p.x>=-E&&p.x<=tot+E);
   const R=new Array(n+1).fill(0), TL=new Array(n+1).fill(0), TR=new Array(n+1).fill(0);
   let M0=0, Mn=0, F=0;
   const cantL=[], cantR=[], contrib=[];
   for(let i=0;i<=n;i++) contrib.push([]);
   for(const p of pts){
+    if(!(p.P>0)) continue;   // nur waagrecht (α = ±90°): kein Beitrag zu Querkraft und Moment
     F+=p.P;
     if(p.x<=s[0]+E){ R[0]+=p.P; M0-=p.P*(s[0]-p.x); cantL.push({P:p.P,e:s[0]-p.x}); }
     else if(p.x>=s[n]-E){ R[n]+=p.P; Mn-=p.P*(p.x-s[n]); cantR.push({P:p.P,e:p.x-s[n]}); }
@@ -345,11 +367,17 @@ function solve(m){
       contrib[i].push({P:p.P,u,v,TL:tl,TR:tr});
     }
   }
-  if(m.qa>0&&m.a>0){ R[0]+=m.qa*m.a; M0-=m.qa*m.a*m.a/2; F+=m.qa*m.a; cantL.unshift({q:m.qa,e:m.a}); }
-  if(m.qb>0&&m.b>0){ R[n]+=m.qb*m.b; Mn-=m.qb*m.b*m.b/2; F+=m.qb*m.b; cantR.unshift({q:m.qb,e:m.b}); }
+  // Trapezlast auf dem Kragarm: links a²·(2q_l + q_r)/6, rechts b²·(q_l + 2q_r)/6 (q_l, q_r: Wert am linken und rechten Ende)
+  if(on(LA)&&m.a>0){ const a=m.a, q1=LA.q1, q2=LA.q2; R[0]+=a*(q1+q2)/2; M0-=a*a*(2*q1+q2)/6; F+=a*(q1+q2)/2; cantL.unshift({q:q1,q2,e:a}); }
+  if(on(LB)&&m.b>0){ const b=m.b, q1=LB.q1, q2=LB.q2; R[n]+=b*(q1+q2)/2; Mn-=b*b*(q1+2*q2)/6; F+=b*(q1+q2)/2; cantR.unshift({q:q1,q2,e:b}); }
+  // Trapezlast im Feld: R⁰ = L·(2q_l+q_r)/6 bzw. L·(q_l+2q_r)/6, T_l = L³·(8q_l+7q_r)/60, T_r = L³·(7q_l+8q_r)/60 (Gleichlast: qL³/4)
   for(let i=1;i<=n;i++){
-    const L=m.spans[i-1].L, q=m.spans[i-1].q;
-    if(q>0){ R[i-1]+=q*L/2; R[i]+=q*L/2; TL[i]+=q*L*L*L/4; TR[i]+=q*L*L*L/4; F+=q*L; contrib[i].unshift({q,L,TL:q*L*L*L/4,TR:q*L*L*L/4}); }
+    const L=m.spans[i-1].L, q1=LS[i-1].q1, q2=LS[i-1].q2;
+    if(on(LS[i-1])){
+      const tl=L*L*L*(8*q1+7*q2)/60, tr=L*L*L*(7*q1+8*q2)/60;
+      R[i-1]+=L*(2*q1+q2)/6; R[i]+=L*(q1+2*q2)/6; TL[i]+=tl; TR[i]+=tr; F+=L*(q1+q2)/2;
+      contrib[i].unshift({q:q1,q2,L,TL:tl,TR:tr});
+    }
   }
   const Ms=new Array(n+1).fill(0); Ms[0]=M0; Ms[n]=Mn;
   const k=n-1;
@@ -378,17 +406,14 @@ function solve(m){
     let v=0;
     for(let j=0;j<=n;j++) if(s[j]<=x) v+=R[j];
     for(const p of pts) if(p.x<=x) v-=p.P;
-    for(const l of lines){ const c=Math.max(0,Math.min(x,l.e)-l.s); v-=l.q*c; }
+    for(const l of lines) v-=lineF(l,x);
     return v;
   }
   function M(x){
     let mm=0;
     for(let j=0;j<=n;j++) mm+=R[j]*Math.max(0,x-s[j]);
     for(const p of pts) mm-=p.P*Math.max(0,x-p.x);
-    for(const l of lines){
-      const e=Math.min(x,l.e), c=Math.max(0,e-l.s);
-      if(c>0) mm-=l.q*c*(x-(l.s+e)/2);
-    }
+    for(const l of lines) mm-=lineM(l,x);
     return Math.abs(mm)<1e-9?0:mm;
   }
   let bp=[0,tot].concat(s);
@@ -402,7 +427,12 @@ function solve(m){
     const u=bps[i], v=bps[i+1];
     if(v-u<1e-9) continue;
     const V1=V(u+eps), V2=V(v-eps);
-    if(V1*V2<0) cand.push(u+(v-u)*V1/(V1-V2));
+    // V ist im Abschnitt monoton (Lasten nur nach unten), bei Dreieckslast quadratisch: Nullstelle durch Halbieren
+    if(V1*V2<0){
+      let lo=u+eps, hi=v-eps;
+      for(let k=0;k<80;k++){ const c=(lo+hi)/2; if(V(c)*V1>0) lo=c; else hi=c; }
+      cand.push((lo+hi)/2);
+    }
   }
   const crit=bps.concat(cand).sort((u,v)=>u-v);
   let mx={v:-Infinity,x:0}, mn={v:Infinity,x:0};
@@ -423,7 +453,7 @@ function solve(m){
     let v=0;
     for(let j=0;j<=n;j++) if(s[j]<x) v+=R[j];
     for(const p of pts) if(p.x<x) v-=p.P;
-    for(const l of lines){ const c=Math.max(0,Math.min(x,l.e)-l.s); v-=l.q*c; }
+    for(const l of lines) v-=lineF(l,x);
     return v;
   }
   const clean=v=>Math.abs(v)<1e-9?0:v;
@@ -443,7 +473,27 @@ function solve(m){
   qpts.sort((u,v)=>u[0]-v[0]);
   const qx=qpts.map(p=>p[0]), Qv=qpts.map(p=>clean(p[1]));
 
-  // Durchbiegung: EI·w'' = −M. Zwischen den Knickstellen ist M quadratisch und wird exakt zweimal integriert.
+  // Normalkraft (Zug positiv): N(x) = −(H_A + Σ H links vom Schnitt), abschnittsweise konstant.
+  // NS(x,true) ist der Wert rechts der Stelle x, NS(x,false) der Wert links davon.
+  const hp=pts.filter(p=>Math.abs(p.H||0)>1e-12);
+  let HA=0; for(const p of hp) HA-=p.H;
+  HA=clean(HA);
+  function NS(x,right){
+    let h=0;
+    if(right?s[0]<=x:s[0]<x) h+=HA;
+    for(const p of hp) if(right?p.x<=x:p.x<x) h+=p.H;
+    return clean(-h);
+  }
+  const Nx=[], Nv=[];
+  let nmx={v:0,x:0,side:'r'}, nmn={v:0,x:0,side:'r'};
+  for(const x of bps){
+    const l=x<=0?0:NS(x,false), r=x>=tot?0:NS(x,true);
+    Nx.push(x,x); Nv.push(l,r);
+    if(x>0){ if(l>nmx.v+1e-9) nmx={v:l,x,side:'l'}; if(l<nmn.v-1e-9) nmn={v:l,x,side:'l'}; }
+    if(x<tot){ if(r>nmx.v+1e-9) nmx={v:r,x,side:'r'}; if(r<nmn.v-1e-9) nmn={v:r,x,side:'r'}; }
+  }
+
+  // Durchbiegung: EI·w'' = −M. Zwischen den Knickstellen ist M höchstens kubisch (Dreieckslast) und wird exakt zweimal integriert.
   // phi(x) = Doppelintegral von −M/EI ab x = 0; w(x) = phi(x) + C1·x + C2 mit w = 0 am ersten und letzten Auflager.
   let defl=null;
   if(m.EI>0){
@@ -452,17 +502,19 @@ function solve(m){
     for(let i=0;i<bps.length-1;i++){
       const u=bps[i], v=bps[i+1], h=v-u;
       if(h<1e-12) continue;
-      const m0=M(u), mm=M(u+h/2), m1=M(v);
-      const c2=2*(m1-2*mm+m0)/(h*h), c1=(m1-m0)/h-c2*h, c0=m0;
-      seg.push({u,v,c0,c1,c2,th,ph});
-      ph+=th*h-(c0*h*h/2+c1*h*h*h/6+c2*h*h*h*h/12)/EI;
-      th+=-(c0*h+c1*h*h/2+c2*h*h*h/3)/EI;
+      // kubisches Polynom durch vier Punkte (Newton, Schrittweite h/3): M(u+t) = c0 + c1·t + c2·t² + c3·t³
+      const m0=M(u), m1=M(u+h/3), m2=M(u+2*h/3), m3=M(v);
+      const d1=m1-m0, d2=m2-2*m1+m0, d3=m3-3*m2+3*m1-m0, g=h/3;
+      const c0=m0, c1=(d1-d2/2+d3/3)/g, c2=(d2/2-d3/2)/(g*g), c3=d3/6/(g*g*g);
+      seg.push({u,v,c0,c1,c2,c3,th,ph});
+      ph+=th*h-(c0*h*h/2+c1*h**3/6+c2*h**4/12+c3*h**5/20)/EI;
+      th+=-(c0*h+c1*h*h/2+c2*h**3/3+c3*h**4/4)/EI;
     }
     const phi=x=>{
       let g=seg[0];
       for(const q of seg){ if(x>=q.u-1e-12) g=q; else break; }
       const t=Math.min(Math.max(x-g.u,0),g.v-g.u);
-      return g.ph+g.th*t-(g.c0*t*t/2+g.c1*t*t*t/6+g.c2*t*t*t*t/12)/EI;
+      return g.ph+g.th*t-(g.c0*t*t/2+g.c1*t**3/6+g.c2*t**4/12+g.c3*t**5/20)/EI;
     };
     const C1=-(phi(s[n])-phi(s[0]))/(s[n]-s[0]), C2=-phi(s[0])-C1*s[0];
     const W=x=>clean(phi(x)+C1*x+C2);
@@ -485,7 +537,8 @@ function solve(m){
   }
 
   return {n,s,R,R0,dd,Ms,F,tot,xs,Mv:xs.map(M),M,V,Mpos:mx,Mneg:mn,spanMax,pts,lines,TL,TR,contrib,cantL,cantR,spans:m.spans,a:m.a,b:m.b,
-    QL,QR,Qmax:qmx,Qmin:qmn,qx,Qv,defl};
+    QL,QR,Qmax:qmx,Qmin:qmn,qx,Qv,defl,
+    hasH:hp.length>0,HA,hp,N:NS,Nx,Nv,Nmax:nmx,Nmin:nmn};
 }
 /*CALC-END*/
 
@@ -519,15 +572,18 @@ function solve(m){
       '<div class="app">'+
         '<div class="col">'+
           '<div class="sec"><h2>Geometrie und Linienlasten</h2>'+
+            '<div class="radios opt"><label><input type="checkbox" id="'+id('tri')+'"> Dreiecks- und Trapezlasten</label></div>'+
             '<div class="segs" id="'+id('segs')+'"></div>'+
             (cfg.multi?'<button type="button" class="btn" id="'+id('addS')+'">+ Feld hinzufügen</button>':'')+
             '<div class="total">Gesamtlänge <b id="'+id('tot')+'">–</b> · x = 0 am linken Ende</div>'+
-            '<p class="hint">Kragarm mit Länge 0 entfällt. Linienlast 0 bedeutet keine Last im Abschnitt.</p>'+
+            '<p class="hint">Kragarm mit Länge 0 entfällt. Linienlast 0 bedeutet keine Last im Abschnitt.<span id="'+id('hintT')+'" hidden> q links und q rechts sind die Werte am linken und rechten Ende des Abschnitts, dazwischen linear. Dreieck: eine Seite 0.</span></p>'+
           '</div>'+
           '<div class="sec"><h2>Punktlasten</h2>'+
+            '<div class="radios opt"><label><input type="checkbox" id="'+id('ang')+'"> Geneigte Punktlasten (Winkel α)</label></div>'+
             '<div class="plist" id="'+id('plist')+'"></div>'+
             '<button type="button" class="btn" id="'+id('addP')+'">+ Punktlast hinzufügen</button>'+
-            '<p class="hint">Wähle eine Stelle oder «Frei» und gib x ein. Feste Stellen wandern mit, wenn sich die Geometrie ändert. Alle Lasten wirken nach unten, die Startwerte sind Beispiele.</p>'+
+            '<p class="hint">Wähle eine Stelle oder «Frei» und gib x ein. Feste Stellen wandern mit, wenn sich die Geometrie ändert. <span id="'+id('hintV')+'">Alle Lasten wirken senkrecht nach unten. </span>Die Startwerte sind Beispiele.</p>'+
+            '<p class="hint" id="'+id('hintA')+'" hidden>Winkel α von der Senkrechten aus: 0° = senkrecht nach unten, positiv = Last zeigt nach rechts, negativ = nach links, ±90° = waagrecht. Die Last greift in der Trägerachse an. Den waagrechten Anteil nimmt das feste Auflager A auf.</p>'+
           '</div>'+
           '<div class="sec" id="'+id('ei')+'"><h2>Biegesteifigkeit EI</h2>'+
             '<div class="eigrid">'+
@@ -597,28 +653,32 @@ function solve(m){
     ['bq','hq','I6'].forEach(k=>$(k).addEventListener('input',e=>{ st[k]=Math.max(0,pf(e.target.value,0)); render(); }));
     normEI(st); syncEI();
 
-    function segRow(key,name,sub,L,q,canDel){
+    function segRow(key,name,sub,L,q,q2,canDel){
+      const qIn=(k,v,lbl)=>'<div class="inp"><input type="number" id="'+id(k+'-'+key)+'" min="0" step="0.5" value="'+fN(v)+'" inputmode="decimal" aria-label="'+lbl+' '+name+' in kN/m">'+(st.tri?'':'<span>kN/m</span>')+'</div>';
       return '<div class="segrow"><div class="nm">'+name+(sub?'<small>'+sub+'</small>':'')+'</div>'+
         '<div class="inp"><input type="number" id="'+id('L-'+key)+'" min="0" step="0.1" value="'+fN(L)+'" inputmode="decimal" aria-label="Länge '+name+' in m"><span>m</span></div>'+
-        '<div class="inp"><input type="number" id="'+id('q-'+key)+'" min="0" step="0.5" value="'+fN(q)+'" inputmode="decimal" aria-label="Linienlast '+name+' in kN/m"><span>kN/m</span></div>'+
+        (st.tri?qIn('q',q,'Linienlast links')+qIn('q2',q2,'Linienlast rechts'):qIn('q',q,'Linienlast'))+
         '<button type="button" class="del" id="'+id('d-'+key)+'" aria-label="'+name+' entfernen" title="Entfernen"'+(canDel?'':' disabled')+'>×</button></div>';
     }
     function buildSegs(){
       const n=st.spans.length;
-      let h='<div class="seghead"><span>Abschnitt</span><span>Länge</span><span>Linienlast q</span><span></span></div>';
-      h+=segRow('a','Kragarm links','',st.a,st.qa,false);
+      let h='<div class="seghead"><span>Abschnitt</span><span>Länge</span>'+(st.tri?'<span>q links<br>kN/m</span><span>q rechts<br>kN/m</span>':'<span>Linienlast q</span>')+'<span></span></div>';
+      h+=segRow('a','Kragarm links','',st.a,st.qa,st.qa2,false);
       st.spans.forEach((sp,i)=>{
         const nm=cfg.multi?'Feld '+(i+1):'Feld';
-        h+=segRow('s'+i,nm,letter(i)+' – '+letter(i+1),sp.L,sp.q,cfg.multi&&n>2);
+        h+=segRow('s'+i,nm,letter(i)+' – '+letter(i+1),sp.L,sp.q,sp.q2,cfg.multi&&n>2);
       });
-      h+=segRow('b','Kragarm rechts','',st.b,st.qb,false);
+      h+=segRow('b','Kragarm rechts','',st.b,st.qb,st.qb2,false);
       $('segs').innerHTML=h;
+      $('segs').classList.toggle('tri',st.tri);
+      // ohne Trapezlasten ist q rechts immer gleich q links
       const bind=(key,set)=>{
         $('L-'+key).addEventListener('input',e=>{ set('L',Math.max(0,pf(e.target.value,0))); render(); });
-        $('q-'+key).addEventListener('input',e=>{ set('q',Math.max(0,pf(e.target.value,0))); render(); });
+        $('q-'+key).addEventListener('input',e=>{ const v=Math.max(0,pf(e.target.value,0)); set('q',v); if(!st.tri) set('q2',v); render(); });
+        if(st.tri) $('q2-'+key).addEventListener('input',e=>{ set('q2',Math.max(0,pf(e.target.value,0))); render(); });
       };
-      bind('a',(k,v)=>{ if(k==='L') st.a=v; else st.qa=v; });
-      bind('b',(k,v)=>{ if(k==='L') st.b=v; else st.qb=v; });
+      bind('a',(k,v)=>{ if(k==='L') st.a=v; else if(k==='q') st.qa=v; else st.qa2=v; });
+      bind('b',(k,v)=>{ if(k==='L') st.b=v; else if(k==='q') st.qb=v; else st.qb2=v; });
       st.spans.forEach((sp,i)=>{
         bind('s'+i,(k,v)=>{ sp[k]=v; });
         const d=$('d-s'+i);
@@ -640,10 +700,26 @@ function solve(m){
     if(cfg.multi) $('addS').addEventListener('click',()=>{
       if(st.spans.length>=8) return;
       const last=st.spans[st.spans.length-1];
-      st.spans.push({L:last.L,q:last.q});
+      st.spans.push({L:last.L,q:last.q,q2:last.q2});
       buildSegs(); buildList(); render();
       $('L-s'+(st.spans.length-1)).focus();
     });
+
+    // Dreiecks- und Trapezlasten ein/aus. Beim Ausschalten wird jede Linienlast wieder zur Gleichlast mit q links.
+    function syncTri(){ $('tri').checked=st.tri; $('hintT').hidden=!st.tri; }
+    $('tri').addEventListener('change',e=>{
+      st.tri=e.target.checked;
+      if(!st.tri){ st.qa2=st.qa; st.qb2=st.qb; st.spans.forEach(sp=>{ sp.q2=sp.q; }); }
+      syncTri(); buildSegs(); render();
+    });
+    // q rechts ergänzen (Startwerte, alte Links, Übergabe aus Lastkombinationen); fehlt es, gilt Gleichlast
+    function normTri(o){
+      const ok=v=>typeof v==='number'&&isFinite(v);
+      o.qa2=ok(o.qa2)?Math.max(0,o.qa2):o.qa; o.qb2=ok(o.qb2)?Math.max(0,o.qb2):o.qb;
+      o.spans.forEach(sp=>{ sp.q2=ok(sp.q2)?Math.max(0,sp.q2):sp.q; });
+      o.tri=o.tri===true||o.qa2!==o.qa||o.qb2!==o.qb||o.spans.some(sp=>sp.q2!==sp.q);
+    }
+    normTri(st); syncTri();
 
     function geo(){
       const s=[st.a]; st.spans.forEach((sp,i)=>s.push(s[i]+sp.L));
@@ -676,11 +752,14 @@ function solve(m){
       el.innerHTML=st.loads.map((p,i)=>{
         if(p.mode!=='free'){ const x=presetX(p.mode,g); if(x==null) p.mode='free'; else p.x=x; }
         const o=opts.map(q=>'<option value="'+q[0]+'"'+(q[0]===p.mode?' selected':'')+'>'+q[1]+'</option>').join('');
-        return '<div class="prow" data-id="'+p.id+'">'+
+        const angF=st.ang?'<div><label class="cap" for="'+id('pa-'+p.id)+'">Winkel α</label><div class="inp"><input type="number" id="'+id('pa-'+p.id)+'" min="-90" max="90" step="5" value="'+fN(p.al)+'"><span>°</span></div></div>':'';
+        return '<div class="prow'+(st.ang?' ang':'')+'" data-id="'+p.id+'">'+
           '<div class="fsel"><label class="cap" for="'+id('ps-'+p.id)+'"><b>P'+(i+1)+'</b>Stelle</label><select id="'+id('ps-'+p.id)+'">'+o+'</select></div>'+
           '<div><label class="cap" for="'+id('px-'+p.id)+'">x</label><div class="inp"><input type="number" id="'+id('px-'+p.id)+'" min="0" step="0.1" value="'+fN(p.x)+'" inputmode="decimal"><span>m</span></div></div>'+
           '<div><label class="cap" for="'+id('pp-'+p.id)+'">Last</label><div class="inp"><input type="number" id="'+id('pp-'+p.id)+'" min="0" step="1" value="'+fN(p.P)+'" inputmode="decimal"><span>kN</span></div></div>'+
+          angF+
           '<button type="button" class="del" id="'+id('pd-'+p.id)+'" aria-label="Punktlast P'+(i+1)+' entfernen" title="Entfernen">×</button>'+
+          (st.ang?'<div class="comp" id="'+id('pc-'+p.id)+'"></div>':'')+
         '</div>';
       }).join('');
       for(const p of st.loads){
@@ -694,6 +773,7 @@ function solve(m){
           p.mode='free'; $('ps-'+p.id).value='free'; render();
         });
         $('pp-'+p.id).addEventListener('input',e=>{ p.P=Math.max(0,pf(e.target.value,0)); render(); });
+        if(st.ang) $('pa-'+p.id).addEventListener('input',e=>{ p.al=pf(e.target.value,0); render(); });
         $('pd-'+p.id).addEventListener('click',()=>{
           const i=st.loads.indexOf(p); st.loads.splice(i,1); buildList(); render();
           const nx=st.loads[Math.min(i,st.loads.length-1)];
@@ -702,19 +782,52 @@ function solve(m){
       }
     }
     $('addP').addEventListener('click',()=>{
-      const p={id:++uid,mode:'mid:0',x:0,P:10};
+      const p={id:++uid,mode:'mid:0',x:0,P:10,al:0};
       st.loads.push(p); buildList(); render(); $('pp-'+p.id).focus();
     });
-
-    function arrow(x,y1,y2,hs,sw){
-      return '<line class="ln" style="stroke-width:'+sw+'" x1="'+x+'" y1="'+y1+'" x2="'+x+'" y2="'+(y2-hs*1.6)+'"/>'+
-        '<polygon class="fi" points="'+x+','+y2+' '+(x-hs*0.7)+','+(y2-hs*1.8)+' '+(x+hs*0.7)+','+(y2-hs*1.8)+'"/>';
+    // Geneigte Punktlasten ein/aus. Beim Ausschalten wirken wieder alle Lasten senkrecht (α = 0).
+    function syncAng(){ $('ang').checked=st.ang; $('hintA').hidden=!st.ang; $('hintV').hidden=st.ang; }
+    $('ang').addEventListener('change',e=>{
+      st.ang=e.target.checked;
+      if(!st.ang) st.loads.forEach(l=>{ l.al=0; });
+      syncAng(); buildList(); render();
+    });
+    // Winkel ergänzen (Startwerte, alte Links, Übergabe aus Lastkombinationen) und auf −90° bis 90° begrenzen
+    function normLoads(o){
+      o.loads.forEach(l=>{ l.al=(typeof l.al==='number'&&isFinite(l.al))?Math.min(90,Math.max(-90,l.al)):0; });
+      o.ang=o.ang===true||o.loads.some(l=>l.al!==0);
     }
+    normLoads(st); syncAng();
+
+    // Pfeil von (x1,y1) nach (x2,y2), Spitze bei (x2,y2); arrow() ist der senkrechte Sonderfall
+    function arrowTo(x1,y1,x2,y2,hs,sw){
+      const L=Math.hypot(x2-x1,y2-y1)||1, ux=(x2-x1)/L, uy=(y2-y1)/L, r=v=>v.toFixed(2);
+      const bx=x2-ux*hs*1.8, by=y2-uy*hs*1.8;
+      return '<line class="ln" style="stroke-width:'+sw+'" x1="'+r(x1)+'" y1="'+r(y1)+'" x2="'+r(x2-ux*hs*1.6)+'" y2="'+r(y2-uy*hs*1.6)+'"/>'+
+        '<polygon class="fi" points="'+r(x2)+','+r(y2)+' '+r(bx-uy*hs*0.7)+','+r(by+ux*hs*0.7)+' '+r(bx+uy*hs*0.7)+','+r(by-ux*hs*0.7)+'"/>';
+    }
+    function arrow(x,y1,y2,hs,sw){ return arrowTo(x,y1,x,y2,hs,sw); }
 
     function draw(R){
       const W=Math.floor(wrap.clientWidth);
       if(W<50) return false;
-      const padL=22,padR=22,tot=R.tot,sx=(W-padL-padR)/tot,X=x=>padL+x*sx;
+      const tot=R.tot;
+      // Punktlasten gleicher Stelle und gleicher Neigung zusammenfassen; Pfeillänge proportional zur Last
+      const groups=[];
+      for(const p of R.pts){
+        const x=Math.min(Math.max(p.x,0),tot), F=p.F!=null?p.F:p.P, al=p.al||0;
+        const f=groups.find(q=>Math.abs(q.x-x)<1e-9&&q.al===al); if(f) f.F+=F; else groups.push({x,F,al});
+      }
+      groups.sort((u,v)=>u.x-v.x);
+      const pMax=Math.max(0,...groups.map(p=>p.F));
+      groups.forEach(p=>{ p.len=22+66*p.F/pMax; p.dx=p.len*Math.sin(p.al*Math.PI/180); p.dy=p.len*Math.cos(p.al*Math.PI/180); });
+      // geneigte Pfeile am Trägerende brauchen seitlich Platz
+      let padL=22,padR=22; const sx0=(W-44)/tot;
+      for(const p of groups){
+        if(p.dx>0) padL=Math.max(padL,Math.min(p.dx+8-p.x*sx0,W/4));
+        if(p.dx<0) padR=Math.max(padR,Math.min(-p.dx+8-(tot-p.x)*sx0,W/4));
+      }
+      const sx=(W-padL-padR)/tot,X=x=>padL+x*sx;
       const plots=plotSpecs(R), Hp=plots.length>1?140:180, GAP=34;
       const beamY=120,dimY=beamY+66,plotsTop=dimY+28,plotBot=plotsTop+plots.length*(34+Hp+GAP)-GAP,H=plotBot+30;
       const o=[], placed=[];
@@ -735,32 +848,31 @@ function solve(m){
         placed.push({x:px,y:ly,hw}); return ly;
       }
       // Linienlasten
-      const qMax=Math.max(0,...R.lines.map(l=>l.q)), tops=[];
+      // Linienlasten: Höhe proportional zu q (Gleichlast mindestens 10 px), Trapez/Dreieck mit schräger Oberkante
+      const qMax=Math.max(0,...R.lines.map(l=>Math.max(l.q1,l.q2))), tops=[];
+      const hq=(q,uni)=>q>0?(uni?10+30*q/qMax:4+36*q/qMax):0;
       for(const l of R.lines){
-        const x1=X(l.s),x2=X(l.e),w=x2-x1,h=10+30*l.q/qMax,yt=beamY-h;
-        tops.push({x1,x2,yt,q:l.q});
-        o.push('<rect class="fl" x="'+x1+'" y="'+yt+'" width="'+w+'" height="'+h+'"/>');
-        o.push('<line class="ln" style="stroke-width:1.2" x1="'+x1+'" y1="'+yt+'" x2="'+x2+'" y2="'+yt+'"/>');
+        const uni=l.q1===l.q2, x1=X(l.s),x2=X(l.e),w=x2-x1,h1=hq(l.q1,uni),h2=hq(l.q2,uni);
+        tops.push({x1,x2,yt:beamY-Math.max(h1,h2),txt:uni?fN(l.q1)+' kN/m':fN(l.q1)+'–'+fN(l.q2)+' kN/m'});
+        o.push('<polygon class="fl" points="'+x1+','+beamY+' '+x1+','+(beamY-h1)+' '+x2+','+(beamY-h2)+' '+x2+','+beamY+'"/>');
+        o.push('<line class="ln" style="stroke-width:1.2" x1="'+x1+'" y1="'+(beamY-h1)+'" x2="'+x2+'" y2="'+(beamY-h2)+'"/>');
         const n=Math.max(1,Math.round(w/16));
         for(let i=0;i<=n;i++){
-          const ax=x1+w*i/n;
+          const ax=x1+w*i/n, h=h1+(h2-h1)*i/n, yt=beamY-h;
+          if(h<3) continue;
           if(h>=12) o.push(arrow(ax,yt,beamY-1,Math.min(3.2,h/6),1.1));
           else o.push('<line class="ln" style="stroke-width:1.1" x1="'+ax+'" y1="'+yt+'" x2="'+ax+'" y2="'+(beamY-1)+'"/>');
         }
       }
-      // Punktlasten
-      const groups=[];
-      for(const p of R.pts){ const x=Math.min(Math.max(p.x,0),tot); const f=groups.find(q=>Math.abs(q.x-x)<1e-9); if(f) f.P+=p.P; else groups.push({x,P:p.P}); }
-      groups.sort((u,v)=>u.x-v.x);
-      const pMax=Math.max(0,...groups.map(p=>p.P));
+      // Punktlasten (geneigt: Spitze an der Trägeroberkante, Ende in Richtung der Last versetzt)
       for(const p of groups){
-        const r=p.P/pMax, len=22+66*r, px=X(p.x), top=beamY-1-len;
-        o.push(arrow(px,top,beamY-1,3.5+2*r,1.3+0.8*r));
-        const txt=fN(p.P)+' kN';
-        o.push(lab(px,place(px,top-7,txt),txt,'tb',true));
+        const r=p.F/pMax, px=X(p.x), tx=px-p.dx, ty=beamY-1-p.dy;
+        o.push(arrowTo(tx,ty,px,beamY-1,3.5+2*r,1.3+0.8*r));
+        const txt=fN(p.F)+' kN'+(p.al?', '+fN(p.al)+'°':'');
+        o.push(lab(tx,place(tx,ty-7,txt),txt,'tb',true));
       }
       for(const t of tops){
-        const txt=fN(t.q)+' kN/m';
+        const txt=t.txt;
         if(t.x2-t.x1>txt.length*7.2+8){ const px=(t.x1+t.x2)/2; o.push(lab(px,place(px,t.yt-6,txt),txt,'t',true)); }
       }
       // Balken, Auflager
@@ -832,6 +944,11 @@ function solve(m){
     // Was gezeichnet wird, je nach Auswahl oben
     function plotSpecs(R){
       const ps=[];
+      if(R.hasH){
+        ps.push({title:'Normalkraft N [kN], Zug positiv',xs:R.Nx,vals:R.Nv,down:false,posFill:'axial-f',negFill:'axial-f',dot:()=>'axial-d',
+          marks:[{x:R.Nmax.x,v:R.Nmax.v},{x:R.Nmin.x,v:R.Nmin.v}],
+          fmt:v=>fS(v)+' kN',empty:'Keine Normalkraft',desc:'Normalkraft zwischen '+f2(R.Nmin.v)+' und '+f2(R.Nmax.v)+' kN.'});
+      }
       if(VIEW.Q){
         const m=[{x:R.Qmax.x,v:R.Qmax.v},{x:R.Qmin.x,v:R.Qmin.v}];
         R.s.forEach((x,j)=>{ m.push({x,v:R.QL[j]}); m.push({x,v:R.QR[j]}); });
@@ -874,12 +991,19 @@ function solve(m){
       if(R.pts.some(p=>Math.abs(p.x-x)<1e-6)) return lr+' der Punktlast bei x = '+x.toFixed(2)+' m';
       return 'x = '+x.toFixed(2)+' m';
     }
+    function whereN(R,x,side){
+      const lr=side==='l'?'links':'rechts';
+      if(Math.abs(x-R.s[0])<1e-6) return lr+' von Auflager A, x = '+x.toFixed(2)+' m';
+      return lr+' der Punktlast bei x = '+x.toFixed(2)+' m';
+    }
     function stat(color,label,val,unit,at){
       return '<div class="stat"><div class="k"><i class="sw" style="background:'+color+'"></i>'+label+'</div>'+
         '<div class="v">'+val+'<small>'+unit+'</small></div><div class="w">'+at+'</div></div>';
     }
+    let hasH=false;
     function legend(){
       const it=[];
+      if(hasH) it.push('<span><i class="sw" style="background:var(--axial-fill);border:1px solid var(--axial)"></i>Normalkraft N, Zug positiv</span>');
       if(VIEW.Q) it.push('<span><i class="sw" style="background:var(--shear-fill);border:1px solid var(--shear)"></i>Querkraft Q, positiv oben</span>');
       if(VIEW.M){
         it.push('<span><i class="sw" style="background:var(--sag-fill);border:1px solid var(--sag)"></i>Feldmoment (+), Zug unten</span>');
@@ -897,9 +1021,10 @@ function solve(m){
       const g=geo(), tooShort=st.spans.some(sp=>!(sp.L>=0.05));
       $('tot').textContent=g.tot.toFixed(2)+' m';
       $('ei').hidden=!VIEW.w;
-      showEI(); legend();
+      showEI();
       if(tooShort){
         // Ergebnisse, Tabellen und Rechenweg leeren, damit nichts Veraltetes stehen bleibt; Adresszeile trotzdem nachführen
+        hasH=false; legend();
         wrap.innerHTML='<div class="err">Jedes Feld muss mindestens 0.05 m lang sein.</div>';
         ['stats','hSup','tSup','hSpan','tSpan'].forEach(k=>$(k).innerHTML='');
         $('warn').hidden=true;
@@ -907,26 +1032,37 @@ function solve(m){
         if(cfg.onChange) cfg.onChange();
         return;
       }
-      let oor=0; const points=[];
-      for(const p of st.loads){
+      let oor=0, badA=0; const points=[];
+      st.loads.forEach((p,i)=>{
         if(p.mode!=='free'){
           const x=presetX(p.mode,g), sel=$('ps-'+p.id);
           if(x===null){ p.mode='free'; if(sel) sel.value='free'; }
           else { p.x=x; const inp=$('px-'+p.id); if(inp&&document.activeElement!==inp) inp.value=fN(p.x); }
         }
-        const out=!isFinite(p.x)||p.x<-1e-9||p.x>g.tot+1e-9;
-        const r=root.querySelector('.prow[data-id="'+p.id+'"]'); if(r) r.classList.toggle('oor',out);
-        if(out){ oor++; continue; }
-        points.push({x:p.x,P:p.P});
-      }
+        const out=!isFinite(p.x)||p.x<-1e-9||p.x>g.tot+1e-9, badAl=!(Math.abs(p.al)<=90);
+        const r=root.querySelector('.prow[data-id="'+p.id+'"]'); if(r) r.classList.toggle('oor',out||badAl);
+        const comp=$('pc-'+p.id);
+        if(badAl){ badA++; if(comp) comp.textContent='Winkel zwischen −90° und 90° eingeben'; return; }
+        // Zerlegung: senkrechter Anteil P·cos α (nach unten), waagrechter Anteil P·sin α (nach rechts positiv)
+        const a=p.al*Math.PI/180, cl=v=>Math.abs(v)<1e-9?0:v;
+        const Pv=cl(p.P*Math.cos(a)), H=cl(p.P*Math.sin(a));
+        if(comp) comp.textContent='↓ '+Pv.toFixed(2)+' kN · '+(H<0?'← ':'→ ')+Math.abs(H).toFixed(2)+' kN';
+        if(out){ oor++; return; }
+        points.push({x:p.x,P:Pv,H,F:p.P,al:p.al,nm:'P'+(i+1)});
+      });
       const EI=stiffness();
-      const R=solve({a:st.a,b:st.b,qa:st.qa,qb:st.qb,spans:st.spans,points,EI});
+      const R=solve({a:st.a,b:st.b,qa:st.qa,qb:st.qb,qa2:st.qa2,qb2:st.qb2,spans:st.spans,points,EI});
+      hasH=R.hasH; legend();
       const D=R.defl, mm=v=>v*1000;
       lastW=Math.floor(wrap.clientWidth);
       draw(R);
 
       // Kennwerte
       let sh='';
+      if(R.hasH){
+        const nv=Math.abs(R.Nmax.v)>=Math.abs(R.Nmin.v)?R.Nmax:R.Nmin;
+        sh+=stat('var(--axial)','Max. Normalkraft',Math.abs(nv.v)>1e-9?fS(nv.v):'0.00','kN',Math.abs(nv.v)>1e-9?(nv.v>0?'Zug, ':'Druck, ')+whereN(R,nv.x,nv.side):'keine Normalkraft');
+      }
       if(VIEW.Q){
         const q=Math.abs(R.Qmax.v)>=Math.abs(R.Qmin.v)?R.Qmax:R.Qmin;
         sh+=stat('var(--shear)','Max. Querkraft',Math.abs(q.v)>1e-9?fS(q.v):'0.00','kN',Math.abs(q.v)>1e-9?whereQ(R,q.x,q.side):'keine Querkraft');
@@ -945,9 +1081,9 @@ function solve(m){
       $('stats').innerHTML=sh;
 
       // Tabellen
-      $('hSup').innerHTML=head(['Auflager','x [m]'].concat(VIEW.M?['M [kNm]']:[],['R [kN]'],VIEW.Q?['Q links [kN]','Q rechts [kN]']:[]));
-      $('tSup').innerHTML=R.s.map((x,j)=>row([letter(j),x.toFixed(2)].concat(VIEW.M?[fS(R.Ms[j])]:[],[f2(R.R[j])],VIEW.Q?[fS(R.QL[j]),fS(R.QR[j])]:[]))).join('')+
-        row(['Summe Lasten',''].concat(VIEW.M?['']:[],[R.F.toFixed(2)],VIEW.Q?['','']:[]));
+      $('hSup').innerHTML=head(['Auflager','x [m]'].concat(VIEW.M?['M [kNm]']:[],[R.hasH?'R senkrecht [kN]':'R [kN]'],R.hasH?['H [kN]']:[],VIEW.Q?['Q links [kN]','Q rechts [kN]']:[]));
+      $('tSup').innerHTML=R.s.map((x,j)=>row([letter(j),x.toFixed(2)].concat(VIEW.M?[fS(R.Ms[j])]:[],[f2(R.R[j])],R.hasH?[j===0?fS(R.HA):'–']:[],VIEW.Q?[fS(R.QL[j]),fS(R.QR[j])]:[]))).join('')+
+        row(['Summe Lasten',''].concat(VIEW.M?['']:[],[R.F.toFixed(2)],R.hasH?['']:[],VIEW.Q?['','']:[]));
       const showW=VIEW.w&&D;
       $('hSpan').innerHTML=head(['Feld','L [m]'].concat(VIEW.M?['max M [kNm]','bei x [m]']:[],showW?['max w [mm]','bei x [m]','L/w']:[]));
       let ts=R.spanMax.map((b,i)=>{
@@ -968,6 +1104,7 @@ function solve(m){
       R.R.forEach((r,j)=>{ if(r<-1e-9) negR.push(letter(j)); });
       if(negR.length) msgs.push('Auflagerkraft '+negR.join(', ')+' ist negativ. Der Träger hebt dort ab und müsste verankert werden.');
       if(oor) msgs.push((oor===1?'Eine Punktlast liegt':oor+' Punktlasten liegen')+' ausserhalb des Trägers (0 bis '+g.tot.toFixed(2)+' m) und '+(oor===1?'wird':'werden')+' nicht berücksichtigt.');
+      if(badA) msgs.push((badA===1?'Eine Punktlast hat':badA+' Punktlasten haben')+' einen Winkel ausserhalb von −90° bis 90° und '+(badA===1?'wird':'werden')+' nicht berücksichtigt.');
       if(VIEW.w&&!D) msgs.push('Für die Durchbiegung E und I grösser als 0 angeben.');
       $('warn').hidden=!msgs.length; $('warn').textContent=msgs.join(' ');
       $('rw').innerHTML=rechenweg(R);
@@ -980,29 +1117,36 @@ function solve(m){
       const pa=v=>v<-0.00499?'('+n2(v)+')':n2(v);
       const Mj=j=>'M<sub>'+letter(j)+'</sub>';
       const n=R.n, last=letter(n);
-      let h='';
-      // 1. Kragarme
-      h+='<h3>1. Momente an den Kragarmen</h3><p>Ein Kragarm ist statisch bestimmt: Das Moment am Auflager ist die Summe aller Lasten auf dem Kragarm mal ihrem Hebelarm e zum Auflager. Gleichlast q über die Länge a: q·a²/2.</p>';
+      let h='', step=1;
+      // Zerlegung geneigter Punktlasten
+      const incl=R.pts.filter(p=>p.al);
+      if(incl.length){
+        h+='<h3>'+(step++)+'. Zerlegung der geneigten Punktlasten</h3><p>Eine Last P unter dem Winkel α zur Senkrechten wird in einen senkrechten Anteil P<sub>v</sub> = P·cos α (nach unten) und einen waagrechten Anteil P<sub>h</sub> = P·sin α (nach rechts positiv) zerlegt. P<sub>v</sub> erzeugt Querkraft, Moment und Durchbiegung wie eine senkrechte Last, P<sub>h</sub> nur Normalkraft. Alle folgenden Schritte rechnen mit P<sub>v</sub>.</p>';
+        h+='<div class="formula">'+incl.map(p=>p.nm+' (x = '+p.x.toFixed(2)+' m): P = '+n2(p.F)+' kN, α = '+fN(p.al)+'° → P<sub>v</sub> = '+n2(p.F)+'·cos('+fN(p.al)+'°) = '+n2(p.P)+' kN, P<sub>h</sub> = '+n2(p.F)+'·sin('+fN(p.al)+'°) = '+n2(p.H)+' kN').join('<br>')+'</div>';
+      }
+      // Kragarme
+      h+='<h3>'+(step++)+'. Momente an den Kragarmen</h3><p>Ein Kragarm ist statisch bestimmt: Das Moment am Auflager ist die Summe aller Lasten auf dem Kragarm mal ihrem Hebelarm e zum Auflager. Gleichlast q über die Länge a: q·a²/2.'+(st.tri?' Trapezlast mit q<sub>l</sub> am linken und q<sub>r</sub> am rechten Ende: a²·(2q<sub>l</sub> + q<sub>r</sub>)/6 (Kragarm links) bzw. b²·(q<sub>l</sub> + 2q<sub>r</sub>)/6 (Kragarm rechts).':'')+'</p>';
       function cant(list,j,len,side){
         if(!(len>0)) return 'Kein Kragarm '+side+': '+Mj(j)+' = 0';
         if(!list.length) return 'Kragarm '+side+' ohne Last: '+Mj(j)+' = 0';
-        const sym=list.map(c=>c.q!=null?'q·'+(j?'b':'a')+'²/2':'P·e').join(' + ');
-        const num=list.map(c=>c.q!=null?n2(c.q)+'·'+n2(c.e)+'²/2':n2(c.P)+'·'+n2(c.e)).join(' + ');
+        const L=j?'b':'a', uni=c=>c.q2==null||c.q2===c.q;
+        const sym=list.map(c=>c.q==null?'P·e':uni(c)?'q·'+L+'²/2':L+'²·('+(j?'q<sub>l</sub> + 2q<sub>r</sub>':'2q<sub>l</sub> + q<sub>r</sub>')+')/6').join(' + ');
+        const num=list.map(c=>c.q==null?n2(c.P)+'·'+n2(c.e):uni(c)?n2(c.q)+'·'+n2(c.e)+'²/2':n2(c.e)+'²·('+(j?n2(c.q)+' + 2·'+n2(c.q2):'2·'+n2(c.q)+' + '+n2(c.q2))+')/6').join(' + ');
         return Mj(j)+' = −('+sym+') = −('+num+') = '+n2(R.Ms[j])+' kNm';
       }
       h+='<div class="formula">'+cant(R.cantL,0,R.a,'links')+'<br>'+cant(R.cantR,n,R.b,'rechts')+'</div>';
       // 2. Stützmomente
-      h+='<h3>2. Stützmomente</h3>';
+      h+='<h3>'+(step++)+'. Stützmomente</h3>';
       if(n===1){
         h+='<p>Einfeldträger: statisch bestimmt. Die Stützmomente sind die Kragarmmomente aus Schritt 1, eine Gleichung ist nicht nötig.</p>';
       } else {
-        h+='<p>Jedes Feld wird als gelenkig gelagerter Einfeldträger betrachtet. Die Belastungsglieder T<sub>l</sub> (linkes Feldende) und T<sub>r</sub> (rechtes Feldende) fassen die Last im Feld zusammen. Gleichlast: T<sub>l</sub> = T<sub>r</sub> = q·L³/4. Einzellast P im Abstand u vom linken und v vom rechten Auflager: T<sub>l</sub> = P·u·v·(L+v)/L, T<sub>r</sub> = P·u·v·(L+u)/L.</p>';
+        h+='<p>Jedes Feld wird als gelenkig gelagerter Einfeldträger betrachtet. Die Belastungsglieder T<sub>l</sub> (linkes Feldende) und T<sub>r</sub> (rechtes Feldende) fassen die Last im Feld zusammen. Gleichlast: T<sub>l</sub> = T<sub>r</sub> = q·L³/4.'+(st.tri?' Trapezlast mit q<sub>l</sub> links und q<sub>r</sub> rechts: T<sub>l</sub> = L³·(8q<sub>l</sub> + 7q<sub>r</sub>)/60, T<sub>r</sub> = L³·(7q<sub>l</sub> + 8q<sub>r</sub>)/60.':'')+' Einzellast P im Abstand u vom linken und v vom rechten Auflager: T<sub>l</sub> = P·u·v·(L+v)/L, T<sub>r</sub> = P·u·v·(L+u)/L.</p>';
         let t='<div class="tbl"><table><thead><tr><th scope="col">Feld</th><th scope="col">Last</th><th scope="col">T<sub>l</sub> [kNm²]</th><th scope="col">T<sub>r</sub> [kNm²]</th></tr></thead><tbody>';
         for(let i=1;i<=n;i++){
           const L=R.spans[i-1].L;
           if(!R.contrib[i].length) t+='<tr><td>Feld '+i+'</td><td>keine Last</td><td>0.00</td><td>0.00</td></tr>';
           R.contrib[i].forEach((c,k)=>{
-            const desc=c.q!=null?'q = '+n2(c.q)+' kN/m, L = '+n2(L)+' m':'P = '+n2(c.P)+' kN, u = '+n2(c.u)+', v = '+n2(c.v)+' m';
+            const desc=c.q!=null?(c.q2!=null&&c.q2!==c.q?'q = '+n2(c.q)+' … '+n2(c.q2):'q = '+n2(c.q))+' kN/m, L = '+n2(L)+' m':'P = '+n2(c.P)+' kN, u = '+n2(c.u)+', v = '+n2(c.v)+' m';
             t+='<tr><td>'+(k===0?'Feld '+i:'')+'</td><td>'+desc+'</td><td>'+n2(c.TL)+'</td><td>'+n2(c.TR)+'</td></tr>';
           });
           if(R.contrib[i].length>1) t+='<tr class="sum"><td></td><td>Summe Feld '+i+'</td><td>'+n2(R.TL[i])+'</td><td>'+n2(R.TR[i])+'</td></tr>';
@@ -1020,7 +1164,7 @@ function solve(m){
         h+='<div class="formula">'+f+'</div>';
       }
       // 3. Auflagerkräfte
-      h+='<h3>3. Auflagerkräfte</h3><p>R⁰: Auflagerkraft, wenn jedes Feld ein gelenkig gelagerter Einfeldträger wäre; Kragarmlasten gehen ganz auf das Endauflager. ΔR: Anteil der Stützmomente, ΔR<sub>j</sub> = (M<sub>j+1</sub> − M<sub>j</sub>)/L<sub>j+1</sub> − (M<sub>j</sub> − M<sub>j−1</sub>)/L<sub>j</sub>.</p>';
+      h+='<h3>'+(step++)+'. Auflagerkräfte'+(R.hasH?' (senkrecht)':'')+'</h3><p>R⁰: Auflagerkraft, wenn jedes Feld ein gelenkig gelagerter Einfeldträger wäre; Kragarmlasten gehen ganz auf das Endauflager. ΔR: Anteil der Stützmomente, ΔR<sub>j</sub> = (M<sub>j+1</sub> − M<sub>j</sub>)/L<sub>j+1</sub> − (M<sub>j</sub> − M<sub>j−1</sub>)/L<sub>j</sub>.</p>';
       let t2='<div class="tbl"><table><thead><tr><th scope="col">Auflager</th><th scope="col">R⁰ [kN]</th><th scope="col">ΔR [kN]</th><th scope="col">R [kN]</th></tr></thead><tbody>';
       let s0=0,s1=0,s2=0;
       for(let j=0;j<=n;j++){
@@ -1030,11 +1174,16 @@ function solve(m){
       }
       t2+='<tr class="sum"><td>Summe</td><td>'+n2(s0)+'</td><td>'+n2(s1)+'</td><td>'+n2(s2)+'</td></tr></tbody></table></div>';
       h+=t2+'<div class="formula">Kontrolle: Σ R = '+n2(s2)+' kN = Σ Lasten = '+n2(R.F)+' kN</div>';
+      if(R.hasH){
+        h+='<h3>'+(step++)+'. Normalkraft</h3><p>Auflager A ist fest, die übrigen Auflager sind verschieblich. A nimmt darum die ganze waagrechte Last auf: H<sub>A</sub> = −Σ P<sub>h</sub> (nach rechts positiv). N(x) ist die Summe der waagrechten Kräfte links vom Schnitt mit umgekehrtem Vorzeichen, Zug positiv: N(x) = −(H<sub>A</sub> + Σ P<sub>h</sub> links von x). N ist abschnittsweise konstant und springt an A und an jeder geneigten Last.</p>';
+        h+='<div class="formula">H<sub>A</sub> = −('+R.hp.map(p=>n2(p.H)).join(' + ').replace(/\+ −/g,'− ')+') = '+n2(R.HA)+' kN<br>'+
+          'Grösster Zug: '+(R.Nmax.v>0.00499?'+'+R.Nmax.v.toFixed(2)+' kN, '+whereN(R,R.Nmax.x,R.Nmax.side):'kein Zug')+'<br>'+
+          'Grösster Druck: '+(R.Nmin.v<-0.00499?n2(R.Nmin.v)+' kN, '+whereN(R,R.Nmin.x,R.Nmin.side):'kein Druck')+'</div>';
+      }
       // weitere Schritte je nach Auswahl oben, fortlaufend nummeriert
-      let step=4;
       const fieldName=i=>(cfg.multi?'Feld '+i:'Feld')+' ('+letter(i-1)+'–'+letter(i)+')';
       if(VIEW.Q){
-        h+='<h3>'+(step++)+'. Querkraft</h3><p>Q(x) ist die Summe aller Kräfte links vom Schnitt: Auflagerkräfte nach oben positiv, Lasten nach unten negativ. An einem Auflager springt Q um die Auflagerkraft R, an einer Punktlast um −P. Unter einer Gleichlast q ändert sich Q linear mit der Steigung −q.</p>';
+        h+='<h3>'+(step++)+'. Querkraft</h3><p>Q(x) ist die Summe aller Kräfte links vom Schnitt: Auflagerkräfte nach oben positiv, Lasten nach unten negativ. An einem Auflager springt Q um die Auflagerkraft R, an einer Punktlast um −P. Unter einer Gleichlast q ändert sich Q linear mit der Steigung −q, unter einer Dreiecks- oder Trapezlast quadratisch.</p>';
         let tq='<div class="tbl"><table><thead><tr><th scope="col">Auflager</th><th scope="col">Q links [kN]</th><th scope="col">+ R [kN]</th><th scope="col">− P am Auflager [kN]</th><th scope="col">= Q rechts [kN]</th></tr></thead><tbody>';
         R.s.forEach((x,j)=>{
           const P=R.pts.filter(p=>Math.abs(p.x-x)<1e-9).reduce((a,p)=>a+p.P,0);
@@ -1059,7 +1208,7 @@ function solve(m){
         const D=R.defl;
         if(!D){ h+='<p>Für die Durchbiegung E und I grösser als 0 angeben.</p>'; return h; }
         const I=inertia(), mm=v=>v*1000;
-        h+='<p>Differentialgleichung der Biegelinie: EI·w″(x) = −M(x). M(x) wird zweimal integriert; zwischen zwei Knickstellen ist M höchstens quadratisch, die Integration ist dort exakt. Die beiden Integrationskonstanten folgen aus w = 0 an den Endauflagern '+letter(0)+' und '+last+'. '+(n>1?'An den Innenauflagern ist w = 0 dann automatisch erfüllt, weil die Stützmomente aus der Dreimomentengleichung stammen (Kontrolle unten).':'')+'</p>';
+        h+='<p>Differentialgleichung der Biegelinie: EI·w″(x) = −M(x). M(x) wird zweimal integriert; zwischen zwei Knickstellen ist M höchstens kubisch (bei Dreiecks- und Trapezlasten), die Integration ist dort exakt. Die beiden Integrationskonstanten folgen aus w = 0 an den Endauflagern '+letter(0)+' und '+last+'. '+(n>1?'An den Innenauflagern ist w = 0 dann automatisch erfüllt, weil die Stützmomente aus der Dreimomentengleichung stammen (Kontrolle unten).':'')+'</p>';
         const mat=MATS.find(m=>m[0]===st.mat);
         let f6=(st.im==='rect'
           ? 'I = b·h³/12 = '+fN(st.bq)+'·'+fN(st.hq)+'³/12 = '+(I/1e6).toLocaleString('de-CH',{maximumSignificantDigits:4})+' · 10⁶ mm⁴'
@@ -1081,19 +1230,25 @@ function solve(m){
     }
 
     function getState(){
-      return {a:st.a,qa:st.qa,b:st.b,qb:st.qb,spans:st.spans.map(s=>({L:s.L,q:s.q})),loads:st.loads.map(l=>({mode:l.mode,x:l.x,P:l.P})),
+      // Winkel nur, wenn eingeschaltet bzw. ungleich 0 (kurze Links, alte Links bleiben gültig)
+      const o={a:st.a,qa:st.qa,b:st.b,qb:st.qb,spans:st.spans.map(s=>Object.assign({L:s.L,q:s.q},s.q2!==s.q?{q2:s.q2}:{})),loads:st.loads.map(l=>Object.assign({mode:l.mode,x:l.x,P:l.P},l.al?{al:l.al}:{})),
         E:st.E,mat:st.mat,im:st.im,bq:st.bq,hq:st.hq,I6:st.I6};
+      if(st.ang) o.ang=true;
+      if(st.tri){ o.tri=true; if(st.qa2!==st.qa) o.qa2=st.qa2; if(st.qb2!==st.qb) o.qb2=st.qb2; }
+      return o;
     }
     function setState(o){
       const num=v=>typeof v==='number'&&isFinite(v);
       const src=o||cfg.init;
-      const ok=src&&num(src.a)&&num(src.b)&&num(src.qa)&&num(src.qb)&&Array.isArray(src.spans)&&src.spans.length>=(cfg.multi?2:1)&&src.spans.length<=(cfg.multi?8:1)&&src.spans.every(s=>s&&num(s.L)&&num(s.q))&&Array.isArray(src.loads)&&src.loads.length<=50&&src.loads.every(l=>l&&typeof l.mode==='string'&&num(l.x)&&num(l.P));
+      const ok=src&&num(src.a)&&num(src.b)&&num(src.qa)&&num(src.qb)&&Array.isArray(src.spans)&&src.spans.length>=(cfg.multi?2:1)&&src.spans.length<=(cfg.multi?8:1)&&src.spans.every(s=>s&&num(s.L)&&num(s.q)&&(s.q2===undefined||num(s.q2)))&&(src.qa2===undefined||num(src.qa2))&&(src.qb2===undefined||num(src.qb2))&&Array.isArray(src.loads)&&src.loads.length<=50&&src.loads.every(l=>l&&typeof l.mode==='string'&&num(l.x)&&num(l.P)&&(l.al===undefined||num(l.al)));
       st=JSON.parse(JSON.stringify(ok?src:cfg.init));
       // Werte aus dem Link absichern: Längen und Lasten nie negativ; EI-Angaben aus alten Links ergänzen
       const nn=v=>Math.max(0,v);
       st.a=nn(st.a); st.b=nn(st.b); st.qa=nn(st.qa); st.qb=nn(st.qb);
       st.spans.forEach(s=>{ s.L=nn(s.L); s.q=nn(s.q); });
       st.loads.forEach(l=>{ l.P=nn(l.P); });
+      normLoads(st); syncAng();
+      normTri(st); syncTri();
       normEI(st);
       uid=0; st.loads.forEach(l=>l.id=++uid);
       syncEI(); buildSegs(); buildList(); render();
