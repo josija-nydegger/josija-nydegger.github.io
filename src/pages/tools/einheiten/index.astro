@@ -82,6 +82,14 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
   a:hover { text-decoration-color: var(--accent); }
   .back { display: inline-block; margin-bottom: 28px; color: var(--muted); text-decoration: none; font-size: 14px; }
   .back:hover { color: var(--text); }
+  /* Kopfzeile: ← Tools und "URL kopieren" (in der installierten App gibt es keine Adresszeile) */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+  .top .back { margin-bottom: 0; }
+  .link-btn {
+    font: inherit; font-size: 13px; line-height: 1.5; padding: 2px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer;
+  }
+  .link-btn:hover { color: var(--text); border-color: var(--accent); }
   h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
   h2 { font-size: 16px; margin: 44px 0 16px; }
   p { margin: 0 0 14px; }
@@ -232,7 +240,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
     }
     body { font-size: 10.5pt; line-height: 1.45; }
     main { max-width: none; padding: 0; }
-    .back, .tools, .theme, .keys, .chips, .icon-btn, .toast, #saved, #link-note { display: none !important; }
+    .back, .link-btn, .tools, .theme, .keys, .chips, .icon-btn, .toast, #saved, #link-note { display: none !important; }
     table, .formula, .main-result { break-inside: avoid; }
     a { text-decoration: none; }
   }
@@ -240,7 +248,10 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
 </head>
 <body>
 <main>
-  <a class="back" href="/tools/">← Tools</a>
+  <div class="top">
+    <a class="back" href="/tools/">← Tools</a>
+    <button class="link-btn" type="button" id="copy-url" title="Link mit der aktuellen Eingabe kopieren" hidden>URL kopieren</button>
+  </div>
   <h1>Einheiten-Umrechner</h1>
   <p class="lead">Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bewehrung, Bettung, Bauphysik und Energie, Durchfluss, Geschwindigkeit, Frequenz, Neigungen und Temperaturen. Eingabe als Text, z. B. «12.5 kN/cm2 in MPa», «3.5 kN/m * 6 m» oder «d12 s15».</p>
 
@@ -493,6 +504,20 @@ async function copy(text: string) {
   toast(ok ? 'Kopiert: ' + text : 'Kopieren nicht möglich');
   if (ok) addHistory(input.value);
 }
+
+// "URL kopieren": Link mit der aktuellen Eingabe (#...), auch in der installierten App ohne Adresszeile.
+// Ohne JavaScript bleibt der Button ausgeblendet.
+const urlBtn = $<HTMLButtonElement>('copy-url');
+urlBtn.hidden = false;
+urlBtn.addEventListener('click', async () => {
+  save();
+  try {
+    await navigator.clipboard.writeText(location.href);
+    toast('Link kopiert');
+  } catch (e) {
+    toast('Kopieren nicht möglich');
+  }
+});
 
 // ---------- Darstellung ----------
 let current: Outcome | null = null;
