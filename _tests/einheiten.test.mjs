@@ -1,6 +1,8 @@
 // Einheiten-Umrechner: Engine src/lib/einheiten.ts gegen bekannte Umrechnungen.
 // Ohne Abhängigkeiten: Node 24 führt die TypeScript-Datei direkt aus (Typen werden nur entfernt).
 // Start: node _tests/einheiten.test.mjs
+// Teile: Umrechnungen, g, Schreibweisen, Temperatur, Neigung, Hinweise, Ausgabe, Rechenweg,
+// Zeit/Durchfluss/Frequenz, Energie und Bauphysik, Bewehrung (d12 s15), π und Potenzen, ans.
 import { convert, evaluate, formatNumber, parseNumber, parseUnit } from '../src/lib/einheiten.ts';
 
 let fails = 0;
@@ -193,6 +195,107 @@ eq('kopieren: Grad ohne Leerzeichen', convert('100 % in °').main.copy, '45°');
   yes('Rechenweg: Umrechnung in MPa', st.some(s => s.includes('/ 10⁶ = 125 MPa')), JSON.stringify(st));
   const st2 = convert('3.5 kN/m * 6 m').steps;
   yes('Rechenweg: Multiplikation in SI', st2.some(s => s === '3’500 N/m · 6 m = 21’000 N'), JSON.stringify(st2));
+}
+
+// ---------- 12) Zeit, Geschwindigkeit, Durchfluss, Frequenz, Hektar ----------
+chk('36 km/h = 10 m/s', val('36 km/h in m/s'), 10);
+chk('1 m/s = 3.6 km/h', val('1 m/s in km/h'), 3.6);
+chk('90 min = 1.5 h', val('90 min in h'), 1.5);
+chk('1 h = 3600 s', val('1 h in s'), 3600);
+eq('90 min ohne Ziel: Hauptresultat in h', convert('90 min').main.display, '1.5 h');
+chk('hPa bleibt Hektopascal: 1 hPa = 100 Pa', val('1 hPa in Pa'), 100);
+chk('10 l/s = 36 m³/h', val('10 l/s in m3/h'), 36);
+chk('1 l/s = 60 l/min', val('1 l/s in l/min'), 60);
+chk('1 m³/s = 1000 l/s', val('1 m3/s in l/s'), 1000);
+yes('l/s ohne Ziel: Kategorie Durchfluss', convert('10 l/s').category === 'Durchfluss');
+chk('5 Hz = 300/min', val('5 Hz in 1/min'), 300);
+chk('120 1/min = 2 Hz', val('120 1/min in Hz'), 2);
+chk('120 U/min = 2 Hz', val('120 U/min in Hz'), 2);
+chk('1 kHz = 1000 Hz', val('1 kHz in Hz'), 1000);
+yes('Hz ohne Ziel: Kategorie Frequenz', convert('5 Hz').category === 'Frequenz');
+yes('rad/s: Hinweis auf Kreisfrequenz', convert('10 rad/s in Hz').hints.some(h => h.includes('2π')), JSON.stringify(convert('10 rad/s in Hz').hints));
+chk('1 ha = 10\'000 m²', val('1 ha in m2'), 10000);
+eq('2 ha ohne Ziel: Hauptresultat in m²', convert('2 ha').main.display, '20’000 m²');
+
+// ---------- 13) Energie und Bauphysik ----------
+chk('1 kWh = 3.6 MJ', val('1 kWh in MJ'), 3.6);
+chk('1 kWh = 3600 kNm', val('1 kWh in kNm'), 3600);
+chk('1 Wh = 3600 J', val('1 Wh in J'), 3600);
+chk('3 kW · 2 h = 6 kWh', val('3 kW * 2 h in kWh'), 6);
+yes('3 kW · 2 h ohne Ziel: Kategorie Energie (nicht Moment)', convert('3 kW * 2 h').category === 'Energie', convert('3 kW * 2 h').category);
+eq('3 kW · 2 h ohne Ziel: 6 kWh', convert('3 kW * 2 h').main.display, '6 kWh');
+yes('1 kNm bleibt Moment', convert('1 kNm').category === 'Moment / Energie');
+chk('1 kW = 1000 W', val('1 kW in W'), 1000);
+chk('100 kWh/m² = 360 MJ/m²', val('100 kWh/m2 in MJ/m2'), 360);
+yes('kWh/m² ohne Ziel: Energie pro Fläche', convert('100 kWh/m2').category === 'Energie pro Fläche');
+chk('λ: 0.04 W/mK = 40 mW/(m·K)', val('0.04 W/mK in mW/(m·K)'), 40);
+chk('λ: W/mK = W/(m·K) = W/m/K', val('1 W/mK in W/(m·K)'), val('1 W/m/K in W/(m·K)'));
+yes('λ ohne Ziel: Kategorie Wärmeleitfähigkeit', convert('0.04 W/mK').category === 'Wärmeleitfähigkeit λ');
+chk('λ mit °C als Differenz: 1 W/(m·°C) = 1 W/(m·K)', val('1 W/(m·°C) in W/(m·K)'), 1);
+chk('U: W/m2K = W/(m²·K)', val('0.25 W/m2K in W/(m²·K)'), 0.25);
+yes('U ohne Ziel: Kategorie U', convert('0.25 W/m2K').category === 'Wärmedurchgangskoeffizient U');
+chk('R = d / λ: 0.2 m / (0.04 W/mK) = 5 m²·K/W', val('0.2 m / (0.04 W/mK) in m²·K/W'), 5);
+chk('R = 1 / U: 1 / (0.25 W/m2K) = 4 m²K/W', val('1 / (0.25 W/m2K) in m2K/W'), 4);
+yes('R ohne Ziel: Kategorie R', convert('0.2 m / (0.04 W/mK)').category === 'Wärmedurchlasswiderstand R');
+chk('c: 1000 J/(kg·K) = 1 kJ/(kg·K)', val('1000 J/(kg·K) in kJ/(kg·K)'), 1);
+chk('c: 1 Wh/(kg·K) = 3600 J/(kg·K)', val('1 Wh/(kg·K) in J/(kg·K)'), 3600);
+chk('Wärmestromdichte 1 kW/m² = 1000 W/m²', val('1 kW/m2 in W/m2'), 1000);
+yes('λ in U ergibt Fehler', err('1 W/mK in W/m2K').includes('nicht kompatibel'), err('1 W/mK in W/m2K'));
+chk('Klammer in Zieleinheit: 1 kN/m in kN/(m)', val('1 kN/m in kN/(m)'), 1);
+
+// ---------- 14) Bewehrung aus Durchmesser und Abstand oder Anzahl ----------
+const as12 = (Math.PI * 144) / 4; // 113.097 mm²
+chk('d12 s15 = π·12²/4 · 1000/150 mm²/m', val('d12 s15 in mm2/m'), as12 * 1000 / 150);
+eq('d12 s15 ohne Ziel: 7.54 cm²/m', convert('d12 s15').main.display, '7.54 cm²/m');
+chk('d12 s150 = d12 s15', val('d12 s150 in mm2/m'), as12 * 1000 / 150);
+chk('Ø12 s=150 = d12 s15', val('Ø12 s=150 in mm2/m'), as12 * 1000 / 150);
+chk('d12 e150 mm = d12 s15', val('d12 e150 mm in mm2/m'), as12 * 1000 / 150);
+chk('d12 s15cm = d12 s15', val('d12 s15cm in mm2/m'), as12 * 1000 / 150);
+chk('d12 s0.15 m = d12 s15', val('d12 s0.15 m in mm2/m'), as12 * 1000 / 150);
+chk('D12 @150 = d12 s15', val('D12 @150 in mm2/m'), as12 * 1000 / 150);
+chk('d10 s20 = 392.7 mm²/m', val('d10 s20 in mm2/m'), (Math.PI * 100) / 4 * 1000 / 200);
+chk('Summe d12 s15 + d10 s20', val('d12 s15 + d10 s20 in mm2/m'), as12 * 1000 / 150 + (Math.PI * 100) / 4 * 5);
+chk('4 d16 = 804.2 mm²', val('4 d16 in mm2'), 4 * (Math.PI * 256) / 4);
+eq('4 d16 ohne Ziel: 8.042 cm²', convert('4 d16').main.display, '8.042 cm²');
+chk('4xd16 = 4 d16', val('4xd16 in mm2'), 4 * (Math.PI * 256) / 4);
+chk('d20 allein = ein Stab', val('d20 in mm2'), (Math.PI * 400) / 4);
+yes('s15 ohne Einheit: Hinweis «150 mm»', convert('d12 s15').hints.some(h => h.includes('150 mm')), JSON.stringify(convert('d12 s15').hints));
+yes('d12 s15cm: kein Hinweis zur Lesart', !convert('d12 s15cm').hints.some(h => h.includes('gelesen')));
+yes('Rechenweg: π · 12² / 4', convert('d12 s15').steps.some(s => s.includes('π · 12² / 4 = 113.097 mm²')), JSON.stringify(convert('d12 s15').steps));
+yes('Anzahl und Abstand zusammen: Fehler', err('4 d16 s15').includes('nicht beides'), err('4 d16 s15'));
+yes('pro Meter und Anzahl gemischt: Fehler', err('d12 s15 + 4 d16').includes('nicht mischen'), err('d12 s15 + 4 d16'));
+yes('Bewehrung in kN: Fehler', err('d12 s15 in kN').includes('nicht kompatibel'), err('d12 s15 in kN'));
+yes('dT 20 °C bleibt Temperaturdifferenz', convert('dT 20 °C in K').ok && convert('dT 20 °C in K').main.value === 20);
+yes('2 dm bleibt Dezimeter', val('2 dm in mm') === 200);
+
+// ---------- 15) π, Potenzen auf Klammern ----------
+chk('π', val('π'), Math.PI);
+chk('pi = π', val('pi'), Math.PI);
+chk('Pi = π', val('Pi'), Math.PI);
+chk('2 pi = 2π', val('2 pi'), 2 * Math.PI);
+chk('2π', val('2π'), 2 * Math.PI);
+chk('pi * (12 mm)^2 / 4 = 113.1 mm²', val('pi * (12 mm)^2 / 4 in mm2'), as12);
+chk('Pi/4 * (12mm)^2 in mm²', val('Pi/4 * (12mm)^2 in mm2'), as12);
+chk('(16 m²)^0.5 = 4 m', val('(16 m2)^0.5 in m'), 4);
+chk('(2 m)^-1 = 0.5 1/m', val('(2 m)^-1 in 1/m'), 0.5);
+chk('(0.3 m)^3 / 12 in cm⁴ (b = 1 m)', val('1 m * (0.3 m)^3 / 12 in cm4'), (100 * 30 ** 3) / 12);
+chk('10^0.5', val('10^0.5'), Math.sqrt(10));
+yes('(3 m)^0.5 ergibt Fehler (keine ganzzahlige Einheit)', err('(3 m)^0.5').includes('ganzzahlige'), err('(3 m)^0.5'));
+yes('Rechenweg: Potenz', convert('(12 mm)^2').steps.some(s => s.startsWith('(0.012 m)^2 = ')), JSON.stringify(convert('(12 mm)^2').steps));
+
+// ---------- 16) ans ----------
+const ansQ = { value: 21000, dim: [1, 1, -2, 0] }; // 21 kN
+chk('ans * 1.35', val('ans * 1.35 in kN', { ans: ansQ }), 28.35);
+chk('ans / 6 m = Linienlast', val('ans / 6 m in kN/m', { ans: ansQ }), 3.5);
+chk('ans in N', val('ans in N', { ans: ansQ }), 21000);
+yes('ans ohne Wert: klare Meldung', (convert('ans * 2') || {}).error?.includes('ans ist noch leer'), (convert('ans * 2') || {}).error);
+{
+  const r = convert('3.5 kN/m * 6 m');
+  yes('result = Hauptresultat in SI (für ans)', r.result.value === 21000 && r.result.dim.join() === '1,1,-2,0', JSON.stringify(r.result));
+  const r2 = convert('1 t in kN', { g: 10 });
+  yes('result nach g-Umrechnung ist die Kraft', Math.abs(r2.result.value - 10000) < 1e-9 && r2.result.dim.join() === '1,1,-2,0', JSON.stringify(r2.result));
+  yes('Neigung: kein result', convert('5 %').result === null);
+  yes('Rechenweg nennt ans', convert('ans * 2', { ans: ansQ }).steps[0] === 'ans = 21’000 N', JSON.stringify(convert('ans * 2', { ans: ansQ }).steps));
 }
 
 console.log(fails ? fails + ' FEHLER' : 'Alle Tests bestanden');

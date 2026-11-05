@@ -19,8 +19,8 @@ export const tools: Tool[] = [
       en: 'Unit converter'
     },
     description: {
-      de: 'Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bettung, Neigung und Temperatur, Masse in Kraft mit wählbarem g. Eingabe als Text, offline als App installierbar.',
-      en: 'Convert and calculate with structural engineering units: forces, loads, stresses, moments, section properties, subgrade moduli, slope and temperature, mass to force with selectable g. Free-text input, installable as an offline app.'
+      de: 'Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bewehrung aus Ø und Abstand, Bettung, Bauphysik und Energie, Durchfluss, Neigung und Temperatur, Masse in Kraft mit wählbarem g. Eingabe als Text, offline als App installierbar.',
+      en: 'Convert and calculate with structural engineering units: forces, loads, stresses, moments, section properties, reinforcement from bar diameter and spacing, subgrade moduli, building physics and energy, flow rate, slope and temperature, mass to force with selectable g. Free-text input, installable as an offline app.'
     },
     tags: {
       de: ['Einheiten', 'Statik', 'App'],

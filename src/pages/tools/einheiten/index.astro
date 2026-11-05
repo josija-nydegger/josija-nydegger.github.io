@@ -7,9 +7,9 @@
 import { categories } from '../../../lib/einheiten';
 
 const title = 'Einheiten-Umrechner | Josija Nydegger';
-const description = 'Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: kN/cm² in MPa, kNm in Nmm, kN/m³ in kg/m³ mit wählbarem g, Neigung in % und 1:n, °C und K. Freitext-Eingabe, offline als App nutzbar.';
+const description = 'Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: kN/cm² in MPa, kNm in Nmm, kN/m³ in kg/m³ mit wählbarem g, Bewehrung aus Ø und Abstand, Bauphysik, Durchfluss, Neigung in % und 1:n, °C und K. Freitext-Eingabe, offline als App nutzbar.';
 const url = 'https://josija-nydegger.ch/tools/einheiten/';
-const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '1 cm4 in mm4', '5 % in 1:n', '20 °C in K'];
+const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', 'd12 s15', '1 cm4 in mm4', '0.2 m / (0.04 W/mK)', '36 km/h in m/s', '5 % in 1:n', '20 °C in K'];
 ---
 <!doctype html>
 <html lang="de-CH">
@@ -242,7 +242,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
 <main>
   <a class="back" href="/tools/">← Tools</a>
   <h1>Einheiten-Umrechner</h1>
-  <p class="lead">Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bettung, Neigungen und Temperaturen. Eingabe als Text, z. B. «12.5 kN/cm2 in MPa» oder «3.5 kN/m * 6 m».</p>
+  <p class="lead">Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bewehrung, Bettung, Bauphysik und Energie, Durchfluss, Geschwindigkeit, Frequenz, Neigungen und Temperaturen. Eingabe als Text, z. B. «12.5 kN/cm2 in MPa», «3.5 kN/m * 6 m» oder «d12 s15».</p>
 
   <div class="query">
     <input id="q" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"
@@ -264,7 +264,8 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
       </select>
     </label>
   </div>
-  <p class="keys" id="keys"><kbd>Enter</kbd> kopiert das Resultat · Klick auf eine Zeile kopiert diese · <kbd>↑</kbd> <kbd>↓</kbd> Verlauf · <kbd>Esc</kbd> leert · <kbd>/</kbd> springt ins Feld</p>
+  <p class="keys" id="keys"><kbd>Enter</kbd> kopiert das Resultat · Klick auf eine Zeile kopiert diese · <kbd>↑</kbd> <kbd>↓</kbd> Verlauf · <kbd>Esc</kbd> leert · <kbd>/</kbd> springt ins Feld · <code>ans</code> = letztes übernommenes Resultat</p>
+  <p class="keys" id="ans-line" hidden>ans = <span id="ans-val"></span></p>
   <div class="chips" id="examples">
     {examples.map(e => <button class="chip" type="button" data-q={e}>{e}</button>)}
   </div>
@@ -321,6 +322,13 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
     <li>1 bar = 100 kN/m² = 0.1 MPa</li>
     <li>100 % = 45°, 1:n = 100/n %</li>
     <li>ΔT: 1 K = 1 °C, aber 0 °C = 273.15 K</li>
+    <li>Ø12 s = 150 mm (d12 s15) = 7.54 cm²/m, 4 Ø16 = 8.04 cm²</li>
+    <li>1 ha = 10'000 m²</li>
+    <li>1 m/s = 3.6 km/h</li>
+    <li>1 l/s = 60 l/min = 3.6 m³/h</li>
+    <li>1 kWh = 3.6 MJ = 3600 kNm</li>
+    <li>R = d / λ, z. B. 0.2 m / (0.04 W/mK) = 5 m²K/W; U = 1 / R<sub>tot</sub></li>
+    <li>1 Hz = 1/s = 60/min</li>
   </ul>
 
   <h2>Einheiten</h2>
@@ -329,23 +337,27 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
       {categories().map(c => <tr><td>{c.name}</td><td>{c.units.join(', ')}</td></tr>)}
     </tbody>
   </table>
-  <p class="note">Dazu die SI-Vorsätze n, µ (oder u), m, c, d, k, M, G, soweit sinnvoll (z. B. mN, GPa, km, Mg), sowie s, J, kJ und mrad. Andere Kombinationen rechnet das Tool in SI-Einheiten.</p>
+  <p class="note">Dazu die SI-Vorsätze n, µ (oder u), m, c, d, k, M, G, soweit sinnvoll (z. B. mN, GPa, km, Mg), sowie s, min, h, J, kJ, MJ, W, mW, kW, MW, Wh, kWh, Hz, kHz, U/min, ha und mrad. Andere Kombinationen rechnet das Tool in SI-Einheiten.</p>
 
   <h2>Annahmen und Grenzen</h2>
   <ul class="list">
     <li><strong>Prinzip:</strong> Jede Einheit hat einen Faktor zur SI-Basis und einen Dimensionsvektor [m, kg, s, K]. Zusammengesetzte Einheiten werden zerlegt (kNm = kN·m, kN/cm² = 10<sup>3</sup> N / 10<sup>-4</sup> m²): Faktoren multiplizieren, Exponenten addieren. Umgerechnet wird nur bei gleicher Dimension, sonst erscheint eine Meldung.</li>
     <li><strong>Gross-/Kleinschreibung</strong> zählt: mN (Millinewton) und MN (Meganewton) unterscheiden sich um 10<sup>9</sup>, mm und Mm ebenso. Bei falscher Schreibweise (z. B. «KN») macht das Tool einen Vorschlag.</li>
     <li><strong>Schreibweise:</strong> Dezimalpunkt oder Dezimalkomma (das Komma ist immer Dezimalzeichen), Apostroph als Tausendertrennzeichen in Dreiergruppen (1'250,5). Exponenten als m2, m^2 oder m², Produkte als kNm, kN·m, kN*m oder kN m. Zieleinheit mit «in», «to», «->» oder «→».</li>
-    <li><strong>Rechnen</strong> mit *, /, + und − sowie Klammern. Innerhalb einer Einheit gilt von links nach rechts: kN/m·s = (kN/m)·s; für kN/(m·s) Klammern setzen. Addition und Subtraktion nur bei gleicher Dimension.</li>
+    <li><strong>Rechnen</strong> mit *, /, + und − sowie Klammern, Potenzen mit ^ auch auf Klammern ((12 mm)^2, (16 m²)^0.5) und π (oder pi): «pi * (12 mm)^2 / 4». Addition und Subtraktion nur bei gleicher Dimension. <strong>ans</strong> ist das zuletzt mit Enter oder Kopieren übernommene Hauptresultat, z. B. «ans * 1.35»; es bleibt in diesem Browser gespeichert.</li>
+    <li><strong>Einheiten mit Schrägstrich:</strong> Mit Rechenzeichen gilt von links nach rechts: kN/m·s = (kN/m)·s. Ohne Rechenzeichen angehängte Einheiten bleiben im Nenner, wie in der Bauphysik üblich: W/mK = W/(m·K) und W/m²K = W/(m²·K). Klammern sind immer eindeutig.</li>
+    <li><strong>Bewehrung:</strong> «d12 s15» (oder Ø12 s150, e150, @150) ergibt den Querschnitt pro Meter π·d²/4 · 1000/s, «4 d16» den Querschnitt von 4 Stäben; Summen mit + («d12 s15 + d10 s20»). Durchmesser in mm. Abstand ohne Einheit: Werte unter 50 gelten als cm (s15 = 150 mm), ab 50 als mm (s150); eindeutig mit «s15cm» oder «s150mm». Die Lesart steht jeweils als Hinweis.</li>
+    <li><strong>Bauphysik und Energie:</strong> λ in W/(m·K), U in W/(m²·K), R in m²·K/W, spezifische Wärmekapazität in J/(kg·K), Energie in J und Wh (1 kWh = 3.6 MJ). In diesen Einheiten gilt °C als Temperaturdifferenz. Ergebnisse von Rechnungen mit W, Wh oder J erscheinen als Energie, sonst gleich dimensionierte als Moment.</li>
+    <li><strong>Frequenz</strong> in Hz und 1/min (U/min). Die Kreisfrequenz ω in rad/s rechnet das Tool wie jede Einheit mit rad = 1, also nicht über 2π; dazu erscheint ein Hinweis.</li>
     <li><strong>Masse und Kraft</strong> haben verschiedene Dimensionen. Umgerechnet wird nur über die Erdbeschleunigung g, wählbar 9.81 oder 10 m/s² (Normfallbeschleunigung g<sub>n</sub> = 9.80665 m/s²). Das verwendete g steht bei jeder solchen Umrechnung.</li>
     <li><strong>Temperatur:</strong> Eine einzelne Angabe in °C oder K gilt als absolute Temperatur (20 °C = 293.15 K). Mit vorangestelltem Δ, ΔT oder dT ist es eine Differenz (ΔT 20 °C = 20 K). In Rechnungen und zusammengesetzten Einheiten (z. B. 1/K) gilt °C immer als Differenz.</li>
     <li><strong>Neigung</strong> hängt über tan α mit dem Winkel zusammen, nicht linear: 100 % = 45°, 1:n = 100/n %. Winkel nur zwischen −90° und 90°.</li>
     <li><strong>Gleiche Dimension, andere Bedeutung:</strong> kN/m² (Flächenlast oder Spannung), kNm (Moment oder Energie), kN/m (Linienlast oder Federsteifigkeit), kN/m³ (Wichte oder Bettungsmodul), mm³ (Volumen oder Widerstandsmoment). Die Umrechnung stimmt in jedem Fall, die Bedeutung bleibt Sache der Eingabe. rad ist dimensionslos, kNm/rad hat darum dieselbe Dimension wie kNm.</li>
     <li><strong>Ausgabe</strong> gerundet auf die gewählte Zahl signifikanter Stellen (Standard 4), ab 10<sup>9</sup> und unter 10<sup>-3</sup> in wissenschaftlicher Schreibweise. Gerechnet wird mit voller Genauigkeit (Gleitkommazahlen mit etwa 15 Stellen). Kopiert wird ohne Tausender-Apostroph, z. B. «125 MPa».</li>
-    <li><strong>Nicht enthalten:</strong> angloamerikanische Einheiten (inch, lbf, psi), kp, Zeit ausser Sekunden, Leistung.</li>
+    <li><strong>Nicht enthalten:</strong> angloamerikanische Einheiten (inch, lbf, psi), kp, Tage und Jahre (d, a), PS, kcal.</li>
   </ul>
   <p class="note">Grundlagen: Internationales Einheitensystem (SI), BIPM, SI-Broschüre, 9. Auflage 2019 (Einheiten, Vorsätze, Schreibweise); Normfallbeschleunigung g<sub>n</sub> = 9.80665 m/s² (3. CGPM 1901).</p>
-  <p class="note">Geprüfte Testfälle (automatisch, mit Gegenprobe): 1 kN/cm² = 10 MPa, 1 N/mm² = 1000 kN/m², 1 cm⁴ = 10'000 mm⁴, 1 kNm = 1'000'000 Nmm, 25 kN/m³ = 2548 kg/m³ (g = 9.81), 1 t = 10 kN (g = 10), 100 % = 45°, 5 % = 1:20, 20 °C = 293.15 K, ΔT 20 °C = 20 K, 3.5 kN/m · 6 m = 21 kN, mN und MN unterscheiden sich um 10<sup>9</sup>, «1'250,5 kN» = 1250.5 kN, «1 kN in MPa» ergibt einen Fehler; dazu alle Einheiten der Liste oben hin und zurück, Schreibweisen, Rundung und ungültige Eingaben.</p>
+  <p class="note">Geprüfte Testfälle (automatisch, mit Gegenprobe): 1 kN/cm² = 10 MPa, 1 N/mm² = 1000 kN/m², 1 cm⁴ = 10'000 mm⁴, 1 kNm = 1'000'000 Nmm, 25 kN/m³ = 2548 kg/m³ (g = 9.81), 1 t = 10 kN (g = 10), 100 % = 45°, 5 % = 1:20, 20 °C = 293.15 K, ΔT 20 °C = 20 K, 3.5 kN/m · 6 m = 21 kN, mN und MN unterscheiden sich um 10<sup>9</sup>, «1'250,5 kN» = 1250.5 kN, «1 kN in MPa» ergibt einen Fehler, 36 km/h = 10 m/s, 10 l/s = 36 m³/h, 1 kWh = 3.6 MJ, 3 kW · 2 h = 6 kWh, 0.2 m / 0.04 W/(m·K) = 5 m²·K/W, 1 ha = 10'000 m², 5 Hz = 300/min, d12 s15 = 7.54 cm²/m, 4 d16 = 8.04 cm², π · (12 mm)² / 4 = 113.1 mm², (16 m²)^0.5 = 4 m, ans · 1.35; dazu alle Einheiten der Liste oben hin und zurück, Schreibweisen, Rundung und ungültige Eingaben.</p>
 
   <footer>
     <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
@@ -368,7 +380,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
 
 <script>
 // Oberfläche des Einheiten-Umrechners. Die Rechenlogik liegt in src/lib/einheiten.ts (ohne DOM, getestet).
-import { convert, G_DEFAULT, SIG_DEFAULT, type Outcome, type Row } from '../../../lib/einheiten';
+import { convert, G_DEFAULT, SIG_DEFAULT, type Dim, type Outcome, type Row, type Success } from '../../../lib/einheiten';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const input = $<HTMLInputElement>('q');
@@ -422,6 +434,39 @@ function store(key: string, list: string[]) {
 let hist = load(KEY_HIST, 20);
 let favs = load(KEY_FAV, 30);
 
+// ans: letztes mit Enter oder Kopieren übernommenes Hauptresultat (SI-Wert, Dimension, Anzeige)
+const KEY_ANS = 'einheiten:ans';
+type Ans = { value: number; dim: Dim; text: string };
+function loadAns(): Ans | null {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(KEY_ANS) || 'null');
+    if (!v || typeof v !== 'object') return null;
+    const o = v as Record<string, unknown>;
+    const dim = o.dim;
+    if (typeof o.value !== 'number' || !isFinite(o.value) || typeof o.text !== 'string') return null;
+    if (!Array.isArray(dim) || dim.length !== 4 || !dim.every(x => Number.isInteger(x) && Math.abs(x) <= 12)) return null;
+    return { value: o.value, dim: dim as Dim, text: o.text.slice(0, 60) };
+  } catch (e) {
+    return null;
+  }
+}
+let ans = loadAns();
+function setAns(r: Success) {
+  if (!r.result) return; // Neigungen: kein ans
+  ans = { value: r.result.value, dim: r.result.dim, text: r.main.display };
+  try { localStorage.setItem(KEY_ANS, JSON.stringify(ans)); } catch (e) { /* nur bis zum Neuladen */ }
+  renderAns();
+}
+function renderAns() {
+  $('ans-line').hidden = !ans;
+  $('ans-val').textContent = ans ? ans.text : '';
+}
+/** Kopieren und als ans übernehmen */
+function take(r: Success, text: string) {
+  setAns(r);
+  void copy(text);
+}
+
 function addHistory(q: string) {
   const t = q.trim();
   if (!t) return;
@@ -469,7 +514,7 @@ function rowsTable(rows: Row[]): HTMLTableElement {
     tr.append(el('td', 'num', r.text));
     tr.append(el('td', 'unit', r.unit === '1:n' ? '' : r.unit));
     tr.append(el('td', 'note', r.input ? 'Eingabe' : ''));
-    const go = () => { void copy(r.copy); };
+    const go = () => { if (current && current.ok) take(current, r.copy); };
     tr.addEventListener('click', go);
     tr.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
@@ -481,7 +526,7 @@ function rowsTable(rows: Row[]): HTMLTableElement {
 }
 
 function render() {
-  const r = convert(state.q, { g: state.g, sig: state.d });
+  const r = convert(state.q, { g: state.g, sig: state.d, ans });
   current = r;
   const ok = !!r && r.ok;
   $('empty').hidden = !!r;
@@ -574,7 +619,7 @@ input.addEventListener('input', () => {
 input.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     e.preventDefault();
-    if (current && current.ok) void copy(current.main.copy);
+    if (current && current.ok) take(current, current.main.copy);
   } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     if (!hist.length) return;
     e.preventDefault();
@@ -616,7 +661,7 @@ input.addEventListener('blur', () => {
 });
 
 $('copy-main').addEventListener('click', () => {
-  if (current && current.ok) void copy(current.main.copy);
+  if (current && current.ok) take(current, current.main.copy);
 });
 
 $('fav').addEventListener('click', () => {
@@ -670,6 +715,7 @@ window.addEventListener('beforeprint', () => { $<HTMLDetailsElement>('steps-wrap
 syncControls();
 render();
 renderSaved();
+renderAns();
 input.focus();
 
 // Hell / Dunkel / System: wie in src/layouts/Base.astro, gleicher Speicherschlüssel "theme".

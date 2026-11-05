@@ -69,7 +69,8 @@ Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächst
 ## 8. Einheiten-Umrechner (Allgemein)
 
 - **Umgesetzt** (`tools/einheiten/`, Nov. 2026): ein Eingabefeld mit Freitext («12.5 kN/cm2 in MPa», «3.5 kN/m * 6 m»), Live-Resultat, ohne Zieleinheit alle Einheiten der Kategorie; Masse ↔ Kraft über wählbares g (9.81/10), Temperatur absolut und als Differenz, Neigung über tan (°, %, ‰, 1:n), Hinweise bei gleicher Dimension (kN/m² Flächenlast/Spannung usw.), Verlauf und Favoriten im Browser, Tastatur (Enter kopiert, ↑↓ Verlauf). Rechenkern in TypeScript (`src/lib/einheiten.ts`), Seite als Astro-Seite. Als App (PWA) installierbar und offline nutzbar, nur dieses Tool.
-- **Mögliche Erweiterungen:** angloamerikanische Einheiten (inch, lbf, psi, ksi), kp, Zeit und Leistung, eigene Konstanten, Umrechnung von Bewehrung (Ø/s ↔ cm²/m).
+- **Erweitert** (Nov. 2026): h, min, Geschwindigkeit (km/h), Durchfluss (l/s, m³/h), Frequenz (Hz, 1/min), Hektar, Energie und Leistung (J, Wh, kWh, W), Bauphysik (λ, U, R, c, Wärmestromdichte), Bewehrung aus Ø und Abstand oder Anzahl (d12 s15, 4 d16), π/pi, Potenzen auf Klammern, ans.
+- **Mögliche Erweiterungen:** angloamerikanische Einheiten (inch, lbf, psi, ksi; Achtung: «in» ist das Schlüsselwort für die Zieleinheit), alte Einheiten kp/Mp für Bestandspläne, Tage und Jahre, eigene Konstanten, Einheiten-Tabelle klickbar, Teilen-Button.
 
 ## Für alle Tools
 

@@ -6,7 +6,9 @@
 // Prinzip: Jede Einheit hat einen Faktor zur SI-Basis und einen Dimensionsvektor [m, kg, s, K].
 // Zusammengesetzte Einheiten (kN/cm², kNm/rad, cm²/m) werden zerlegt: Faktoren multiplizieren,
 // Exponenten addieren. Umgerechnet wird nur bei gleicher Dimension; Masse ↔ Kraft nur ausdrücklich über g.
-// Sonderfälle mit eigener Logik: Temperatur (absolut mit Verschiebung, Differenz ohne) und Neigung (über tan).
+// Sonderfälle mit eigener Logik: Temperatur (absolut mit Verschiebung, Differenz ohne), Neigung (über tan)
+// und Bewehrung aus Durchmesser und Abstand oder Anzahl ("d12 s15", "4 d16").
+// Ausdrücke dürfen π (oder pi), Klammern mit Potenzen ((12 mm)^2) und ans (letztes übernommenes Resultat) enthalten.
 
 /** Exponenten der Basiseinheiten m, kg, s, K */
 export type Dim = [number, number, number, number];
@@ -16,6 +18,8 @@ export interface Options {
   g?: number;
   /** Signifikante Stellen der Ausgabe (Standard 4) */
   sig?: number;
+  /** Wert für "ans": letztes übernommenes Resultat (SI-Wert und Dimension), null = leer */
+  ans?: { value: number; dim: Dim } | null;
 }
 
 export interface Row {
@@ -41,7 +45,7 @@ export interface Group {
 
 export interface Success {
   ok: true;
-  kind: 'unit' | 'temp' | 'slope';
+  kind: 'unit' | 'temp' | 'slope' | 'rebar';
   /** Erkannte Eingabe, sauber geschrieben (z. B. "12.5 kN/cm²") */
   input: string;
   /** Hauptresultat (Zieleinheit oder sinnvolle Einheit der Kategorie) */
@@ -57,6 +61,8 @@ export interface Success {
   /** Wert in SI-Basiseinheiten (Neigung: tan α, Temperatur absolut: K) */
   si: number;
   dim: Dim;
+  /** Hauptresultat als SI-Wert mit Dimension, für "ans" (null bei Neigungen) */
+  result: { value: number; dim: Dim } | null;
 }
 
 export interface Failure {
@@ -105,12 +111,18 @@ def(['m'], 1, [1, 0, 0, 0], 'nµumcdkM');           // mm, cm, dm, km, Mm
 def(['g'], 1e-3, [0, 1, 0, 0], 'µumkM');            // kg (Basis), Mg
 def(['t'], 1e3, [0, 1, 0, 0]);                      // Tonne = 1000 kg
 def(['s'], 1, [0, 0, 1, 0], 'm');
+def(['min'], 60, [0, 0, 1, 0]);                     // Minute
+def(['h'], 3600, [0, 0, 1, 0]);                     // Stunde (hPa bleibt Hektopascal: längste Einheit zuerst)
+def(['Hz'], 1, [0, 0, -1, 0], 'kMG');               // Frequenz
+def(['U'], 1, [0, 0, 0, 0]);                        // Umdrehung (Zählung), für U/min
+def(['ha'], 1e4, [2, 0, 0, 0]);                     // Hektar = 10'000 m²
 def(['K'], 1, [0, 0, 0, 1], '', { temp: true });
 def(['°C', '℃', 'degC'], 1, [0, 0, 0, 1], '', { temp: true, offset: 273.15 });
 def(['N'], 1, [1, 1, -2, 0], 'nµumkMG');            // mN, kN, MN, GN
 def(['Pa'], 1, [-1, 1, -2, 0], 'hkMG');             // hPa, kPa, MPa, GPa
 def(['bar'], 1e5, [-1, 1, -2, 0], 'm');
 def(['J'], 1, [2, 1, -2, 0], 'kMG');
+def(['W'], 1, [2, 1, -3, 0], 'mkMG');               // Leistung; Wh, kWh über W·h
 def(['l', 'L'], 1e-3, [3, 0, 0, 0], 'mcd');         // Liter
 def(['rad'], 1, ZERO, 'm', { angle: true });
 def(['°', 'Grad', 'deg'], Math.PI / 180, ZERO, '', { angle: true });
@@ -132,6 +144,7 @@ function normalize(s: string): string {
     .replace(/μ/g, 'µ')                   // griechisches My → Mikrozeichen
     .replace(/[−–]/g, '-')                // Minus, Halbgeviertstrich
     .replace(/[×⋅•∙]/g, '·')
+    .replace(/(^|[^A-Za-zµ])(?:pi|Pi|PI)(?![A-Za-z])/g, '$1π')   // pi → π
     .replace(/[   ]/g, ' ');
 }
 
@@ -173,9 +186,17 @@ function formatFactor(f: number): string {
 }
 
 /** Name der SI-Einheit einer Dimension: N, N/m², N·m, kg/m³, m/s², "" (dimensionslos) */
+const SI_NAMES = new Map<string, string>([
+  ['2,0,-2,-1', 'J/(kg·K)'],   // spezifische Wärmekapazität
+  ['0,-1,3,1', 'm²·K/W'],      // Wärmedurchlasswiderstand
+  ['0,0,-1,0', 'Hz']            // Frequenz
+]);
 export function siUnit(d: Dim): string {
+  const named = SI_NAMES.get(d.join());
+  if (named) return named;
   const parts: [string, number][] = [];
   if (d[1] === 1 && d[2] === -2) parts.push(['N', 1], ['m', d[0] - 1], ['K', d[3]]);
+  else if (d[1] === 1 && d[2] === -3) parts.push(['W', 1], ['m', d[0] - 2], ['K', d[3]]);
   else parts.push(['kg', d[1]], ['m', d[0]], ['s', d[2]], ['K', d[3]]);
   const pos = parts.filter(p => p[1] > 0).map(([u, e]) => u + (e === 1 ? '' : sup(e)));
   const neg = parts.filter(p => p[1] < 0).map(([u, e]) => u + (e === -1 ? '' : sup(-e)));
@@ -200,6 +221,20 @@ export interface UnitInfo {
 interface Quantity { v: number; dim: Dim }
 interface Literal { num: number; unit: UnitInfo | null }
 interface Op { a: Quantity; op: string; b: Quantity; r: Quantity }
+
+/** Potenz einer Grösse; die Exponenten der Dimension müssen ganzzahlig bleiben, z. B. (16 m²)^0.5 = 4 m */
+function power(q: Quantity, e: number): Quantity {
+  const dim = q.dim.map(x => x * e) as Dim;
+  if (dim.some(x => Math.abs(x - Math.round(x)) > 1e-9)) {
+    throw new InputError(`Potenz ^${formatNumber(e, 6).plain} ergibt keine ganzzahlige Einheit (${siUnit(q.dim)}).`);
+  }
+  const v = q.v ** e;
+  if (!isFinite(v)) throw new InputError('Potenz nicht definiert (z. B. negative Zahl hoch 0.5).');
+  return { v, dim: dim.map(x => Math.round(x) + 0) as Dim };
+}
+/** Exponent nach ^: ganze Zahl oder Dezimalzahl, auch in Klammern: ^2, ^-1, ^0.5, ^(-2) */
+const EXP_RE = /^\^\s*(\(\s*[+-]?\d+(?:[.,]\d+)?\s*\)|[+-]?\d+(?:[.,]\d+)?)/;
+const expValue = (m: string) => Number(m.replace(/[()\s]/g, '').replace(',', '.'));
 
 /** Einen Buchstabenblock wie "kNm" in bekannte Einheiten zerlegen (längste zuerst, mit Rückverfolgung) */
 function segment(run: string): string[] | null {
@@ -241,9 +276,26 @@ class Parser {
   parens = false;
   angle = false;
   celsius = false;
+  usedAns = false;
+  /** Ausdruck enthält W, Wh oder J (für die Kategorie Energie statt Moment) */
+  energy = false;
+  ans: { value: number; dim: Dim } | null;
 
-  constructor(s: string) {
+  constructor(s: string, ans: { value: number; dim: Dim } | null = null) {
     this.s = s;
+    this.ans = ans;
+  }
+
+  /** Optionaler Exponent nach einer Klammer oder ans, z. B. (12 mm)^2 */
+  postfixPower(q: Quantity): Quantity {
+    if (this.peek() !== '^') return q;
+    const m = EXP_RE.exec(this.s.slice(this.i));
+    if (!m) throw new InputError('Nach ^ wird eine Zahl erwartet, z. B. «(12 mm)^2».');
+    this.i += m[0].length;
+    const e = expValue(m[1]);
+    const r = power(q, e);
+    this.ops.push({ a: q, op: '^', b: { v: e, dim: [...ZERO] }, r });
+    return r;
   }
 
   ws() {
@@ -266,6 +318,11 @@ class Parser {
   /** Nur eine Einheit (für die Zieleinheit) */
   parseUnitOnly(): UnitInfo {
     this.ws();
+    const inv = this.inverseUnit();
+    if (inv) {
+      if (this.peek() !== '') throw new InputError(`Zieleinheit «${this.s.trim()}» nicht verstanden. Beispiel: «in 1/min».`);
+      return inv;
+    }
     const u = this.unitTail();
     if (!u || this.peek() !== '') throw new InputError(`Zieleinheit «${this.s.trim()}» nicht verstanden. Beispiel: «in MPa».`);
     return u;
@@ -299,8 +356,9 @@ class Parser {
     let q = this.unary();
     for (;;) {
       const c = this.peek();
-      if (c !== '*' && c !== '·' && c !== '/') return q;
-      this.i++;
+      const implicit = c === 'π'; // "2π" = 2 · π
+      if (c !== '*' && c !== '·' && c !== '/' && !implicit) return q;
+      if (!implicit) this.i++;
       const b = this.unary();
       let r: Quantity;
       if (c === '/') {
@@ -330,6 +388,15 @@ class Parser {
       const q = this.expr();
       if (this.peek() !== ')') throw new InputError('Schliessende Klammer fehlt.');
       this.i++;
+      const qp = this.postfixPower(q);
+      const u = this.unitTail();
+      return u ? { v: qp.v * u.factor, dim: dimAdd(qp.dim, u.dim) } : qp;
+    }
+    if (/^ans(?![A-Za-z])/.test(this.s.slice(this.i))) {
+      if (!this.ans) throw new InputError('ans ist noch leer: zuerst ein Resultat mit Enter oder Kopieren übernehmen.');
+      this.i += 3;
+      this.usedAns = true;
+      const q = this.postfixPower({ v: this.ans.value, dim: [...this.ans.dim] as Dim });
       const u = this.unitTail();
       return u ? { v: q.v * u.factor, dim: dimAdd(q.dim, u.dim) } : q;
     }
@@ -337,14 +404,15 @@ class Parser {
     if (n !== null) {
       let num = n;
       if (this.peek() === '^') {
-        const m = /^\^\s*([+-]?\d+)/.exec(this.s.slice(this.i));
-        if (!m) throw new InputError('Nach ^ wird eine ganze Zahl erwartet, z. B. «10^6».');
+        const m = EXP_RE.exec(this.s.slice(this.i));
+        if (!m) throw new InputError('Nach ^ wird eine Zahl erwartet, z. B. «10^6».');
         this.i += m[0].length;
-        num = num ** Number(m[1]);
+        num = num ** expValue(m[1]);
+        if (!isFinite(num)) throw new InputError('Potenz nicht definiert (z. B. negative Zahl hoch 0.5).');
       }
-      const u = this.unitTail();
+      const u = this.inverseUnit() || this.unitTail();
       this.lits.push({ num, unit: u });
-      return u ? { v: num * u.factor, dim: u.dim } : { v: num, dim: ZERO };
+      return u ? { v: num * u.factor, dim: u.dim } : { v: num, dim: [...ZERO] };
     }
     const u = this.unitTail();
     if (u) {
@@ -358,6 +426,10 @@ class Parser {
   /** Zahl mit Dezimalpunkt oder -komma, Tausender-Apostroph (1'250,5) und Exponent (1.2e3) */
   number(): number | null {
     this.ws();
+    if (this.s.charAt(this.i) === 'π') {
+      this.i++;
+      return Math.PI;
+    }
     const m = /^(?=[.,]?\d)(?:\d{1,3}(?:['’ʼ]\d{3})+|\d+)?(?:[.,]\d+)?(?:[eE][+-]?\d+)?/.exec(this.s.slice(this.i));
     if (!m || m[0] === '') return null;
     this.i += m[0].length;
@@ -374,6 +446,8 @@ class Parser {
     }
     const u: UnitInfo = { factor: 1, dim: [...ZERO], text: '', parts: [] };
     this.group(u, 1, '');
+    // Ohne Rechenzeichen angehängte Einheiten bleiben im Nenner: W/m²K = W/(m²·K), wie in der Bauphysik üblich
+    let sign = 1;
     for (;;) {
       const save = this.i;
       this.ws();
@@ -381,19 +455,72 @@ class Parser {
       if (c === '/' || c === '*' || c === '·') {
         this.i++;
         this.ws();
+        const s2 = c === '/' ? -1 : 1;
+        const sep = c === '/' ? '/' : '·';
+        if (this.s.charAt(this.i) === '(') {
+          const inner = this.parenUnit();
+          if (!inner) {
+            this.i = save; // Klammer mit Zahlen: Rechnung, z. B. "1 kN / (2 m)"
+            break;
+          }
+          u.factor *= inner.factor ** s2;
+          u.dim = dimAdd(u.dim, inner.dim, s2);
+          inner.parts.forEach(pt => u.parts.push({ ...pt, exp: pt.exp * s2 }));
+          u.text += sep + '(' + inner.text + ')';
+          sign = s2;
+          continue;
+        }
         if (!isUnitStart(this.s.charAt(this.i))) {
           this.i = save; // Rechenzeichen zwischen Grössen, z. B. "3.5 kN/m * 6 m"
           break;
         }
-        this.group(u, c === '/' ? -1 : 1, c === '/' ? '/' : '·');
-      } else if (isUnitStart(c)) {
-        this.group(u, 1, this.i > save ? '·' : '');
+        sign = s2;
+        this.group(u, sign, sep);
+      } else if (isUnitStart(c) && !/^ans(?![A-Za-z])/.test(this.s.slice(this.i))) {
+        this.group(u, sign, sign < 0 ? (this.i > save ? ' ' : '') : this.i > save ? '·' : '');
       } else {
         this.i = save;
         break;
       }
     }
     return u;
+  }
+
+  /** Kehrwert-Einheit wie "1/min", "1/s", "1/(m·K)"; null, wenn keine folgt */
+  inverseUnit(): UnitInfo | null {
+    const save = this.i;
+    this.ws();
+    const m = /^1\s*\/\s*(?=[A-Za-zµ°(])/.exec(this.s.slice(this.i));
+    if (!m) {
+      this.i = save;
+      return null;
+    }
+    this.i += m[0].length;
+    const paren = this.s.charAt(this.i) === '(';
+    const v = paren ? this.parenUnit() : this.unitTail();
+    if (!v) {
+      this.i = save;
+      return null;
+    }
+    return {
+      factor: 1 / v.factor, dim: v.dim.map(x => -x + 0) as Dim,
+      text: '1/' + (paren ? '(' + v.text + ')' : v.text),
+      parts: v.parts.map(pt => ({ ...pt, exp: -pt.exp }))
+    };
+  }
+
+  /** Einheit in Klammern, z. B. "(m·K)" in W/(m·K); null, wenn es keine reine Einheit ist */
+  parenUnit(): UnitInfo | null {
+    const save = this.i;
+    this.i++;
+    this.ws();
+    const inner = isUnitStart(this.s.charAt(this.i)) ? this.unitTail() : null;
+    if (!inner || this.peek() !== ')') {
+      this.i = save;
+      return null;
+    }
+    this.i++;
+    return inner;
   }
 
   /** Ein Buchstabenblock mit Exponent, z. B. "kNm", "cm2", "m^-1", "mm⁴" */
@@ -403,8 +530,8 @@ class Parser {
     let run = '';
     while (this.i < this.s.length && isRunChar(this.s.charAt(this.i))) run += this.s.charAt(this.i++);
     const names = segment(run);
-    // Temperatur nur als eigener Block (m·K, 1/K), sonst wäre "KN" = Kelvin · Newton
-    if (!names || (names.length > 1 && names.some(n => ATOMS.get(n)?.temp))) {
+    // Temperatur nur am Ende eines Blocks (mK, m²K), sonst wäre "KN" = Kelvin · Newton
+    if (!names || names.slice(0, -1).some(n => ATOMS.get(n)?.temp)) {
       const s = suggest(run);
       throw new InputError(`Unbekannte Einheit «${run}».` + (s ? ` Gross-/Kleinschreibung beachten: meinten Sie «${s}»?` : ''));
     }
@@ -424,6 +551,7 @@ class Parser {
       u.parts.push({ name, exp: e, def: d });
       if (d.angle) this.angle = true;
       if (d.offset) this.celsius = true;
+      if (/[WJ]$/.test(name)) this.energy = true;
     });
     const shown = run.replace('degC', '°C').replace('℃', '°C');
     u.text += sep + shown + (exp === 1 ? '' : sup(exp));
@@ -497,7 +625,7 @@ const CATEGORIES: Category[] = [
     hint: 'Bewehrung pro Meter hat die Dimension einer Länge (1 cm²/m = 0.1 mm).'
   },
   { name: 'Länge', units: ['mm', 'cm', 'm'], prefer: ['m', 'mm', 'cm'] },
-  { name: 'Fläche', units: ['mm²', 'cm²', 'm²'], prefer: ['cm²', 'mm²', 'm²'] },
+  { name: 'Fläche', units: ['mm²', 'cm²', 'm²', 'ha'], prefer: ['cm²', 'mm²', 'm²', 'ha'] },
   {
     name: 'Volumen / Widerstandsmoment', units: ['mm³', 'cm³', 'm³', 'l'], prefer: ['cm³', 'mm³', 'm³', 'l'],
     hint: 'mm³ kann ein Volumen, ein Widerstandsmoment oder ein statisches Moment sein.'
@@ -512,7 +640,38 @@ const CATEGORIES: Category[] = [
   { name: 'Masse pro Fläche', units: ['kg/m²', 't/m²'], viaG: { name: 'Flächenlast', units: ['kN/m²'] } },
   { name: 'Masse pro Länge', units: ['kg/m', 't/m'], viaG: { name: 'Linienlast', units: ['kN/m'] } },
   { name: 'Temperaturdifferenz', units: ['K', '°C'] },
-  { name: 'Beschleunigung', units: ['m/s²'] }
+  { name: 'Beschleunigung', units: ['m/s²'] },
+  // Zeit, Geschwindigkeit, Durchfluss, Frequenz
+  { name: 'Zeit', units: ['s', 'min', 'h'], prefer: ['h', 'min', 's'] },
+  { name: 'Geschwindigkeit', units: ['m/s', 'km/h'], prefer: ['km/h', 'm/s'] },
+  { name: 'Durchfluss', units: ['l/s', 'l/min', 'm³/s', 'm³/h'], prefer: ['l/s', 'm³/h', 'l/min', 'm³/s'] },
+  {
+    name: 'Frequenz', units: ['Hz', 'kHz', '1/min'], prefer: ['Hz', 'kHz', '1/min'],
+    hint: '1 Hz = 1/s = 60/min. Eigenfrequenz f in Hz; die Kreisfrequenz ω in rad/s ist ω = 2π·f.'
+  },
+  // Energie und Bauphysik
+  {
+    name: 'Energie', units: ['J', 'kJ', 'MJ', 'Wh', 'kWh', 'MWh'], prefer: ['kWh', 'MJ', 'kJ', 'Wh', 'J', 'MWh'],
+    match: u => /J|Wh/.test(u),
+    hint: 'Energie und Moment haben dieselbe Dimension: 1 kWh = 3.6 MJ = 3600 kNm.'
+  },
+  { name: 'Leistung', units: ['W', 'kW', 'MW'], prefer: ['kW', 'W', 'MW'] },
+  {
+    name: 'Energie pro Fläche', units: ['kWh/m²', 'MJ/m²'], prefer: ['kWh/m²', 'MJ/m²'],
+    match: u => /J|Wh/.test(u),
+    hint: 'Energie pro Fläche hat dieselbe Dimension wie eine Linienlast (1 kWh/m² = 3.6 MN/m).'
+  },
+  { name: 'Wärmestromdichte', units: ['W/m²', 'kW/m²'], prefer: ['W/m²', 'kW/m²'] },
+  {
+    name: 'Wärmeleitfähigkeit λ', units: ['W/(m·K)', 'mW/(m·K)'], prefer: ['W/(m·K)', 'mW/(m·K)'],
+    hint: 'Schreibweisen W/(m·K), W/mK und W/m/K sind gleichwertig; °C gilt hier als Temperaturdifferenz (1 °C = 1 K).'
+  },
+  {
+    name: 'Wärmedurchgangskoeffizient U', units: ['W/(m²·K)'],
+    hint: 'U-Wert, auch Wärmeübergangskoeffizient h. R = 1/U in m²·K/W.'
+  },
+  { name: 'Wärmedurchlasswiderstand R', units: ['m²·K/W'] },
+  { name: 'Spezifische Wärmekapazität', units: ['J/(kg·K)', 'kJ/(kg·K)', 'Wh/(kg·K)'], prefer: ['J/(kg·K)', 'kJ/(kg·K)', 'Wh/(kg·K)'] }
 ];
 
 const catDim = (c: Category) => parseUnit(c.units[0]).dim;
@@ -535,7 +694,7 @@ const near = (a: number, b: number) => Math.abs(a - b) <= 1e-9 * Math.max(Math.a
 
 function makeRow(unit: string, value: number, sig: number, input = false): Row {
   const f = formatNumber(value, sig);
-  const sep = unit === '' || unit.startsWith('°') && unit !== '°C' ? '' : ' ';
+  const sep = unit === '' || (unit.startsWith('°') && unit !== '°C') ? '' : ' ';
   return { unit, value, text: f.text, copy: f.plain + sep + unit, display: f.text + sep + unit, input };
 }
 
@@ -561,10 +720,13 @@ export function convert(input: string, opts: Options = {}): Outcome | null {
   try {
     const { lhs, target } = splitTarget(s);
     if (!lhs) throw new InputError('Wert fehlt, z. B. «12.5 kN/cm2 in MPa».');
+    const ans = opts.ans && isFinite(opts.ans.value) ? opts.ans : null;
+    const rebar = parseRebar(lhs);
+    if (rebar) return convertRebar(rebar, target, g, sig);
     const slope = parseSlope(lhs);
     if (slope) return convertSlope(slope, target, sig);
     if (target !== null && parseSlopeTarget(target)) throw new InputError(`In ${target} lassen sich nur Neigungen umrechnen (°, rad, %, ‰, 1:n).`);
-    return convertUnits(lhs, target, g, sig);
+    return convertUnits(lhs, target, g, sig, ans);
   } catch (e) {
     if (e instanceof InputError) return { ok: false, error: e.message };
     throw e;
@@ -585,17 +747,17 @@ function splitTarget(s: string): { lhs: string; target: string | null } {
 
 // ---------- Allgemeine Einheiten und Temperatur ----------
 
-function convertUnits(lhs: string, targetText: string | null, g: number, sig: number): Success {
+function convertUnits(lhs: string, targetText: string | null, g: number, sig: number, ans: { value: number; dim: Dim } | null = null): Success {
   // Temperaturdifferenz: "Δ20 °C", "ΔT 20 °C", "dT 20 °C"
   const dm = /^(?:[Δ∆]T?|dT(?=[\s\d.,+-]))\s*/.exec(lhs);
   const delta = !!dm;
   const expr = dm ? lhs.slice(dm[0].length) : lhs;
   if (targetText !== null && /^[Δ∆]/.test(targetText)) targetText = targetText.replace(/^[Δ∆]T?\s*/, '');
 
-  const p = new Parser(expr);
+  const p = new Parser(expr, ans);
   const q = p.parseAll();
   // Genau eine Zahl mit Einheit (ohne Rechnung); Vorzeichen aus dem Ergebnis, weil "-" nicht zur Zahl gehört
-  const lit = p.lits.length === 1 && p.ops.length === 0 && !p.parens ? p.lits[0] : null;
+  const lit = p.lits.length === 1 && p.ops.length === 0 && !p.parens && !p.usedAns ? p.lits[0] : null;
   const single = lit ? { num: lit.unit ? q.v / lit.unit.factor : q.v, unit: lit.unit } : null;
   const inUnit = single && single.unit ? single.unit : null;
   const target = targetText !== null ? new Parser(targetText).parseUnitOnly() : null;
@@ -625,7 +787,8 @@ function convertUnits(lhs: string, targetText: string | null, g: number, sig: nu
     hints.push(`Absolute Temperatur. Als Temperaturdifferenz gilt 1 K = 1 °C: für Differenzen Δ voranstellen, z. B. «Δ${formatNumber(single.num, sig).plain} ${u.text} in K».`);
     return {
       ok: true, kind: 'temp', input: inText, main, mainG: null, category: 'Temperatur',
-      groups: target ? [] : [{ title: 'Temperatur', rows }], hints, steps, si: kelvin, dim: u.dim
+      groups: target ? [] : [{ title: 'Temperatur', rows }], hints, steps, si: kelvin, dim: u.dim,
+      result: { value: kelvin, dim: u.dim }
     };
   }
   if (p.celsius && !delta) hints.push('°C in Rechnungen und zusammengesetzten Einheiten als Temperaturdifferenz gerechnet (1 °C = 1 K).');
@@ -644,13 +807,23 @@ function convertUnits(lhs: string, targetText: string | null, g: number, sig: nu
   for (const l of p.lits) {
     if (l.unit && !near(l.unit.factor, 1)) steps.push(`${sx(l.num)} ${l.unit.text} = ${qText({ v: l.num * l.unit.factor, dim: l.unit.dim })}`);
   }
-  for (const o of p.ops) steps.push(`${qText(o.a)} ${o.op} ${qText(o.b)} = ${qText(o.r)}`);
+  if (p.usedAns && ans) steps.unshift(`ans = ${qText({ v: ans.value, dim: ans.dim })}`);
+  for (const o of p.ops) {
+    steps.push(o.op === '^'
+      ? `(${qText(o.a)})^${formatNumber(o.b.v, 6).text} = ${qText(o.r)}`
+      : `${qText(o.a)} ${o.op} ${qText(o.b)} = ${qText(o.r)}`);
+  }
 
   const inputText = single
     ? (formatNumber(single.num, 15).text + (inUnit ? ' ' + inUnit.text : '')).trim()
     : expr.replace(/\s+/g, ' ');
   const shownInput = (delta ? 'Δ' : '') + inputText;
-  const cat = findCategory(q.dim, inUnit ? inUnit.text : null);
+  // Kategorie: bei Rechnungen entscheiden die verwendeten Einheiten (kW · h → Energie, kNm/rad → Rotationsfeder)
+  const matchText = inUnit ? inUnit.text : (p.energy ? 'J' : '') + (p.angle ? 'rad' : '') || null;
+  const cat = findCategory(q.dim, matchText);
+  if (p.angle && dimEq(q.dim, [0, 0, -1, 0])) {
+    hints.push('Achtung: rad/s ist eine Kreisfrequenz ω. Das Tool rechnet rad als 1 (1 rad/s = 1 Hz); die Frequenz ist f = ω / (2π).');
+  }
   if (cat?.hint) hints.push(cat.hint);
   else if (p.angle && !isZero(q.dim)) hints.push('rad und ° sind dimensionslos und fallen bei der Umrechnung weg.');
 
@@ -677,7 +850,7 @@ function convertUnits(lhs: string, targetText: string | null, g: number, sig: nu
     if (delta) hints.unshift('Temperaturdifferenz: 1 K = 1 °C.');
     return {
       ok: true, kind: 'unit', input: shownInput, main, mainG: r.g, category: cat ? cat.name : categoryName(q.dim, null),
-      groups: [], hints, steps, si: q.v, dim: q.dim
+      groups: [], hints, steps, si: q.v, dim: q.dim, result: { value: r.value * target.factor, dim: [...target.dim] as Dim }
     };
   }
 
@@ -700,7 +873,12 @@ function convertUnits(lhs: string, targetText: string | null, g: number, sig: nu
       const v = Math.abs(q.v / c.f);
       return q.v === 0 || (v >= 1 && v < 10000);
     });
-    const pick = inRange || pref[0] || { u: cat.units[0], f: parseUnit(cat.units[0]).factor };
+    const dist = (f: number) => {
+      const l = Math.log10(Math.abs(q.v / f));
+      return l < 0 ? -l : l >= 4 ? l - 4 : 0;
+    };
+    const closest = pref.reduce<{ u: string; f: number } | null>((b, c) => (!b || dist(c.f) < dist(b.f) ? c : b), null);
+    const pick = inRange || closest || { u: cat.units[0], f: parseUnit(cat.units[0]).factor };
     main = makeRow(pick.u, q.v / pick.f, sig);
     if (!near(pick.f, 1) || pick.u !== si) steps.push(`${qText(q)} / ${formatFactor(pick.f)} = ${main.text} ${pick.u}`);
   } else {
@@ -710,7 +888,7 @@ function convertUnits(lhs: string, targetText: string | null, g: number, sig: nu
   if (delta) hints.unshift('Temperaturdifferenz: 1 K = 1 °C.');
   return {
     ok: true, kind: 'unit', input: shownInput, main, mainG: null, category: cat ? cat.name : categoryName(q.dim, null),
-    groups, hints, steps, si: q.v, dim: q.dim
+    groups, hints, steps, si: q.v, dim: q.dim, result: { value: q.v, dim: q.dim }
   };
 }
 
@@ -793,7 +971,88 @@ function convertSlope(sl: Slope, targetText: string | null, sig: number): Succes
     ok: true, kind: 'slope', input: sl.text, main: rows[mainKey], mainG: null, category: 'Neigung',
     groups: target ? [] : [{ title: 'Neigung', rows: [rows.deg, rows['%'], rows['‰'], rows.ratio, rows.rad] }],
     hints: ['Neigung und Winkel hängen über tan zusammen, nicht linear: 100 % = 45°.'],
-    steps, si: sl.t, dim: [...ZERO]
+    steps, si: sl.t, dim: [...ZERO], result: null
+  };
+}
+
+// ---------- Bewehrung aus Durchmesser und Abstand oder Anzahl ----------
+
+interface RebarTerm { count: number | null; d: number; s: number | null; sInfo: string; sGuess: boolean }
+
+// "d12 s15", "Ø12 s=150", "d12 e150 mm", "4 d16", "4xd16", "d16"; Durchmesser immer in mm
+const REBAR_RE = /^(?:(\d+)\s*[x·*]?\s*)?(?:Ø|ø|⌀|d|D)\s*=?\s*(\d+(?:[.,]\d+)?)\s*(?:mm)?(?:\s*(?:s|e|a|@)\s*=?\s*(\d+(?:[.,]\d+)?)\s*(mm|cm|m)?)?$/;
+
+/** Bewehrung erkennen, auch als Summe ("d12 s15 + d10 s20"); null, wenn es keine ist */
+function parseRebar(lhs: string): RebarTerm[] | null {
+  const parts = lhs.split('+').map(t => t.trim());
+  const hits = parts.map(t => REBAR_RE.exec(t));
+  if (!hits[0]) return null;
+  if (hits.some(h => !h)) throw new InputError('Bewehrung nicht verstanden. Beispiele: «d12 s15», «d12 s150 + d10 s200», «4 d16».');
+  return hits.map(h => {
+    const m = h as RegExpExecArray;
+    const d = Number(m[2].replace(',', '.'));
+    if (!(d > 0) || d > 100) throw new InputError('Stabdurchmesser in mm angeben, z. B. «d12».');
+    let s: number | null = null;
+    let sInfo = '';
+    let sGuess = false;
+    if (m[3]) {
+      const v = Number(m[3].replace(',', '.'));
+      const unit = m[4];
+      // Ohne Einheit: Werte unter 50 sind cm (s15 = 150 mm), ab 50 mm (s150)
+      if (unit === 'm') s = v * 1000;
+      else if (unit === 'cm' || (!unit && v < 50)) s = v * 10;
+      else s = v;
+      sGuess = !unit;
+      sInfo = formatNumber(v, 15).text + (unit ? ' ' + unit : '');
+      if (!(s > 0)) throw new InputError('Stababstand muss grösser als 0 sein.');
+    }
+    const count = m[1] ? Number(m[1]) : null;
+    if (count !== null && s !== null) throw new InputError('Entweder Anzahl («4 d16») oder Abstand («d16 s15») angeben, nicht beides.');
+    if (count === 0) throw new InputError('Anzahl der Stäbe muss mindestens 1 sein.');
+    return { count, d, s, sInfo, sGuess };
+  });
+}
+
+function convertRebar(terms: RebarTerm[], targetText: string | null, g: number, sig: number): Success {
+  const perMeter = terms[0].s !== null;
+  if (terms.some(t => (t.s !== null) !== perMeter)) {
+    throw new InputError('Bewehrung pro Meter («d12 s15») und Stabanzahl («4 d16») nicht mischen.');
+  }
+  const sx = (v: number) => formatNumber(v, Math.max(6, sig)).text;
+  const steps: string[] = [];
+  const hints: string[] = [];
+  let total = 0;
+  const shown: string[] = [];
+  for (const t of terms) {
+    const a1 = (Math.PI * t.d * t.d) / 4;
+    steps.push(`Ø${formatNumber(t.d, 15).text}: A = π · ${formatNumber(t.d, 15).text}² / 4 = ${sx(a1)} mm²`);
+    if (perMeter) {
+      const s = t.s as number;
+      const n = 1000 / s;
+      const a = a1 * n;
+      steps.push(`s = ${formatNumber(s, 15).text} mm → n = 1000 / ${formatNumber(s, 15).text} = ${sx(n)} Stäbe pro m`);
+      steps.push(`a_s = ${sx(a1)} mm² · ${sx(n)} /m = ${sx(a)} mm²/m`);
+      shown.push(`Ø${formatNumber(t.d, 15).text} s = ${formatNumber(s, 15).text} mm`);
+      if (t.sGuess) {
+        hints.push(`Abstand «s${t.sInfo}» gelesen als ${formatNumber(s, 15).text} mm (ohne Einheit: Werte unter 50 in cm, sonst in mm). Eindeutig: «s15cm» oder «s150mm».`);
+      }
+      total += a;
+    } else {
+      const n = t.count ?? 1;
+      const a = a1 * n;
+      if (n !== 1) steps.push(`${n} · ${sx(a1)} mm² = ${sx(a)} mm²`);
+      shown.push((n !== 1 ? n + ' ' : '') + 'Ø' + formatNumber(t.d, 15).text);
+      total += a;
+    }
+  }
+  if (terms.length > 1) steps.push(`Summe = ${sx(total)} ${perMeter ? 'mm²/m' : 'mm²'}`);
+  const base = convertUnits(String(total) + (perMeter ? ' mm2/m' : ' mm2'), targetText, g, sig);
+  base.groups.forEach(gr => gr.rows.forEach(r => { r.input = false; }));
+  steps.push(`= ${base.main.display}`);
+  hints.push('Querschnitt pro Stab π·d²/4 mit dem Nenndurchmesser d in mm.');
+  return {
+    ...base, kind: 'rebar', input: shown.join(' + '),
+    category: perMeter ? 'Bewehrung pro Meter' : 'Bewehrungsquerschnitt', steps, hints
   };
 }
 
@@ -801,5 +1060,6 @@ function convertSlope(sl: Slope, targetText: string | null, sig: number): Succes
 export const categories = (): { name: string; units: string[] }[] => [
   ...CATEGORIES.filter(c => c.name !== 'Masse pro Länge').map(c => ({ name: c.name, units: c.units })),
   { name: 'Temperatur (absolut)', units: ['°C', 'K'] },
-  { name: 'Neigung', units: ['°', '%', '‰', '1:n', 'rad'] }
+  { name: 'Neigung', units: ['°', '%', '‰', '1:n', 'rad'] },
+  { name: 'Bewehrung aus Ø und Abstand oder Anzahl', units: ['d12 s15', 'd12 s150', '4 d16', 'd12 s15 + d10 s20'] }
 ];
