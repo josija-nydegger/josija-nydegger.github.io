@@ -26,7 +26,7 @@ Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächst
 - **Ausgaben:** Momenten-, Querkraft- und Durchbiegungsverlauf.
 - **Technik:** kleines 1D-Stabwerksmodell (Steifigkeitsmethode) in JavaScript.
 - **Idee:** Zwischenschritte zeigen, ähnlich wie der Lernmodus im Durchstanz-Tool.
-- **Umgesetzt als "Balken mit Auskragung"** (`tools/balken/`): Einfeld- und Durchlaufträger (2–8 Felder) mit Kragarmen, Punkt- und Linienlasten; Stützmomente mit der Dreimomentengleichung (statt Steifigkeitsmethode), Auflagerkräfte, Verläufe von Querkraft, Moment und Durchbiegung (einzeln ein- und ausblendbar), EI aus E-Modul-Vorlage oder freiem E und Rechteckquerschnitt oder eingegebenem I (Link zu Querschnittswerte), Rechenweg. Geprüft gegen Tabellenwerte und eine unabhängige FE-Rechnung.
+- **Umgesetzt als "Balken mit Auskragung"** (`tools/balken/`): Einfeld- und Durchlaufträger (2–8 Felder) mit Kragarmen, Punkt- und Linienlasten; Stützmomente mit der Dreimomentengleichung (statt Steifigkeitsmethode), Auflagerkräfte, Verläufe von Querkraft, Moment und Durchbiegung (einzeln ein- und ausblendbar), EI aus E-Modul-Vorlage oder freiem E und Rechteckquerschnitt oder eingegebenem I (Link zu Querschnittswerte), Rechenweg. Geprüft gegen Tabellenwerte und eine unabhängige FE-Rechnung. Geneigte Punktlasten (Winkel α, zuschaltbar) mit Normalkraftverlauf, Auflager A fest (Nov. 2026).
 - **Noch offen:** Einspannungen, Auflagersetzungen, abschnittsweise veränderliches EI, Lastfallkombinationen bzw. ungünstigste Laststellung automatisch, Momentenlasten.
 
 ## 2. Querschnittswerte-Rechner (Statik)

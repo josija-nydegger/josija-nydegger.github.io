@@ -52,5 +52,28 @@ const cases=[
 ];
 cases.forEach((m,c)=>{const a=solve(m),b=fe(m);a.R.forEach((v,j)=>chk('Fall '+(c+1)+' R'+String.fromCharCode(65+j)+' vs FE',v,b.R[j],1e-4));
   const sumR=a.R.reduce((x,y)=>x+y,0);chk('Fall '+(c+1)+' ΣR = ΣF',sumR,a.F);});
+// 3) Geneigte Punktlasten: P_v = P·cos α wie eine senkrechte Last, P_h = P·sin α nur Normalkraft (A fest, übrige verschieblich)
+const inc=(F,al,x)=>({x,P:F*Math.cos(al*Math.PI/180),H:F*Math.sin(al*Math.PI/180)});
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0}],points:[inc(20,30,3)]});
+chk('Geneigt 30°: R_A = P·cos α/2',r.R[0],20*Math.cos(Math.PI/6)/2); chk('Geneigt 30°: max M = P·cos α·L/4',r.Mpos.v,20*Math.cos(Math.PI/6)*6/4);
+chk('Geneigt 30°: H_A = −P·sin α',r.HA,-10); chk('Geneigt 30°: N zwischen A und Last (Zug)',r.N(1.5,true),10); chk('Geneigt 30°: N rechts der Last',r.N(4.5,true),0);
+chk('Geneigt 30°: max N',r.Nmax.v,10); chk('Geneigt 30°: min N',r.Nmin.v,0);
+r=solve({a:2,b:0,qa:0,qb:0,spans:[{L:5,q:0}],points:[inc(10,-45,0)]});
+chk('Kragarm −45°: M_A = −P·cos α·a',r.Ms[0],-10*Math.SQRT1_2*2); chk('Kragarm −45°: H_A',r.HA,10*Math.SQRT1_2);
+chk('Kragarm −45°: N im Kragarm (Zug)',r.N(1,true),10*Math.SQRT1_2); chk('Kragarm −45°: N im Feld',r.N(4,true),0);
+r=solve({a:0,b:2,qa:0,qb:0,spans:[{L:5,q:0}],points:[inc(12,-90,7)]});
+chk('Waagrecht −90° am rechten Ende: ΣR',r.R[0]+r.R[1],0); chk('Waagrecht −90°: M = 0',Math.max(Math.abs(r.Mpos.v),Math.abs(r.Mneg.v)),0);
+chk('Waagrecht −90°: N Druck auf ganzer Länge',r.N(3,true),-12); chk('Waagrecht −90°: Nmin',r.Nmin.v,-12);
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0}],points:[inc(10,90,0),inc(10,-90,6)]});
+chk('Zwei waagrechte Lasten gegeneinander: H_A',r.HA,0); chk('Zwei waagrechte Lasten gegeneinander: N Druck',r.N(3,true),-10);
+{ const m={a:1,b:1.5,qa:2,qb:3,spans:[{L:4,q:5},{L:6,q:5},{L:3,q:0}],points:[inc(25,40,6),inc(8,-20,0.5),inc(15,60,12)]};
+  const a=solve(m), v=solve(Object.assign({},m,{points:m.points.map(p=>({x:p.x,P:p.P}))})), b=fe(Object.assign({},m,{points:m.points.map(p=>({x:p.x,P:p.P}))}));
+  a.R.forEach((x,j)=>chk('Geneigt Durchlauf R'+String.fromCharCode(65+j)+' = senkrechter Anteil vs FE',x,b.R[j],1e-4));
+  a.Ms.forEach((x,j)=>chk('Geneigt Durchlauf M'+String.fromCharCode(65+j)+' = nur senkrechter Anteil',x,v.Ms[j]));
+  chk('Geneigt Durchlauf H_A = −ΣH',a.HA,-m.points.reduce((s,p)=>s+p.H,0));
+  chk('Geneigt Durchlauf N am rechten Ende = 0',a.N(13.5-1e-6,true),0); }
+// ohne H (alte Aufrufe) keine Normalkraft
+r=solve({a:0,b:0,qa:0,qb:0,spans:[{L:6,q:0}],points:[{x:3,P:10}]});
+if(r.hasH){fails++;console.log('FAIL ohne H: hasH sollte false sein');} else console.log('OK   ohne H: keine Normalkraft');
 console.log(fails?fails+' FEHLER':'Alle Tests bestanden');
 process.exitCode=fails?1:0;
