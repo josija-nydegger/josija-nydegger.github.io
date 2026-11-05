@@ -10,6 +10,8 @@ const { execFileSync } = require('child_process');
 const { JSDOM } = require('jsdom');
 
 const ROOT = path.join(__dirname, '..');
+// Besucherstatistik, gleiche Zeile wie src/components/Umami.astro und in den Tools unter public/tools/
+const UMAMI = '<script defer src="https://cloud.umami.is/script.js" data-website-id="a01c13a5-a222-435b-afdf-eaf312d81a40" data-domains="josija-nydegger.ch" data-exclude-search="true" data-exclude-hash="true" data-do-not-track="true"></script>';
 const ASTRO = path.join(ROOT, 'node_modules', 'astro', 'bin', 'astro.mjs');
 
 // Adressen der bisherigen Website (referenz/dateien.txt), die bewusst entfallen sind (siehe _notizen/astro-migration.md)
@@ -69,7 +71,7 @@ try {
   const builtA = walk(A);
 
   // 1. Alle wichtigen Seiten entstehen
-  for (const p of ['index.html', 'cv.html', 'en/index.html', 'en/cv.html', 'tools/index.html', 'en/tools/index.html', 'feed.xml', 'en/feed.xml', 'sitemap.xml', 'robots.txt', '404.html', 'CNAME'])
+  for (const p of ['index.html', 'cv.html', 'en/index.html', 'en/cv.html', 'tools/index.html', 'en/tools/index.html', 'feed.xml', 'en/feed.xml', 'sitemap.xml', 'robots.txt', '404.html', 'CNAME', 'datenschutz.html', 'en/privacy.html'])
     ok('Seite gebaut: ' + p, a.has(p));
 
   // 2. Keine Adresse der bisherigen Website geht verloren
@@ -92,7 +94,7 @@ try {
   ok('E-Mail kodiert eingebunden', /atob\(emailB64\)/.test(a.read('index.html')) && /const emailB64 = "[A-Za-z0-9+/=]+"/.test(a.read('index.html')));
 
   // 5. Sprachumschalter und hreflang: Gegenstücke verweisen aufeinander
-  const pairs = [['index.html', 'en/index.html', '/', '/en/'], ['cv.html', 'en/cv.html', '/cv.html', '/en/cv.html'], ['tools/index.html', 'en/tools/index.html', '/tools/', '/en/tools/']];
+  const pairs = [['index.html', 'en/index.html', '/', '/en/'], ['cv.html', 'en/cv.html', '/cv.html', '/en/cv.html'], ['tools/index.html', 'en/tools/index.html', '/tools/', '/en/tools/'], ['datenschutz.html', 'en/privacy.html', '/datenschutz.html', '/en/privacy.html']];
   for (const [de, en, deUrl, enUrl] of pairs) {
     ok('Umschalter DE → EN: ' + de, a.read(de).includes('href="' + enUrl + '" hreflang="en"'));
     ok('Umschalter EN → DE: ' + en, a.read(en).includes('href="' + deUrl + '" hreflang="de"'));
@@ -130,7 +132,7 @@ try {
   const others = builtA.filter(p => p.endsWith('.html') && p !== EH + 'index.html');
   ok('Übrige Seiten ohne Manifest', !others.some(p => /rel="manifest"/.test(a.read(p))), others.filter(p => /rel="manifest"/.test(a.read(p))).join(' '));
   ok('Übrige Seiten ohne Service Worker', !others.some(p => /serviceWorker|\/_astro\//.test(a.read(p))), others.filter(p => /serviceWorker|\/_astro\//.test(a.read(p))).join(' '));
-  ok('Einheiten: Tool funktioniert ohne fremde Server (keine externen Skripte)', !/<script[^>]+src="https?:/.test(ehHtml));
+  ok('Einheiten: Tool funktioniert ohne fremde Server (keine externen Skripte ausser der Statistik)', !/<script[^>]+src="https?:/.test(ehHtml.replace(UMAMI, '')));
 
   // 8. Eigenes iOS-Home-Bildschirm-Symbol pro Tool: 180×180, PNG ohne Alphakanal, mit Namen
   for (const t of ['einheiten', 'querschnittswerte', 'balken', 'biegebemessung', 'lastkombinationen']) {
@@ -143,6 +145,25 @@ try {
     ok(`Tool ${t}: SVG-Quelle vorhanden`, a.has('tools/' + t + '/icons/icon.svg'));
   }
   ok('Einheiten: Service Worker speichert das eigene Symbol', a.read(EH + 'sw.js').includes("SCOPE + 'icons/apple-touch-icon.png'"));
+  ok('Einheiten: Service Worker fängt keine fremden Adressen ab (Statistik)', a.read(EH + 'sw.js').includes('if (url.origin !== self.location.origin) return;'));
+
+  // 9. Besucherstatistik (Umami) und Datenschutz: auf allen Seiten und Tools dieselbe Zeile, sonst kein fremdes Skript
+  const pages = builtA.filter(p => p.endsWith('.html') && !/^google[0-9a-f]+\.html$/.test(p));
+  for (const p of pages) {
+    const html = a.read(p);
+    ok('Statistik genau einmal eingebunden: ' + p, html.split(UMAMI).length === 2);
+    ok('Kein weiteres externes Skript: ' + p, !/<script[^>]+src="(https?:)?\/\//.test(html.replace(UMAMI, '')));
+    ok('Datenschutz in der Fusszeile: ' + p, /<footer[\s\S]*href="\/(datenschutz|en\/privacy)\.html"[\s\S]*<\/footer>/.test(html));
+  }
+  ok('Google-Bestätigung unverändert ohne Statistik', !a.read(builtA.find(p => /^google[0-9a-f]+\.html$/.test(p))).includes('umami'));
+  ok('Statistik: ohne ? und # der Adresse (Eingaben der Tools), nur auf der eigenen Domain', ['data-exclude-hash="true"', 'data-exclude-search="true"', 'data-domains="josija-nydegger.ch"'].every(x => UMAMI.includes(x)));
+  for (const t of ['einheiten', 'querschnittswerte', 'balken', 'biegebemessung', 'lastkombinationen'])
+    ok(`Tool ${t}: Event "URL kopieren"`, a.read('tools/' + t + '/index.html').includes(`id="copy-url" data-umami-event="URL kopieren" data-umami-event-tool="${t}"`));
+  ok('Event: PDF-Downloads', a.read('index.html').includes('window.umami.track("PDF-Download"'));
+  ok('Event: Lebenslauf als PDF', ['cv.html', 'en/cv.html'].every(p => a.read(p).includes('data-umami-event="Lebenslauf als PDF"')));
+  ok('Event: Übergabe ans Balken-Tool', a.read('tools/lastkombinationen/index.html').includes('window.umami.track("Ins Balken-Tool übernommen")'));
+  ok('Datenschutz: E-Mail kodiert eingebunden', ['datenschutz.html', 'en/privacy.html'].every(p => a.read(p).includes('<a class="email"></a>')));
+  ok('Datenschutz: in der Sitemap', ['/datenschutz.html', '/en/privacy.html'].every(u => locsA.includes('https://josija-nydegger.ch' + u)));
 } catch (e) { ok('A: Prüfung ohne Absturz', false, e.message); }
 
 // ===== B) Testbeiträge =====

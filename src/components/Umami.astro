@@ -1,0 +1,11 @@
+---
+// Besucherstatistik mit Umami Cloud (ohne Cookies, kein Cookie-Banner nötig), auf Wunsch seit November 2026.
+// Eingebunden in src/layouts/Base.astro und im Einheiten-Umrechner. Die Tools unter public/tools/ enthalten
+// dieselbe Zeile von Hand; _tests/website.test.js prüft, dass alle Seiten genau diese Zeile haben.
+// - data-domains: zählt nur auf josija-nydegger.ch (nicht in npm run dev / preview)
+// - data-exclude-search / data-exclude-hash: Adressen ohne ?… und #…, damit Eingaben der Tools (#{…}) nie mitgehen
+// - data-do-not-track: Browser mit "Do Not Track" werden nicht gezählt
+// Eigene Events: Elemente mit data-umami-event="Name" (Klick), sonst window.umami.track("Name", {…}).
+// Beschrieben auf /datenschutz.html und /en/privacy.html.
+---
+<script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="a01c13a5-a222-435b-afdf-eaf312d81a40" data-domains="josija-nydegger.ch" data-exclude-search="true" data-exclude-hash="true" data-do-not-track="true"></script>

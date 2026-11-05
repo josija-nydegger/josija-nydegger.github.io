@@ -1,0 +1,55 @@
+---
+// Datenschutzerklärung (Deutsch), /datenschutz.html. Verlinkt in der Fusszeile aller Seiten und Tools.
+// Änderungen auch in src/pages/en/privacy.astro nachführen.
+import Base from '../layouts/Base.astro';
+---
+<Base
+  lang="de"
+  ref="privacy"
+  title="Datenschutz"
+  description="Welche Daten beim Besuch von josija-nydegger.ch anfallen: Besucherstatistik ohne Cookies mit Umami, Hosting bei GitHub Pages, Tools ohne Datenübertragung."
+>
+<h1 class="page-title">Datenschutz</h1>
+<p class="page-intro">Kurz gesagt: keine Cookies, keine Werbung, kein Tracking über andere Websites hinweg. Ich zähle Seitenaufrufe anonym, um zu sehen, welche Inhalte und Tools genutzt werden.</p>
+
+<section>
+  <h2>Verantwortlich</h2>
+  <p>Josija Nydegger, Lyss, Schweiz. Kontakt über <a href="https://www.linkedin.com/in/josija-nydegger">LinkedIn</a><span class="email-wrap" hidden> oder per E-Mail an <a class="email"></a></span>.</p>
+</section>
+
+<section>
+  <h2>Besucherstatistik mit Umami</h2>
+  <p>Für die Besucherstatistik verwende ich <a href="https://umami.is">Umami Cloud</a> (Umami Software, Inc., USA). Die Daten werden auf Servern in der EU gespeichert. Umami setzt keine Cookies und speichert nichts auf deinem Gerät. Erfasst werden:</p>
+  <ul class="bullets">
+    <li>die aufgerufene Seite (ohne den Teil nach <code>?</code> oder <code>#</code>, Eingaben in den Tools werden also nicht übertragen),</li>
+    <li>die verweisende Website (Referrer),</li>
+    <li>Browser, Betriebssystem, Gerätetyp, Bildschirmgrösse und Sprache,</li>
+    <li>das Land bzw. die Region, abgeleitet aus der IP-Adresse,</li>
+    <li>einzelne Klicks: "URL kopieren" in den Tools, Übergabe der Lastkombination ans Balken-Tool, Installation des Einheiten-Umrechners als App, Herunterladen von PDFs (nur der Dateiname) und "Als PDF speichern" im Lebenslauf.</li>
+  </ul>
+  <p>Die IP-Adresse wird nicht gespeichert. Um mehrfache Aufrufe derselben Person zusammenzufassen, bildet Umami aus IP-Adresse, Browserangaben und einem regelmässig wechselnden Zufallswert eine anonyme Kennung; Rückschlüsse auf einzelne Personen sind damit nicht möglich. Ist in deinem Browser "Do Not Track" aktiviert, wird nichts erfasst. Werbe- oder Inhaltsblocker verhindern die Zählung ebenfalls.</p>
+  <p>Zweck ist allein, die Website und die Tools zu verbessern. Die Daten werden nicht mit anderen Daten verknüpft und nicht weitergegeben.</p>
+</section>
+
+<section>
+  <h2>Hosting</h2>
+  <p>Die Website liegt bei <a href="https://pages.github.com">GitHub Pages</a> (GitHub, Inc., USA). Beim Aufruf jeder Seite verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Zeitpunkt und aufgerufene Adresse, unter anderem zur Sicherheit des Dienstes. Details stehen in der <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.</p>
+</section>
+
+<section>
+  <h2>Tools</h2>
+  <p>Die Tools rechnen vollständig in deinem Browser. Eingaben werden nicht an einen Server gesendet; sie stehen nur in der Adresszeile (nach dem <code>#</code>), damit ein kopierter Link dieselben Werte öffnet. Im lokalen Speicher deines Browsers (<code>localStorage</code>) merken sich die Seiten das gewählte Farbschema und einzelne Einstellungen der Tools. Diese Angaben verlassen dein Gerät nicht und lassen sich über die Browsereinstellungen löschen.</p>
+</section>
+
+<section>
+  <h2>Externe Links</h2>
+  <p>Links zu anderen Websites (z. B. LinkedIn, GitHub) öffnen deren Angebot; dort gelten deren Datenschutzbestimmungen. Auf dieser Website selbst sind keine Inhalte anderer Anbieter eingebettet, auch keine Schriften.</p>
+</section>
+
+<section>
+  <h2>Deine Rechte</h2>
+  <p>Nach dem Schweizer Datenschutzgesetz (DSG) kannst du Auskunft über deine Daten verlangen sowie deren Berichtigung oder Löschung. Da die Statistik keine Personen erkennt, kann ich dir dort in der Regel keine Daten zuordnen. Melde dich bei Fragen gerne direkt bei mir.</p>
+</section>
+
+<p class="page-note">Stand: November 2026</p>
+</Base>

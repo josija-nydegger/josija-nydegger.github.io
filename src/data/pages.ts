@@ -5,7 +5,8 @@ import type { Lang } from './i18n';
 export const pages = {
   home: { de: '/', en: '/en/' },
   cv: { de: '/cv.html', en: '/en/cv.html' },
-  tools: { de: '/tools/', en: '/en/tools/' }
+  tools: { de: '/tools/', en: '/en/tools/' },
+  privacy: { de: '/datenschutz.html', en: '/en/privacy.html' }
 } as const satisfies Record<string, Partial<Record<Lang, string>>>;
 
 export type PageRef = keyof typeof pages;

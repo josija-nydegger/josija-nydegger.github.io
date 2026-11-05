@@ -26,7 +26,10 @@ export const i18n = {
     themeLabel: 'Farbschema',
     themeLight: 'Hell',
     themeDark: 'Dunkel',
-    themeSystem: 'System'
+    themeSystem: 'System',
+    // Fusszeile
+    privacy: 'Datenschutz',
+    privacyUrl: '/datenschutz.html'
   },
   en: {
     name: 'English',
@@ -49,7 +52,10 @@ export const i18n = {
     themeLabel: 'Color scheme',
     themeLight: 'Light',
     themeDark: 'Dark',
-    themeSystem: 'System'
+    themeSystem: 'System',
+    // Footer
+    privacy: 'Privacy',
+    privacyUrl: '/en/privacy.html'
   }
 } as const satisfies Record<Lang, Record<string, string>>;
 
