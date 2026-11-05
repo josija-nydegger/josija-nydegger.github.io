@@ -8,7 +8,7 @@ Live: <https://josija-nydegger.ch> · gebaut mit [Astro](https://astro.build) (s
 ## Grundsätze
 
 - **Schlicht bleiben:** eine Spalte, viel Weissraum, keine Animationen. Astro nur als Generator für statisches HTML: keine UI-Frameworks (kein React, Vue, Svelte, Tailwind, Bootstrap), keine Astro-Islands bzw. `client:`-Komponenten, keine zusätzlichen Integrationen ohne Rückfrage. Seiten als `.astro` (HTML mit wenig Logik), Beiträge in Markdown, das ganze Design in `public/style.css`.
-- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme sind die kleinen eigenen Inline-Skripte in `src/layouts/Base.astro` (alle mit `is:inline` bzw. `define:vars`, damit Astro sie nicht bündelt): der Hell/Dunkel/System-Umschalter (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet), das Einsetzen der E-Mail-Adresse und der Button "Als PDF speichern" im Lebenslauf (öffnet den Druckdialog, ohne JavaScript ausgeblendet). Die Tools unter `public/tools/` sind eigenständige Seiten mit eigenem Inline-JavaScript (siehe Abschnitt "Tools"). Formeln in Blogbeiträgen setzt KaTeX **beim Build** (kein KaTeX-JavaScript im Browser); nur das Stylesheet und die Schriften liegen **lokal** in `public/assets/katex/` (kein CDN) und werden nur auf Beiträgen mit Formeln geladen.
+- **Kein externes JavaScript und keine Tracker**, ausser es wird ausdrücklich gewünscht. Einzige Ausnahme sind die kleinen eigenen Inline-Skripte in `src/layouts/Base.astro` (alle mit `is:inline` bzw. `define:vars`, damit Astro sie nicht bündelt): der Hell/Dunkel/System-Umschalter (speichert die Wahl in `localStorage`, ohne JavaScript bleibt die Systemeinstellung aktiv und die Buttons sind ausgeblendet), das Einsetzen der E-Mail-Adresse und der Button "Als PDF speichern" im Lebenslauf (öffnet den Druckdialog, ohne JavaScript ausgeblendet). Die Tools unter `public/tools/` sind eigenständige Seiten mit eigenem Inline-JavaScript (siehe Abschnitt "Tools"). Ausnahme ist der Einheiten-Umrechner: eine Astro-Seite, deren Skript Astro in eine eigene Datei unter `/_astro/` bündelt, dazu ein eigener Service Worker nur für dieses Tool. Formeln in Blogbeiträgen setzt KaTeX **beim Build** (kein KaTeX-JavaScript im Browser); nur das Stylesheet und die Schriften liegen **lokal** in `public/assets/katex/` (kein CDN) und werden nur auf Beiträgen mit Formeln geladen.
 - **Sprache:** Deutsch (Hauptsprache, Schweizer Rechtschreibung, immer `ss`, nie `ß`) und Englisch (amerikanische Schreibweise, `en_US`). Arbeitstitel in Originalsprache belassen.
 - **Datenschutz:** Keine Wohnadresse (Strasse), Telefonnummer und kein Geburtsdatum auf der Seite. Auf Wunsch veröffentlicht: Wohnort Lyss und "seit 2024 verheiratet mit Prisca" (Lebenslauf, Abschnitt Persönliches, und erster Satz der Startseite). Kontakt über LinkedIn und E-Mail.
 - **E-Mail nie im Klartext** in HTML, Code oder Repo schreiben (das Repo ist öffentlich). Sie steht nur Base64-kodiert als `emailB64` in `src/data/site.ts` und wird per Inline-Skript in `src/layouts/Base.astro` in alle `<a class="email">` eingesetzt. Umgebende Texte stehen in `<span class="email-wrap" hidden>` und bleiben ohne JavaScript ausgeblendet. Aktuell: Kontakt-Abschnitt beider Startseiten und Kopf beider Lebensläufe. `npm test` prüft Repo und Build darauf.
@@ -33,15 +33,18 @@ src/
   components/        Nav (Menü), Seo (Titel, Link-Vorschau, JSON-LD), BlogList, PersonJsonLd (schema.org/Person)
   lib/posts.ts       Beiträge: Datum/Sprache/Adresse aus dem Dateinamen, Lesezeit, älter/neuer, Gegenstück
   lib/feed.ts        Atom-Feeds
+  lib/einheiten.ts   Rechenkern des Einheiten-Umrechners (reine Funktionen, TypeScript, ohne DOM)
   lib/remark-math-extras.mjs  $$…$$ allein im Absatz = Block-Formel; merkt sich, ob ein Beitrag Formeln hat
   pages/             Alle Seiten und Endpunkte, Pfad = Adresse (siehe "Adressen")
     index.astro, cv.astro, 404.astro, tools/index.astro          Deutsch (404 Englisch, eine für alles)
     en/index.astro, en/cv.astro, en/tools/index.astro            Englisch
     blog/[slug]/index.astro, en/blog/[slug]/index.astro          Blogbeiträge
     feed.xml.ts, en/feed.xml.ts, sitemap.xml.ts                  Feeds und Sitemap
+    tools/einheiten/index.astro                                  Einheiten-Umrechner (eigenständig, ohne Base-Layout)
 public/              Wird unverändert veröffentlicht
   style.css          Gesamtes Design; Farben als CSS-Variablen inkl. Dark Mode (System + data-theme) und Druckansicht
   tools/<name>/index.html  Einzelnes Tool, eigenständige HTML-Seite (nur Deutsch)
+  tools/einheiten/   manifest.webmanifest, sw.js (Service Worker) und icons/ (Quelle icon.svg) der App "Einheiten"
   assets/katex/      KaTeX 0.16.47 (MIT): nur katex.min.css und .woff2-Schriften
   images/            profil.jpg, og-image.jpg, projekte/ für Projekt-Icons, blog/ für Beitragsbilder
   arbeiten/          PDFs von Arbeiten (Projekt-, Bachelorarbeiten), nur im Original
@@ -105,7 +108,7 @@ Veröffentlicht wird nur, was Astro aus `src/pages/` erzeugt, plus der Inhalt vo
 ## Tools
 
 Kleine Web-Tools zu Tragwerken, Statik und BIM unter `/tools/`. Ideen und Reihenfolge stehen in `_notizen/tool-ideen.md`.
-Bisher: `public/tools/balken/` (Balken mit Auskragung, Einfeld- und Durchlaufträger), `public/tools/querschnittswerte/` `public/tools/biegebemessung/` (Biegebemessung Rechteckquerschnitt nach SIA 262:2025) und `public/tools/lastkombinationen/` (Lastkombinationen nach SIA 260:2013, Übergabe von q_d ans Balken-Tool über dessen Hash-Format `#{"t":"einfeld","e":{...}}`).
+Bisher: `public/tools/balken/` (Balken mit Auskragung, Einfeld- und Durchlaufträger), `public/tools/querschnittswerte/` `public/tools/biegebemessung/` (Biegebemessung Rechteckquerschnitt nach SIA 262:2025) `public/tools/lastkombinationen/` (Lastkombinationen nach SIA 260:2013, Übergabe von q_d ans Balken-Tool über dessen Hash-Format `#{"t":"einfeld","e":{...}}`) und der Einheiten-Umrechner (siehe unten).
 
 ### Neues Tool erstellen
 1. **Ablage:** `public/tools/<name>/index.html`, Ordnername kurz, Kleinbuchstaben, ohne Umlaute. Astro kopiert die Datei unverändert (kein Layout, keine Vorlagen-Logik). Eine einzige Datei mit eigenem `<style>` und `<script>`.
@@ -118,6 +121,14 @@ Bisher: `public/tools/balken/` (Balken mit Auskragung, Einfeld- und Durchlauftr�
 8. **Testbar machen:** Rechenkern als reine Funktion, z. B. zwischen `/*CALC-START*/` und `/*CALC-END*/` (Balken) oder über `window.__… = { compute }` (Querschnittswerte), damit er automatisch getestet werden kann.
 9. **Prüfen vor dem Commit:** gegen Tabellenwerte, Handrechnungen oder eine unabhängige Rechnung (z. B. FE) testen, inkl. Grenzfälle, als Testdatei in `_tests/` (Muster: `balken-*.test.js`, Pfad zum Tool `public/tools/<name>/index.html`) und im `test`-Skript des Haupt-`package.json` ergänzen; Darstellung auf Handybreite und im Dunkelmodus ansehen; Testfälle auf der Seite aufführen.
 10. Status in `_notizen/tool-ideen.md` nachführen. Die Tools sind vorerst nur auf Deutsch; `/en/tools/` weist darauf hin.
+
+### Einheiten-Umrechner (`/tools/einheiten/`)
+Anders aufgebaut als die übrigen Tools, damit der Rechenkern in TypeScript getestet werden kann (November 2026, auf Wunsch):
+- **Rechenkern** `src/lib/einheiten.ts`: reine Funktionen ohne DOM (`convert()`, `formatNumber()`, `parseUnit()`). Jede Einheit hat Faktor zur SI-Basis und Dimensionsvektor [m, kg, s, K]; Masse ↔ Kraft nur über g (9.81 oder 10), Temperatur absolut/Differenz und Neigung (tan) mit eigener Logik. Neue Einheit: in `def(...)` (Atome mit erlaubten Vorsätzen) und, falls sie in einer Liste erscheinen soll, in `CATEGORIES`. Nur "löschbare" TypeScript-Syntax (keine `enum`, `namespace`, Parameter-Properties), weil Node die Datei in den Tests direkt ausführt.
+- **Seite** `src/pages/tools/einheiten/index.astro`: Kopf, Stil und Aufbau wie die übrigen Tools, ohne `Base`-Layout, Stil mit `is:inline`. Das `<script>` ohne `is:inline` importiert den Rechenkern; Astro bündelt es in eine Datei unter `/_astro/`.
+- **App (PWA), nur dieses Tool:** `public/tools/einheiten/manifest.webmanifest` (`scope`/`start_url` `/tools/einheiten/`), `sw.js` und `icons/`. Der Service Worker liegt im Tool-Ordner und kann darum keine anderen Seiten steuern; registriert wird er nur im Build, nicht in `npm run dev`. Strategie: Seite zuerst aus dem Netz (offline oder nach 3 s aus dem Speicher), `/_astro/`-Dateien aus dem Speicher. Updates kommen mit dem nächsten Öffnen mit Internet, ohne Versionsnummer; `CACHE` in `sw.js` nur bei grundlegenden Änderungen am Service Worker erhöhen. Keine Abhängigkeit (bewusst ohne `@vite-pwa/astro`).
+- **Icons** neu erzeugen: `icons/icon.svg` ändern und als PNG (192 und 512, je `any` mit runden Ecken und `maskable` randlos) exportieren. Inhalt innerhalb des inneren Kreises (80 %) halten.
+- **Tests:** `_tests/einheiten.test.mjs` (Rechenkern), `_tests/website.test.js` Abschnitt 7 (Manifest, Icons, Service Worker nur im Tool, übrige Seiten unberührt).
 
 ## Zweisprachigkeit (Deutsch / Englisch)
 
@@ -150,7 +161,7 @@ Status: **umgesetzt** (Oktober 2026).
 
 - **Einmalig:** Node.js 24 installieren, dann im Hauptordner `npm install`.
 - **Lokal ansehen:** `npm run dev` (Vorschau unter <http://localhost:4321>, lädt bei Änderungen neu). Fertigen Build ansehen: `npm run build`, dann `npm run preview`.
-- **Vor jedem Commit:** `npm run check` (Typen) und `npm test`. Prüft die Rechenkerne beider Tools gegen Formeln und eine FE-Rechnung und baut die Website zweimal (mit den echten Inhalten und mit den Testbeiträgen aus `_tests/fixtures/blog`): alle Seiten, keine Adresse der früheren Website fehlt, E-Mail nicht im Klartext, Sprachumschalter, interne Links, Feeds, Sitemap, Formeln, Datum, Lesezeit. Details: `_tests/README.md`.
+- **Vor jedem Commit:** `npm run check` (Typen) und `npm test`. Prüft die Rechenkerne der Tools gegen Formeln, Tabellenwerte und eine FE-Rechnung, den Einheiten-Umrechner gegen bekannte Umrechnungen und baut die Website zweimal (mit den echten Inhalten und mit den Testbeiträgen aus `_tests/fixtures/blog`): alle Seiten, keine Adresse der früheren Website fehlt, E-Mail nicht im Klartext, Sprachumschalter, interne Links, Feeds, Sitemap, Formeln, Datum, Lesezeit. Details: `_tests/README.md`.
 - Neue Tools bekommen eine eigene Testdatei in `_tests/` und einen Eintrag im `test`-Skript von `package.json`. Ändert sich eine Blog-Funktion, Testbeitrag und Prüfung gemeinsam anpassen.
 - **Veröffentlichen:** Push auf `main` startet `.github/workflows/deploy.yml` (Typen, Tests, Build, Veröffentlichung, ca. 1–2 Minuten). Schlägt ein Schritt fehl, bleibt die bisherige Website online; Fehler stehen im Tab **Actions** des Repos. Pull Requests werden nur gebaut und geprüft. Nach Änderungen an Domain oder DNS: `node _tests/live-pruefung.js`.
 - **Cache:** Nach Änderungen an den Markdown-Plugins (`astro.config.mjs`, `src/lib/remark-math-extras.mjs`) die Ordner `.astro/` und `node_modules/.astro/` löschen, sonst zeigt Astro Beiträge aus dem Cache.

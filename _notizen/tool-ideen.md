@@ -3,7 +3,7 @@
 Ideen für kleine, interaktive Web-Tools auf der Website (`/tools/`).
 Rahmen: ohne Normwerte (Mechanik und Eingaben der Nutzer), Open Source, je eine einzelne HTML-Seite, die im Browser läuft.
 
-Stand: 2.11.2026
+Stand: 5.11.2026
 
 ## Übersicht
 
@@ -16,6 +16,7 @@ Stand: 2.11.2026
 | 5 | IFC-Qualitätscheck | BIM | mittel bis gross | offen |
 | 7 | Lastkombinationen (SIA 260) | Einwirkungen | klein bis mittel | umgesetzt: `tools/lastkombinationen/` (Nov. 2026) |
 | 6 | Biegebemessung Rechteckquerschnitt (SIA 262) | Stahlbeton | mittel | umgesetzt: `tools/biegebemessung/` (Nov. 2026) |
+| 8 | Einheiten-Umrechner | Allgemein | klein bis mittel | umgesetzt: `tools/einheiten/` (Nov. 2026), als App installierbar |
 
 Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächstes 3)
 
@@ -64,6 +65,11 @@ Empfohlene Reihenfolge: 2 → 1 → 3 → 4 → 5 (2 und 1 erledigt, als Nächst
 
 - **Umgesetzt** (`tools/lastkombinationen/`, Nov. 2026): Liste von Einwirkungen (G/Q, Einheit, ψ-Typ, günstig), Grundkombination Typ 2 (Gl. 16) mit jeder Q als Leiteinwirkung, seltene, häufige und quasi-ständige Lastfälle (Gl. 20–22), Lasteinzugsbreite, Übergabe von q_d ans Balken-Tool. Normwerte SIA 260:2013 Tabelle 1 und 2. Schneelast auf Dächern nach SIA 261:2020 (Lastmodell 1, μ1 nach Figur 2, 5.3.4, Figur 4), ergänzt Nov. 2026.
 - **Mögliche Erweiterungen:** Schnee Lastmodell 2, Shed- und Tonnendächer (μ2, μ3), Höhensprünge (Figur 5), Schneeüberhang (5.3.7); aussergewöhnliche Situationen (Gl. 17), Typ 1 (EQU) und Typ 3 (GEO), Erd- und Wasserdruck, mehrere Lastbilder statt einer Summe, Übergabe an den Durchlaufträger mit feldweiser Nutzlast.
+
+## 8. Einheiten-Umrechner (Allgemein)
+
+- **Umgesetzt** (`tools/einheiten/`, Nov. 2026): ein Eingabefeld mit Freitext («12.5 kN/cm2 in MPa», «3.5 kN/m * 6 m»), Live-Resultat, ohne Zieleinheit alle Einheiten der Kategorie; Masse ↔ Kraft über wählbares g (9.81/10), Temperatur absolut und als Differenz, Neigung über tan (°, %, ‰, 1:n), Hinweise bei gleicher Dimension (kN/m² Flächenlast/Spannung usw.), Verlauf und Favoriten im Browser, Tastatur (Enter kopiert, ↑↓ Verlauf). Rechenkern in TypeScript (`src/lib/einheiten.ts`), Seite als Astro-Seite. Als App (PWA) installierbar und offline nutzbar, nur dieses Tool.
+- **Mögliche Erweiterungen:** angloamerikanische Einheiten (inch, lbf, psi, ksi), kp, Zeit und Leistung, eigene Konstanten, Umrechnung von Bewehrung (Ø/s ↔ cm²/m).
 
 ## Für alle Tools
 
