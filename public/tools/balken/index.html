@@ -194,6 +194,15 @@ td:first-child{font-family:var(--f-sans);font-size:14px}
 
 .back{display:inline-block;margin-bottom:28px;color:var(--muted);text-decoration:none;font-size:14px}
 .back:hover{color:var(--text)}
+  /* Kopfzeile: ← Tools und "URL kopieren" (in einer installierten Web-App gibt es keine Adresszeile) */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+  .top .back { margin-bottom: 0; }
+  .link-btn {
+    font: inherit; font-size: 13px; line-height: 1.5; padding: 2px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer;
+  }
+  .link-btn:hover { color: var(--text); border-color: var(--text); }
+  .link-btn[hidden] { display: none; }
 
 /* Rechenweg (Formeln wie Codeblöcke der Website) */
 details{margin-top:40px;border-top:1px solid var(--border);padding-top:14px}
@@ -230,7 +239,7 @@ footer a:hover{color:var(--text)}
   :root:root:root{color-scheme:light;--bg:#ffffff;--text:#1a1a1a;--muted:#555555;--border:#dddddd;--accent:#1a1a1a;--tag-bg:#f1f0ed;--field:#ffffff;--load-fill:#eeeeee;--sag:#2c6aa6;--sag-fill:rgba(44,106,166,.16);--hog:#b5552a;--hog-fill:rgba(181,85,42,.16);--shear:#3f7d4f;--shear-fill:rgba(63,125,79,.16);--defl:#7a5aa6;--defl-fill:rgba(122,90,166,.16);--warn:#b3261e}
   body{font-size:10.5pt;line-height:1.45}
   main{max-width:none;padding:0}
-  .back,.tabs,.btn,.del,.actions,.theme,.small.link,.view{display:none!important}
+  .back,.link-btn,.tabs,.btn,.del,.actions,.theme,.small.link,.view{display:none!important}
   .app{grid-template-columns:minmax(0,1fr);gap:16px}
   .chart,table,.formula{break-inside:avoid}
   .formula{white-space:normal}
@@ -241,7 +250,10 @@ footer a:hover{color:var(--text)}
 </head>
 <body>
 <main>
-  <a class="back" href="/tools/">← Tools</a>
+  <div class="top">
+    <a class="back" href="/tools/">← Tools</a>
+    <button class="link-btn" type="button" id="copy-url" title="Link mit den aktuellen Eingaben kopieren" hidden>URL kopieren</button>
+  </div>
   <div class="intro">
     <h1>Balken mit Auskragung</h1>
     <p class="lead">Querkraft, Biegemoment, Durchbiegung und Auflagerkräfte für Einfeld- und Durchlaufträger mit Kragarmen. Eingaben in m, kN und kN/m.</p>
@@ -1186,6 +1198,25 @@ function solve(m){
   buttons.forEach(function (b) { b.addEventListener("click", function () { apply(b.dataset.theme); }); });
   apply(root.dataset.theme);
   group.hidden = false;
+})();
+</script>
+<script>
+// "URL kopieren": Link mit den aktuellen Eingaben (#...), auch in einer installierten Web-App ohne Adresszeile.
+// Ohne JavaScript oder ohne Zugriff auf die Zwischenablage bleibt der Button ausgeblendet.
+(function () {
+  var b = document.getElementById("copy-url");
+  if (!b || !navigator.clipboard) return;
+  b.hidden = false;
+  var timer = 0;
+  b.addEventListener("click", function () {
+    navigator.clipboard.writeText(location.href).then(
+      function () { b.textContent = "Link kopiert"; },
+      function () { b.textContent = "Kopieren nicht möglich"; }
+    ).then(function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () { b.textContent = "URL kopieren"; }, 1600);
+    });
+  });
 })();
 </script>
 </body>

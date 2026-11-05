@@ -66,6 +66,15 @@
   a:hover { text-decoration-color: var(--accent); }
   .back { display: inline-block; margin-bottom: 28px; color: var(--muted); text-decoration: none; font-size: 14px; }
   .back:hover { color: var(--text); }
+  /* Kopfzeile: ← Tools und "URL kopieren" (in einer installierten Web-App gibt es keine Adresszeile) */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+  .top .back { margin-bottom: 0; }
+  .link-btn {
+    font: inherit; font-size: 13px; line-height: 1.5; padding: 2px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer;
+  }
+  .link-btn:hover { color: var(--text); border-color: var(--text); }
+  .link-btn[hidden] { display: none; }
   h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
   h2 { font-size: 16px; margin: 44px 0 16px; }
   h3 { font-size: 15px; margin: 24px 0 8px; }
@@ -202,7 +211,7 @@
     }
     body { font-size: 10.5pt; line-height: 1.45; }
     main { max-width: none; padding: 0; }
-    .back, .tools, .theme, .row-actions, .btn-x, #link-note { display: none !important; }
+    .back, .link-btn, .tools, .theme, .row-actions, .btn-x, #link-note { display: none !important; }
     .actions table { min-width: 0; }
     .scroll { overflow: visible; }
     table, .formula, .main-result { break-inside: avoid; }
@@ -212,7 +221,10 @@
 </head>
 <body>
 <main>
-  <a class="back" href="/tools/">← Tools</a>
+  <div class="top">
+    <a class="back" href="/tools/">← Tools</a>
+    <button class="link-btn" type="button" id="copy-url" title="Link mit den aktuellen Eingaben kopieren" hidden>URL kopieren</button>
+  </div>
   <h1>Lastkombinationen</h1>
   <p class="lead">Lastkombinationen nach SIA 260:2013 für die Tragsicherheit (Typ 2) und die Gebrauchstauglichkeit von Gebäuden. Aus ständigen und veränderlichen Einwirkungen entsteht die massgebende Bemessungslast q<sub>d</sub>. Werte in kN/m², kN/m oder kN.</p>
 
@@ -837,6 +849,25 @@ function compute(p) {
 
   // Für Tests: Rechenkern von aussen erreichbar
   window.__lk = { compute, snowLoad, DEFAULTS };
+})();
+</script>
+<script>
+// "URL kopieren": Link mit den aktuellen Eingaben (#...), auch in einer installierten Web-App ohne Adresszeile.
+// Ohne JavaScript oder ohne Zugriff auf die Zwischenablage bleibt der Button ausgeblendet.
+(function () {
+  var b = document.getElementById("copy-url");
+  if (!b || !navigator.clipboard) return;
+  b.hidden = false;
+  var timer = 0;
+  b.addEventListener("click", function () {
+    navigator.clipboard.writeText(location.href).then(
+      function () { b.textContent = "Link kopiert"; },
+      function () { b.textContent = "Kopieren nicht möglich"; }
+    ).then(function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () { b.textContent = "URL kopieren"; }, 1600);
+    });
+  });
 })();
 </script>
 </body>
