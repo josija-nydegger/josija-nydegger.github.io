@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- App-Symbol Einheiten-Umrechner: zwei Pfeile (umrechnen), Farben wie das Website-Symbol.
+       Quelle der PNG-Dateien in diesem Ordner. Inhalt innerhalb der sicheren Zone (Kreis 80 %) für maskable. -->
+  <rect width="512" height="512" rx="96" fill="#0f2a4a"/>
+  <g fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M136 200H368M312 144l56 56-56 56" stroke="#ffffff"/>
+    <path d="M376 312H144M200 256l-56 56 56 56" stroke="#ff8a1f"/>
+  </g>
+</svg>

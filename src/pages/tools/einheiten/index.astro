@@ -1,0 +1,703 @@
+---
+// Einheiten-Umrechner, /tools/einheiten/.
+// Anders als die übrigen Tools (public/tools/<name>/index.html) eine Astro-Seite, damit die Rechenlogik
+// in TypeScript (src/lib/einheiten.ts) liegen und getestet werden kann. Aussehen und Kopf wie die übrigen Tools,
+// ohne Base-Layout. Das Skript unten bündelt Astro in eine eigene Datei unter /_astro/.
+// Installierbar als App (nur dieses Tool): manifest.webmanifest, sw.js und icons/ in public/tools/einheiten/.
+import { categories } from '../../../lib/einheiten';
+
+const title = 'Einheiten-Umrechner | Josija Nydegger';
+const description = 'Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: kN/cm² in MPa, kNm in Nmm, kN/m³ in kg/m³ mit wählbarem g, Neigung in % und 1:n, °C und K. Freitext-Eingabe, offline als App nutzbar.';
+const url = 'https://josija-nydegger.ch/tools/einheiten/';
+const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '1 cm4 in mm4', '5 % in 1:n', '20 °C in K'];
+---
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script is:inline>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<title>{title}</title>
+<!-- Link-Vorschau (LinkedIn, WhatsApp usw.) und Suchmaschinen, wie bei den übrigen Tools von Hand -->
+<link rel="canonical" href={url}>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Josija Nydegger">
+<meta property="og:locale" content="de_CH">
+<meta property="og:title" content={title}>
+<meta property="og:description" content={description}>
+<meta property="og:url" content={url}>
+<meta name="twitter:card" content="summary">
+<meta name="author" content="Josija Nydegger">
+<meta name="description" content={description}>
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<!-- App (nur dieses Tool): Manifest und Farbe der Titelleiste -->
+<link rel="manifest" href="/tools/einheiten/manifest.webmanifest">
+<meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151515" media="(prefers-color-scheme: dark)">
+<style is:inline>
+  /* Farben und Typografie wie style.css der Website (josija-nydegger.ch) und die übrigen Tools. */
+  :root {
+    color-scheme: light dark;
+    --bg: #fcfcfb;
+    --text: #1a1a1a;
+    --muted: #6b6a66;
+    --border: #e7e6e2;
+    --accent: #1a1a1a;
+    --tag-bg: #f1f0ed;
+    --ok: #2e7d4f;
+    --error-bg: #fbeceb;
+    --error-fg: #8a1f11;
+    --field: #ffffff;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+      --ok: #6fd39a; --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #151515; --text: #e5e3de; --muted: #9e9c97; --border: #2b2b2a; --accent: #e5e3de; --tag-bg: #222221;
+    --ok: #6fd39a; --error-bg: #3a1d1a; --error-fg: #ffb4a8; --field: #1b1b1a;
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+
+  /* ---------- Grundlayout wie Website ---------- */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 56px 20px 40px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border); }
+  a:hover { text-decoration-color: var(--accent); }
+  .back { display: inline-block; margin-bottom: 28px; color: var(--muted); text-decoration: none; font-size: 14px; }
+  .back:hover { color: var(--text); }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 16px; margin: 44px 0 16px; }
+  p { margin: 0 0 14px; }
+  .lead { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+  sub, sup { font-size: 0.72em; line-height: 0; }
+  kbd { font-family: var(--mono); font-size: 11.5px; padding: 0 5px; border: 1px solid var(--border); border-radius: 4px; background: var(--tag-bg); }
+
+  /* ---------- Eingabe ---------- */
+  .query {
+    display: flex; align-items: center; height: 50px;
+    border: 1px solid var(--border); border-radius: 10px; background: var(--field); padding: 0 6px 0 14px;
+  }
+  .query:focus-within { border-color: var(--accent); }
+  .query input {
+    flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; color: var(--text);
+    font-family: var(--mono); font-size: 17px; padding: 0;
+  }
+  .query input:focus { outline: none; }
+  .query input::placeholder { color: var(--muted); }
+  .icon-btn {
+    flex: none; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 8px;
+    background: none; color: var(--muted); cursor: pointer; font-size: 19px; line-height: 1;
+  }
+  .icon-btn:hover { color: var(--text); background: var(--tag-bg); }
+  .icon-btn[aria-pressed="true"] { color: var(--text); }
+  .icon-btn:disabled { opacity: 0.35; pointer-events: none; }
+  .settings { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+  .settings label, .settings .lbl-g { display: flex; align-items: center; gap: 8px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 2px; }
+  .seg button {
+    font: inherit; font-size: 13px; font-family: var(--mono); padding: 1px 10px; border: 0; border-radius: 999px;
+    background: none; color: var(--muted); cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--tag-bg); color: var(--text); }
+  select {
+    font: inherit; font-size: 13px; height: 28px; padding: 0 4px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--field); color: var(--text);
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+  .keys { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+  .chip {
+    font: inherit; font-family: var(--mono); font-size: 12.5px; line-height: 1.5; padding: 2px 10px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--text); cursor: pointer;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip-wrap { display: inline-flex; align-items: center; }
+  .chip-wrap .chip { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .chip-x {
+    font: inherit; font-size: 12.5px; line-height: 1.5; padding: 2px 8px; border: 1px solid var(--border); border-left: 0;
+    border-radius: 0 999px 999px 0; background: none; color: var(--muted); cursor: pointer;
+  }
+  .chip-x:hover { color: var(--text); }
+
+  /* ---------- Ergebnis ---------- */
+  .out { margin-top: 28px; min-height: 90px; }
+  .main-result { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 14px 0; display: flex; align-items: flex-start; gap: 12px; }
+  .main-result .txt { flex: 1; min-width: 0; }
+  .main-result .big { font-size: 24px; font-weight: 600; line-height: 1.35; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .main-result p { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+  .main-result .g { color: var(--text); }
+  .empty { color: var(--muted); font-size: 14px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 14px 0; margin: 0; }
+  .error {
+    background: var(--error-bg); color: var(--error-fg);
+    padding: 10px 12px; border-radius: 8px; margin: 0; font-size: 14px;
+  }
+  .hints { margin: 12px 0 0; padding-left: 20px; font-size: 13px; color: var(--muted); }
+  .hints li { margin: 2px 0; }
+  .group-title { font-size: 13px; font-weight: 600; color: var(--muted); margin: 22px 0 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
+  th { font-weight: 600; font-size: 13px; color: var(--muted); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; width: 50%; }
+  td.unit { white-space: nowrap; }
+  td.note { color: var(--muted); font-size: 12.5px; text-align: right; white-space: nowrap; }
+  .results tr:first-child td { border-top: 1px solid var(--border); }
+  .results tbody tr { cursor: pointer; }
+  .results tbody tr:hover td, .results tbody tr:focus td { background: var(--tag-bg); }
+  .results tbody tr:focus { outline: none; }
+  .results tr.is-input td.num, .results tr.is-input td.unit { color: var(--muted); }
+  .units td:first-child { color: var(--muted); font-size: 14px; }
+  .units td:last-child { font-family: var(--mono); font-size: 13px; }
+  @media (max-width: 560px) { td { padding: 7px 4px; } }
+
+  /* Kurze Bestätigung nach dem Kopieren, ohne Animation */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); margin: 0;
+    background: var(--text); color: var(--bg); font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    max-width: calc(100% - 40px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .toast[hidden] { display: none; }
+
+  /* ---------- Rechenweg (Formeln wie Codeblöcke der Website) ---------- */
+  details { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 14px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .formula {
+    font-family: var(--mono); font-size: 13px; margin-top: 12px;
+    background: var(--tag-bg); padding: 14px; border-radius: 8px; line-height: 1.8; overflow-x: auto; white-space: pre;
+  }
+  .history { list-style: none; margin: 8px 0 0; padding: 0; }
+  .history li { border-bottom: 1px solid var(--border); }
+  .history button {
+    display: block; width: 100%; text-align: left; font: inherit; font-family: var(--mono); font-size: 13px;
+    padding: 6px 4px; border: 0; background: none; color: var(--text); cursor: pointer;
+  }
+  .history button:hover { background: var(--tag-bg); }
+
+  /* ---------- Buttons wie .button der Website ---------- */
+  .btn {
+    font: inherit; font-size: 14px; line-height: 1.5; padding: 6px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: none; color: var(--accent); cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .tools { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+  .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .muted { color: var(--muted); font-size: 13px; margin: 0; }
+
+  ul.list { margin: 0 0 14px; padding-left: 20px; font-size: 13px; color: var(--muted); }
+  ul.list li { margin: 2px 0; }
+  ul.memo { margin: 0; padding-left: 20px; font-size: 14px; }
+  ul.memo li { margin: 3px 0; }
+
+  /* ---------- Fusszeile wie Website ---------- */
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  footer p { margin: 0 0 8px; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--text); }
+  .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .foot-row p { margin: 0; }
+  .theme { display: flex; gap: 2px; }
+  .theme[hidden] { display: none; }
+  .theme button {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
+    background: none; color: var(--muted); cursor: pointer;
+  }
+  .theme button:hover { color: var(--text); }
+  .theme button[aria-pressed="true"] { background: var(--tag-bg); color: var(--text); }
+  .theme svg { width: 16px; height: 16px; }
+  [hidden] { display: none !important; }
+
+  /* ---------- Druck / PDF ---------- */
+  @media print {
+    :root:root:root {
+      color-scheme: light;
+      --bg: #ffffff; --text: #1a1a1a; --muted: #555555; --border: #dddddd; --accent: #1a1a1a; --tag-bg: #f1f0ed;
+      --ok: #2e7d4f; --field: #ffffff;
+    }
+    body { font-size: 10.5pt; line-height: 1.45; }
+    main { max-width: none; padding: 0; }
+    .back, .tools, .theme, .keys, .chips, .icon-btn, .toast, #saved, #link-note { display: none !important; }
+    table, .formula, .main-result { break-inside: avoid; }
+    a { text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/tools/">← Tools</a>
+  <h1>Einheiten-Umrechner</h1>
+  <p class="lead">Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bettung, Neigungen und Temperaturen. Eingabe als Text, z. B. «12.5 kN/cm2 in MPa» oder «3.5 kN/m * 6 m».</p>
+
+  <div class="query">
+    <input id="q" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"
+      placeholder="z. B. 12.5 kN/cm2 in MPa" aria-label="Eingabe, z. B. 12.5 kN/cm2 in MPa" aria-describedby="keys" autofocus>
+    <button class="icon-btn" type="button" id="fav" aria-pressed="false" title="Als Favorit speichern" aria-label="Als Favorit speichern">☆</button>
+  </div>
+  <div class="settings">
+    <span class="lbl-g">
+      Erdbeschleunigung g
+      <span class="seg" role="group" aria-label="Erdbeschleunigung g in m/s²">
+        <button type="button" data-g="9.81" aria-pressed="true">9.81</button>
+        <button type="button" data-g="10" aria-pressed="false">10</button>
+      </span>
+      m/s²
+    </span>
+    <label>Signifikante Stellen
+      <select id="sig">
+        <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>8</option><option>10</option>
+      </select>
+    </label>
+  </div>
+  <p class="keys" id="keys"><kbd>Enter</kbd> kopiert das Resultat · Klick auf eine Zeile kopiert diese · <kbd>↑</kbd> <kbd>↓</kbd> Verlauf · <kbd>Esc</kbd> leert · <kbd>/</kbd> springt ins Feld</p>
+  <div class="chips" id="examples">
+    {examples.map(e => <button class="chip" type="button" data-q={e}>{e}</button>)}
+  </div>
+
+  <section class="out" aria-live="polite">
+    <p class="empty" id="empty">Wert mit Einheit eingeben. Ohne Zieleinheit erscheinen alle Einheiten derselben Kategorie.</p>
+    <p class="error" id="err" hidden></p>
+    <div class="main-result" id="main" hidden>
+      <div class="txt">
+        <div class="big" id="main-big"></div>
+        <p id="main-sub"></p>
+      </div>
+      <button class="icon-btn" type="button" id="copy-main" title="Kopieren" aria-label="Resultat kopieren">⧉</button>
+    </div>
+    <ul class="hints" id="hints" hidden></ul>
+    <div id="groups"></div>
+  </section>
+  <p class="toast" id="toast" role="status" hidden></p>
+
+  <details class="steps" id="steps-wrap" hidden>
+    <summary>Rechenweg</summary>
+    <div class="formula" id="steps"></div>
+  </details>
+
+  <div class="tools">
+    <button class="btn" type="button" id="reset">Zurücksetzen</button>
+  </div>
+  <p class="note" id="link-note">Die Eingabe steht in der Adresszeile. Ein kopierter Link öffnet den Umrechner mit derselben Eingabe. Verlauf und Favoriten bleiben nur in diesem Browser gespeichert.</p>
+
+  <section id="saved">
+    <h2>Favoriten</h2>
+    <div class="chips" id="favs"></div>
+    <p class="muted" id="favs-empty">Noch keine. Mit ☆ neben dem Eingabefeld speichern.</p>
+    <details id="hist-wrap">
+      <summary>Verlauf</summary>
+      <ul class="history" id="hist"></ul>
+      <p class="muted" id="hist-empty">Noch leer. Ein Eintrag entsteht mit <kbd>Enter</kbd> oder beim Kopieren.</p>
+      <div class="tools"><button class="btn" type="button" id="hist-clear">Verlauf löschen</button></div>
+    </details>
+  </section>
+
+  <h2>Merkhilfen</h2>
+  <ul class="memo">
+    <li>1 N/mm² = 1 MPa = 1000 kN/m² = 0.1 kN/cm²</li>
+    <li>1 kN/cm² = 10 MPa</li>
+    <li>1 kN/m² = 1 kPa ≈ 100 kg/m² (mit g ≈ 10 m/s²)</li>
+    <li>1 kN/m = 1 N/mm</li>
+    <li>1 kNm = 100 kNcm = 10<sup>6</sup> Nmm</li>
+    <li>1 cm²/m = 100 mm²/m</li>
+    <li>1 cm⁴ = 10<sup>4</sup> mm⁴, 1 m⁴ = 10<sup>8</sup> cm⁴</li>
+    <li>1 m³ = 10<sup>6</sup> cm³ = 1000 l</li>
+    <li>1 t ≈ 10 kN, 1 t/m³ ≈ 10 kN/m³ (mit g ≈ 10 m/s²)</li>
+    <li>1 MN/m³ = 1000 kN/m³</li>
+    <li>1 bar = 100 kN/m² = 0.1 MPa</li>
+    <li>100 % = 45°, 1:n = 100/n %</li>
+    <li>ΔT: 1 K = 1 °C, aber 0 °C = 273.15 K</li>
+  </ul>
+
+  <h2>Einheiten</h2>
+  <table class="units">
+    <tbody>
+      {categories().map(c => <tr><td>{c.name}</td><td>{c.units.join(', ')}</td></tr>)}
+    </tbody>
+  </table>
+  <p class="note">Dazu die SI-Vorsätze n, µ (oder u), m, c, d, k, M, G, soweit sinnvoll (z. B. mN, GPa, km, Mg), sowie s, J, kJ und mrad. Andere Kombinationen rechnet das Tool in SI-Einheiten.</p>
+
+  <h2>Annahmen und Grenzen</h2>
+  <ul class="list">
+    <li><strong>Prinzip:</strong> Jede Einheit hat einen Faktor zur SI-Basis und einen Dimensionsvektor [m, kg, s, K]. Zusammengesetzte Einheiten werden zerlegt (kNm = kN·m, kN/cm² = 10<sup>3</sup> N / 10<sup>-4</sup> m²): Faktoren multiplizieren, Exponenten addieren. Umgerechnet wird nur bei gleicher Dimension, sonst erscheint eine Meldung.</li>
+    <li><strong>Gross-/Kleinschreibung</strong> zählt: mN (Millinewton) und MN (Meganewton) unterscheiden sich um 10<sup>9</sup>, mm und Mm ebenso. Bei falscher Schreibweise (z. B. «KN») macht das Tool einen Vorschlag.</li>
+    <li><strong>Schreibweise:</strong> Dezimalpunkt oder Dezimalkomma (das Komma ist immer Dezimalzeichen), Apostroph als Tausendertrennzeichen in Dreiergruppen (1'250,5). Exponenten als m2, m^2 oder m², Produkte als kNm, kN·m, kN*m oder kN m. Zieleinheit mit «in», «to», «->» oder «→».</li>
+    <li><strong>Rechnen</strong> mit *, /, + und − sowie Klammern. Innerhalb einer Einheit gilt von links nach rechts: kN/m·s = (kN/m)·s; für kN/(m·s) Klammern setzen. Addition und Subtraktion nur bei gleicher Dimension.</li>
+    <li><strong>Masse und Kraft</strong> haben verschiedene Dimensionen. Umgerechnet wird nur über die Erdbeschleunigung g, wählbar 9.81 oder 10 m/s² (Normfallbeschleunigung g<sub>n</sub> = 9.80665 m/s²). Das verwendete g steht bei jeder solchen Umrechnung.</li>
+    <li><strong>Temperatur:</strong> Eine einzelne Angabe in °C oder K gilt als absolute Temperatur (20 °C = 293.15 K). Mit vorangestelltem Δ, ΔT oder dT ist es eine Differenz (ΔT 20 °C = 20 K). In Rechnungen und zusammengesetzten Einheiten (z. B. 1/K) gilt °C immer als Differenz.</li>
+    <li><strong>Neigung</strong> hängt über tan α mit dem Winkel zusammen, nicht linear: 100 % = 45°, 1:n = 100/n %. Winkel nur zwischen −90° und 90°.</li>
+    <li><strong>Gleiche Dimension, andere Bedeutung:</strong> kN/m² (Flächenlast oder Spannung), kNm (Moment oder Energie), kN/m (Linienlast oder Federsteifigkeit), kN/m³ (Wichte oder Bettungsmodul), mm³ (Volumen oder Widerstandsmoment). Die Umrechnung stimmt in jedem Fall, die Bedeutung bleibt Sache der Eingabe. rad ist dimensionslos, kNm/rad hat darum dieselbe Dimension wie kNm.</li>
+    <li><strong>Ausgabe</strong> gerundet auf die gewählte Zahl signifikanter Stellen (Standard 4), ab 10<sup>9</sup> und unter 10<sup>-3</sup> in wissenschaftlicher Schreibweise. Gerechnet wird mit voller Genauigkeit (Gleitkommazahlen mit etwa 15 Stellen). Kopiert wird ohne Tausender-Apostroph, z. B. «125 MPa».</li>
+    <li><strong>Nicht enthalten:</strong> angloamerikanische Einheiten (inch, lbf, psi), kp, Zeit ausser Sekunden, Leistung.</li>
+  </ul>
+  <p class="note">Grundlagen: Internationales Einheitensystem (SI), BIPM, SI-Broschüre, 9. Auflage 2019 (Einheiten, Vorsätze, Schreibweise); Normfallbeschleunigung g<sub>n</sub> = 9.80665 m/s² (3. CGPM 1901).</p>
+  <p class="note">Geprüfte Testfälle (automatisch, mit Gegenprobe): 1 kN/cm² = 10 MPa, 1 N/mm² = 1000 kN/m², 1 cm⁴ = 10'000 mm⁴, 1 kNm = 1'000'000 Nmm, 25 kN/m³ = 2548 kg/m³ (g = 9.81), 1 t = 10 kN (g = 10), 100 % = 45°, 5 % = 1:20, 20 °C = 293.15 K, ΔT 20 °C = 20 K, 3.5 kN/m · 6 m = 21 kN, mN und MN unterscheiden sich um 10<sup>9</sup>, «1'250,5 kN» = 1250.5 kN, «1 kN in MPa» ergibt einen Fehler; dazu alle Einheiten der Liste oben hin und zurück, Schreibweisen, Rundung und ungültige Eingaben.</p>
+
+  <footer>
+    <p><strong>Hinweis:</strong> Hilfsmittel für Studium und Vordimensionierung. Es ersetzt keine Prüfung durch eine fachkundige Person.</p>
+    <div class="foot-row">
+      <p>© 2026 Josija Nydegger - <a href="https://github.com/josija-nydegger">GitHub</a> - <a href="https://josija-nydegger.ch/">Website</a></p>
+      <div class="theme" role="group" aria-label="Farbschema" hidden>
+        <button type="button" data-theme="light" aria-label="Hell" title="Hell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" data-theme="dark" aria-label="Dunkel" title="Dunkel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <button type="button" data-theme="system" aria-label="System" title="System">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+// Oberfläche des Einheiten-Umrechners. Die Rechenlogik liegt in src/lib/einheiten.ts (ohne DOM, getestet).
+import { convert, G_DEFAULT, SIG_DEFAULT, type Outcome, type Row } from '../../../lib/einheiten';
+
+const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+const input = $<HTMLInputElement>('q');
+const sigSel = $<HTMLSelectElement>('sig');
+const gButtons = [...document.querySelectorAll<HTMLButtonElement>('.seg button')];
+
+// ---------- Zustand (in der Adresszeile, wie bei den übrigen Tools) ----------
+type State = { q: string; g: number; d: number };
+const G_OPTIONS = [9.81, 10];
+const SIG_OPTIONS = [2, 3, 4, 5, 6, 8, 10];
+const DEFAULTS: State = { q: '', g: G_DEFAULT, d: SIG_DEFAULT };
+
+/** Werte aus dem Link prüfen, bevor sie verwendet werden */
+function sanitize(s: unknown): State {
+  const d = { ...DEFAULTS };
+  if (!s || typeof s !== 'object') return d;
+  const o = s as Record<string, unknown>;
+  if (typeof o.q === 'string') d.q = o.q.slice(0, 200);
+  if (typeof o.g === 'number' && G_OPTIONS.includes(o.g)) d.g = o.g;
+  if (typeof o.d === 'number' && SIG_OPTIONS.includes(o.d)) d.d = o.d;
+  return d;
+}
+function readHash(): State {
+  try {
+    if (location.hash.length > 1) return sanitize(JSON.parse(decodeURIComponent(location.hash.slice(1))));
+  } catch (e) { /* ungültiger Link: Standardwerte */ }
+  return { ...DEFAULTS };
+}
+let state = readHash();
+function save() {
+  const isDefault = state.q === '' && state.g === DEFAULTS.g && state.d === DEFAULTS.d;
+  try {
+    history.replaceState(null, '', isDefault ? location.pathname : '#' + encodeURIComponent(JSON.stringify(state)));
+  } catch (e) { /* z. B. in eingebetteten Vorschauen */ }
+}
+
+// ---------- Verlauf und Favoriten (localStorage, jeder Zugriff abgesichert) ----------
+const KEY_HIST = 'einheiten:verlauf';
+const KEY_FAV = 'einheiten:favoriten';
+function load(key: string, max: number): string[] {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x.length > 0 && x.length <= 200).slice(0, max) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function store(key: string, list: string[]) {
+  try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) { /* privates Fenster, Speicher voll */ }
+}
+let hist = load(KEY_HIST, 20);
+let favs = load(KEY_FAV, 30);
+
+function addHistory(q: string) {
+  const t = q.trim();
+  if (!t) return;
+  hist = [t, ...hist.filter(h => h !== t)].slice(0, 20);
+  store(KEY_HIST, hist);
+  renderSaved();
+}
+
+// ---------- Kopieren mit kurzer Bestätigung ----------
+let toastTimer = 0;
+function toast(text: string) {
+  const el = $('toast');
+  el.textContent = text;
+  el.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => { el.hidden = true; }, 1600);
+}
+async function copy(text: string) {
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(text); // braucht HTTPS (oder localhost)
+    ok = true;
+  } catch (e) { /* kein Zugriff auf die Zwischenablage */ }
+  toast(ok ? 'Kopiert: ' + text : 'Kopieren nicht möglich');
+  if (ok) addHistory(input.value);
+}
+
+// ---------- Darstellung ----------
+let current: Outcome | null = null;
+
+function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function rowsTable(rows: Row[]): HTMLTableElement {
+  const table = el('table', 'results');
+  const tb = el('tbody');
+  for (const r of rows) {
+    const tr = el('tr', r.input ? 'is-input' : '');
+    tr.tabIndex = 0;
+    tr.title = 'Klicken zum Kopieren: ' + r.copy;
+    tr.append(el('td', 'num', r.text));
+    tr.append(el('td', 'unit', r.unit === '1:n' ? '' : r.unit));
+    tr.append(el('td', 'note', r.input ? 'Eingabe' : ''));
+    const go = () => { void copy(r.copy); };
+    tr.addEventListener('click', go);
+    tr.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+    });
+    tb.append(tr);
+  }
+  table.append(tb);
+  return table;
+}
+
+function render() {
+  const r = convert(state.q, { g: state.g, sig: state.d });
+  current = r;
+  const ok = !!r && r.ok;
+  $('empty').hidden = !!r;
+  $('err').hidden = !r || r.ok;
+  $('main').hidden = !ok;
+  $('hints').hidden = true;
+  $('steps-wrap').hidden = true;
+  $('groups').replaceChildren();
+  $<HTMLButtonElement>('fav').disabled = !ok;
+  $('fav').setAttribute('aria-pressed', String(favs.includes(state.q.trim())));
+  $('fav').textContent = favs.includes(state.q.trim()) ? '★' : '☆';
+  if (!r) return;
+  if (!r.ok) {
+    $('err').textContent = r.error;
+    return;
+  }
+  $('main-big').textContent = (r.groups.length ? '' : r.input + ' = ') + r.main.display;
+  const sub = $('main-sub');
+  sub.replaceChildren(r.groups.length ? r.input + ' · ' + r.category : r.category);
+  if (r.mainG) sub.append(' · ', el('span', 'g', 'mit g = ' + String(r.mainG) + ' m/s²'));
+  const hints = $('hints');
+  hints.replaceChildren(...r.hints.map(h => el('li', '', h)));
+  hints.hidden = r.hints.length === 0;
+  for (const g of r.groups) {
+    $('groups').append(el('p', 'group-title', g.title), rowsTable(g.rows));
+  }
+  $('steps').replaceChildren(...r.steps.map(s => el('div', '', s)));
+  $('steps-wrap').hidden = r.steps.length === 0;
+}
+
+function renderSaved() {
+  const favWrap = $('favs');
+  favWrap.replaceChildren(...favs.map(f => {
+    const wrap = el('span', 'chip-wrap');
+    const b = el('button', 'chip', f);
+    b.type = 'button';
+    b.addEventListener('click', () => setQuery(f));
+    const x = el('button', 'chip-x', '×');
+    x.type = 'button';
+    x.title = 'Favorit entfernen';
+    x.setAttribute('aria-label', 'Favorit entfernen: ' + f);
+    x.addEventListener('click', () => {
+      favs = favs.filter(v => v !== f);
+      store(KEY_FAV, favs);
+      renderSaved();
+      render();
+    });
+    wrap.append(b, x);
+    return wrap;
+  }));
+  $('favs-empty').hidden = favs.length > 0;
+  $('hist').replaceChildren(...hist.map(h => {
+    const li = el('li');
+    const b = el('button', '', h);
+    b.type = 'button';
+    b.addEventListener('click', () => setQuery(h));
+    li.append(b);
+    return li;
+  }));
+  $('hist-empty').hidden = hist.length > 0;
+  $('hist-clear').hidden = hist.length === 0;
+}
+
+function syncControls() {
+  input.value = state.q;
+  sigSel.value = String(state.d);
+  gButtons.forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.g) === state.g)));
+}
+
+function setQuery(q: string) {
+  state.q = q;
+  input.value = q;
+  histIdx = -1;
+  save();
+  render();
+  input.focus();
+}
+
+// ---------- Eingabe und Tastatur ----------
+let histIdx = -1;   // -1 = eigene Eingabe, 0 = neuester Verlaufseintrag
+let draft = '';
+
+input.addEventListener('input', () => {
+  state.q = input.value;
+  histIdx = -1;
+  save();
+  render();
+});
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (current && current.ok) void copy(current.main.copy);
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    if (!hist.length) return;
+    e.preventDefault();
+    if (e.key === 'ArrowUp') {
+      if (histIdx >= hist.length - 1) return;
+      if (histIdx === -1) draft = input.value;
+      histIdx++;
+    } else {
+      if (histIdx === -1) return;
+      histIdx--;
+    }
+    const v = histIdx === -1 ? draft : hist[histIdx];
+    input.value = v;
+    state.q = v;
+    save();
+    render();
+    input.setSelectionRange(v.length, v.length);
+  } else if (e.key === 'Escape') {
+    if (input.value) {
+      e.preventDefault();
+      setQuery('');
+    }
+  }
+});
+
+// "/" oder Strg/Cmd+K springt ins Eingabefeld
+document.addEventListener('keydown', e => {
+  const t = e.target as HTMLElement;
+  const typing = t instanceof HTMLInputElement || t instanceof HTMLSelectElement || t instanceof HTMLTextAreaElement;
+  if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey))) {
+    e.preventDefault();
+    input.focus();
+    input.select();
+  }
+});
+
+input.addEventListener('blur', () => {
+  if (current && current.ok) addHistory(input.value);
+});
+
+$('copy-main').addEventListener('click', () => {
+  if (current && current.ok) void copy(current.main.copy);
+});
+
+$('fav').addEventListener('click', () => {
+  const q = state.q.trim();
+  if (!q) return;
+  favs = favs.includes(q) ? favs.filter(f => f !== q) : [q, ...favs].slice(0, 30);
+  store(KEY_FAV, favs);
+  renderSaved();
+  render();
+  toast(favs.includes(q) ? 'Als Favorit gespeichert' : 'Favorit entfernt');
+});
+
+gButtons.forEach(b => b.addEventListener('click', () => {
+  state.g = Number(b.dataset.g);
+  syncControls();
+  save();
+  render();
+}));
+sigSel.addEventListener('change', () => {
+  state.d = Number(sigSel.value);
+  save();
+  render();
+});
+
+document.querySelectorAll<HTMLButtonElement>('#examples .chip').forEach(b => {
+  b.addEventListener('click', () => setQuery(b.dataset.q || ''));
+});
+
+$('hist-clear').addEventListener('click', () => {
+  hist = [];
+  store(KEY_HIST, hist);
+  renderSaved();
+});
+
+$('reset').addEventListener('click', () => {
+  state = { ...DEFAULTS };
+  syncControls();
+  save();
+  render();
+  input.focus();
+});
+
+window.addEventListener('hashchange', () => {
+  state = readHash();
+  syncControls();
+  render();
+});
+
+window.addEventListener('beforeprint', () => { $<HTMLDetailsElement>('steps-wrap').open = true; });
+
+syncControls();
+render();
+renderSaved();
+input.focus();
+
+// Hell / Dunkel / System: wie in src/layouts/Base.astro, gleicher Speicherschlüssel "theme".
+(function () {
+  const root = document.documentElement;
+  const group = document.querySelector<HTMLElement>('.theme');
+  if (!group) return;
+  const buttons = group.querySelectorAll<HTMLButtonElement>('button');
+  function apply(theme: string | undefined) {
+    if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+    else { delete root.dataset.theme; theme = 'system'; }
+    try {
+      if (theme === 'system') localStorage.removeItem('theme');
+      else localStorage.setItem('theme', theme);
+    } catch (e) { /* ohne Speicher gilt die Wahl nur bis zum Neuladen */ }
+    buttons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.theme === theme)));
+  }
+  buttons.forEach(b => b.addEventListener('click', () => apply(b.dataset.theme)));
+  apply(root.dataset.theme);
+  group.hidden = false;
+})();
+
+// Offline-Betrieb als App: Service Worker nur für dieses Tool (Scope /tools/einheiten/), nicht in "npm run dev"
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/tools/einheiten/sw.js', { scope: '/tools/einheiten/' }).catch(() => { /* ohne Offline-Betrieb weiter */ });
+  });
+}
+</script>
+</body>
+</html>

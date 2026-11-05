@@ -12,6 +12,22 @@ type Tool = {
 
 export const tools: Tool[] = [
   {
+    url: '/tools/einheiten/',
+    year: 2026,
+    title: {
+      de: 'Einheiten-Umrechner',
+      en: 'Unit converter'
+    },
+    description: {
+      de: 'Einheiten aus dem Bauingenieurwesen umrechnen und mit ihnen rechnen: Kräfte, Lasten, Spannungen, Momente, Querschnittswerte, Bettung, Neigung und Temperatur, Masse in Kraft mit wählbarem g. Eingabe als Text, offline als App installierbar.',
+      en: 'Convert and calculate with structural engineering units: forces, loads, stresses, moments, section properties, subgrade moduli, slope and temperature, mass to force with selectable g. Free-text input, installable as an offline app.'
+    },
+    tags: {
+      de: ['Einheiten', 'Statik', 'App'],
+      en: ['Units', 'Structural analysis', 'App']
+    }
+  },
+  {
     url: '/tools/lastkombinationen/',
     year: 2026,
     title: {

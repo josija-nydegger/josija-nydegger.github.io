@@ -107,6 +107,30 @@ try {
   ok('Sitemap ohne 404 und Google-Datei', !locsA.some(l => /404|google/.test(l)));
   ok('robots.txt verweist auf Sitemap', a.has('robots.txt') && a.read('robots.txt').trim() === 'Sitemap: https://josija-nydegger.ch/sitemap.xml');
   ok('Kein KaTeX-Stylesheet ohne Formeln', !generated.some(p => a.read(p).includes('katex.min.css')));
+
+  // 7. Einheiten-Umrechner als App (PWA): nur dieses Tool, die übrige Website bleibt unberührt
+  const EH = 'tools/einheiten/';
+  ok('Einheiten: Seite gebaut', a.has(EH + 'index.html'));
+  ok('Einheiten: in der Sitemap', locsA.includes('https://josija-nydegger.ch/' + EH));
+  ok('Einheiten: in der Tool-Liste', a.read('tools/index.html').includes('href="/' + EH + '"'));
+  const man = JSON.parse(a.read(EH + 'manifest.webmanifest'));
+  ok('Einheiten: Manifest scope und start_url auf das Tool', man.scope === '/' + EH && man.start_url === '/' + EH && man.id === '/' + EH, JSON.stringify([man.scope, man.start_url, man.id]));
+  ok('Einheiten: Manifest Name und standalone', man.name === 'Einheiten' && man.display === 'standalone');
+  for (const icon of man.icons) ok('Einheiten: Icon vorhanden ' + icon.src, icon.src.startsWith('/' + EH) && a.has(icon.src.slice(1)));
+  for (const [size, purpose] of [['192x192', 'any'], ['512x512', 'any'], ['192x192', 'maskable'], ['512x512', 'maskable']])
+    ok(`Einheiten: Icon ${size} ${purpose}`, man.icons.some(i => i.sizes === size && i.purpose === purpose));
+  ok('Einheiten: Service Worker im Tool-Ordner', a.has(EH + 'sw.js'));
+  ok('Kein Service Worker und kein Manifest im Hauptordner', !builtA.some(p => /^(sw|service-worker|registerSW)\.js$|^manifest\.(webmanifest|json)$/.test(p)));
+  const ehHtml = a.read(EH + 'index.html');
+  ok('Einheiten: Manifest eingebunden', ehHtml.includes('<link rel="manifest" href="/' + EH + 'manifest.webmanifest">'));
+  const ehScripts = [...ehHtml.matchAll(/<script type="module" src="(\/_astro\/[^"]+\.js)"/g)].map(m => m[1]);
+  ok('Einheiten: genau ein eigenes Skript unter /_astro/', ehScripts.length === 1, ehScripts.join(' '));
+  const ehJs = ehScripts.map(s => a.read(s.slice(1))).join('');
+  ok('Einheiten: Service Worker mit Scope des Tools registriert', ehJs.includes('/' + EH + 'sw.js') && new RegExp('scope:\\s*["\'`]/' + EH + '["\'`]').test(ehJs));
+  const others = builtA.filter(p => p.endsWith('.html') && p !== EH + 'index.html');
+  ok('Übrige Seiten ohne Manifest', !others.some(p => /rel="manifest"/.test(a.read(p))), others.filter(p => /rel="manifest"/.test(a.read(p))).join(' '));
+  ok('Übrige Seiten ohne Service Worker', !others.some(p => /serviceWorker|\/_astro\//.test(a.read(p))), others.filter(p => /serviceWorker|\/_astro\//.test(a.read(p))).join(' '));
+  ok('Einheiten: Tool funktioniert ohne fremde Server (keine externen Skripte)', !/<script[^>]+src="https?:/.test(ehHtml));
 } catch (e) { ok('A: Prüfung ohne Absturz', false, e.message); }
 
 // ===== B) Testbeiträge =====

@@ -8,7 +8,7 @@
     "build": "astro build",
     "check": "astro check",
     "preview": "astro preview",
-    "test": "node _tests/balken-momente.test.js && node _tests/balken-querkraft-durchbiegung.test.js && node _tests/querschnittswerte.test.js && node _tests/biegebemessung.test.js && node _tests/lastkombinationen.test.mjs && node _tests/website.test.js"
+    "test": "node _tests/balken-momente.test.js && node _tests/balken-querkraft-durchbiegung.test.js && node _tests/querschnittswerte.test.js && node _tests/biegebemessung.test.js && node _tests/lastkombinationen.test.mjs && node _tests/einheiten.test.mjs && node _tests/website.test.js"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.4",
