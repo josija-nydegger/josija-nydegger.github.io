@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Home-Bildschirm-Symbol Biegebemessung: Rechteckquerschnitt mit Bewehrungsstäben (orange).
+       Quelle von apple-touch-icon.png (_skripte/icons.mjs). Randlos, Inhalt in der sicheren Zone. -->
+  <rect width="512" height="512" fill="#0f2a4a"/>
+  <rect x="166" y="112" width="180" height="288" rx="6" fill="none" stroke="#ffffff" stroke-width="26"/>
+  <g fill="#ff8a1f">
+    <circle cx="208" cy="350" r="20"/>
+    <circle cx="256" cy="350" r="20"/>
+    <circle cx="304" cy="350" r="20"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="212" cy="162" r="12"/>
+    <circle cx="300" cy="162" r="12"/>
+  </g>
+</svg>

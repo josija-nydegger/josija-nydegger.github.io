@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Home-Bildschirm-Symbol Balken: Einfeldträger mit festem und beweglichem Auflager, Linienlast orange.
+       Quelle von apple-touch-icon.png (_skripte/icons.mjs). Randlos, Inhalt in der sicheren Zone. -->
+  <rect width="512" height="512" fill="#0f2a4a"/>
+  <!-- Linienlast -->
+  <g fill="none" stroke="#ff8a1f" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M126 160H386"/>
+    <path d="M146 160V262M126 240l20 22 20-22"/>
+    <path d="M211 160V262M191 240l20 22 20-22"/>
+    <path d="M276 160V262M256 240l20 22 20-22"/>
+    <path d="M341 160V262M321 240l20 22 20-22"/>
+  </g>
+  <!-- Träger -->
+  <rect x="106" y="278" width="300" height="26" rx="6" fill="#ffffff"/>
+  <!-- Auflager: links fest, rechts beweglich -->
+  <path d="M146 304L116 354H176Z" fill="#ffffff"/>
+  <path d="M366 304L336 346H396Z" fill="#ffffff"/>
+  <path d="M332 366H400" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+</svg>

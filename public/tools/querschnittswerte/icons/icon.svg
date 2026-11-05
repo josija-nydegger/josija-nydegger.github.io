@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Home-Bildschirm-Symbol Querschnittswerte: I-Profil als Silhouette, Schwerpunkt orange.
+       Quelle von apple-touch-icon.png (_skripte/icons.mjs). Randlos, Inhalt in der sicheren Zone. -->
+  <rect width="512" height="512" fill="#0f2a4a"/>
+  <path fill="#ffffff" d="M136 116H376V164H278V348H376V396H136V348H234V164H136Z"/>
+  <g stroke="#ff8a1f" stroke-width="12" stroke-linecap="round">
+    <path d="M104 256H178M334 256H408" stroke-dasharray="20 14"/>
+  </g>
+  <circle cx="256" cy="256" r="26" fill="#ff8a1f"/>
+</svg>

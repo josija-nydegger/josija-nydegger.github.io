@@ -32,7 +32,9 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<!-- Symbol und Name auf dem iOS-Home-Bildschirm (eigenes Symbol pro Tool, Quelle icons/icon.svg) -->
+<link rel="apple-touch-icon" href="/tools/einheiten/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Einheiten">
 <!-- App (nur dieses Tool): Manifest und Farbe der Titelleiste -->
 <link rel="manifest" href="/tools/einheiten/manifest.webmanifest">
 <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
@@ -116,6 +118,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
   .icon-btn:hover { color: var(--text); background: var(--tag-bg); }
   .icon-btn[aria-pressed="true"] { color: var(--text); }
   .icon-btn:disabled { opacity: 0.35; pointer-events: none; }
+  .clear-btn { font-size: 24px; touch-action: manipulation; }
   .settings { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 12px 0 0; font-size: 13px; color: var(--muted); }
   .settings label, .settings .lbl-g { display: flex; align-items: center; gap: 8px; }
   .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 2px; }
@@ -258,6 +261,7 @@ const examples = ['12.5 kN/cm2 in MPa', '3.5 kN/m * 6 m', '25 kN/m3 in kg/m3', '
   <div class="query">
     <input id="q" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"
       placeholder="z. B. 12.5 kN/cm2 in MPa" aria-label="Eingabe, z. B. 12.5 kN/cm2 in MPa" aria-describedby="keys" autofocus>
+    <button class="icon-btn clear-btn" type="button" id="clear" title="Eingabe löschen (Esc)" aria-label="Eingabe löschen" hidden>×</button>
     <button class="icon-btn" type="button" id="fav" aria-pressed="false" title="Als Favorit speichern" aria-label="Als Favorit speichern">☆</button>
   </div>
   <div class="settings">
@@ -561,6 +565,7 @@ function render() {
   $('steps-wrap').hidden = true;
   $('groups').replaceChildren();
   $<HTMLButtonElement>('fav').disabled = !ok;
+  $('clear').hidden = state.q === '';
   $('fav').setAttribute('aria-pressed', String(favs.includes(state.q.trim())));
   $('fav').textContent = favs.includes(state.q.trim()) ? '★' : '☆';
   if (!r) return;
@@ -684,6 +689,12 @@ document.addEventListener('keydown', e => {
 input.addEventListener('blur', () => {
   if (current && current.ok) addHistory(input.value);
 });
+
+// Löschen-Button: Fokus bleibt im Feld (auf dem Handy bleibt die Tastatur offen)
+const clearBtn = $<HTMLButtonElement>('clear');
+clearBtn.addEventListener('pointerdown', e => e.preventDefault());
+clearBtn.addEventListener('mousedown', e => e.preventDefault());
+clearBtn.addEventListener('click', () => setQuery(''));
 
 $('copy-main').addEventListener('click', () => {
   if (current && current.ok) take(current, current.main.copy);

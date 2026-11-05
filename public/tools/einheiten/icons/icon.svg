@@ -1,9 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- App-Symbol Einheiten-Umrechner: zwei Pfeile (umrechnen), Farben wie das Website-Symbol.
-       Quelle der PNG-Dateien in diesem Ordner. Inhalt innerhalb der sicheren Zone (Kreis 80 %) für maskable. -->
-  <rect width="512" height="512" rx="96" fill="#0f2a4a"/>
-  <g fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M136 200H368M312 144l56 56-56 56" stroke="#ffffff"/>
-    <path d="M376 312H144M200 256l-56 56 56 56" stroke="#ff8a1f"/>
+  <!-- App-Symbol Einheiten-Umrechner: "kN" ⇄ "MPa". Quelle der PNG-Dateien in diesem Ordner (_skripte/icons.mjs).
+       Randlos; Inhalt innerhalb der sicheren Zone (Kreis mit 80 % Durchmesser). Farben wie das Website-Symbol. -->
+  <rect width="512" height="512" fill="#0f2a4a"/>
+  <g font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-weight="700" text-anchor="middle" fill="#ffffff">
+    <text x="256" y="186" font-size="108">kN</text>
+    <text x="256" y="404" font-size="100">MPa</text>
+  </g>
+  <g fill="none" stroke="#ff8a1f" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M190 234H322M302 218l20 16-20 16"/>
+    <path d="M322 280H190M210 264l-20 16 20 16"/>
   </g>
 </svg>

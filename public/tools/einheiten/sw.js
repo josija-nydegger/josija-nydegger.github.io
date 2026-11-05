@@ -10,7 +10,7 @@
 // Updates brauchen keine neue Versionsnummer: Jede online geladene Seite ersetzt die gespeicherte,
 // lädt ihre neuen /_astro/-Dateien nach und entfernt die alten. CACHE nur ändern, wenn sich diese Datei
 // grundlegend ändert (alte Speicher werden dann beim Aktivieren gelöscht).
-const CACHE = 'einheiten-v1';
+const CACHE = 'einheiten-v2'; // v2: eigene Icons (kN ⇄ MPa), alte Speicher werden beim Aktivieren gelöscht
 const SCOPE = new URL('./', self.location.href).pathname; // /tools/einheiten/
 const STATIC = [
   SCOPE + 'manifest.webmanifest',
@@ -18,10 +18,10 @@ const STATIC = [
   SCOPE + 'icons/icon-512.png',
   SCOPE + 'icons/icon-maskable-192.png',
   SCOPE + 'icons/icon-maskable-512.png',
+  SCOPE + 'icons/apple-touch-icon.png',
   '/favicon.ico',
   '/favicon.svg',
-  '/favicon-32.png',
-  '/apple-touch-icon.png'
+  '/favicon-32.png'
 ];
 const TIMEOUT = 3000;
 

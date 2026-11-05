@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Home-Bildschirm-Symbol Lastkombinationen: Summenzeichen Σ, Last als orange Pfeil.
+       Quelle von apple-touch-icon.png (_skripte/icons.mjs). Randlos, Inhalt in der sicheren Zone. -->
+  <rect width="512" height="512" fill="#0f2a4a"/>
+  <path d="M316 136H140L240 256L140 376H316" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M376 150V350M344 316l32 34 32-34" fill="none" stroke="#ff8a1f" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

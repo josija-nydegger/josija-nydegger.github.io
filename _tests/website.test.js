@@ -131,6 +131,18 @@ try {
   ok('Übrige Seiten ohne Manifest', !others.some(p => /rel="manifest"/.test(a.read(p))), others.filter(p => /rel="manifest"/.test(a.read(p))).join(' '));
   ok('Übrige Seiten ohne Service Worker', !others.some(p => /serviceWorker|\/_astro\//.test(a.read(p))), others.filter(p => /serviceWorker|\/_astro\//.test(a.read(p))).join(' '));
   ok('Einheiten: Tool funktioniert ohne fremde Server (keine externen Skripte)', !/<script[^>]+src="https?:/.test(ehHtml));
+
+  // 8. Eigenes iOS-Home-Bildschirm-Symbol pro Tool: 180×180, PNG ohne Alphakanal, mit Namen
+  for (const t of ['einheiten', 'querschnittswerte', 'balken', 'biegebemessung', 'lastkombinationen']) {
+    const html = a.read('tools/' + t + '/index.html');
+    const icon = 'tools/' + t + '/icons/apple-touch-icon.png';
+    ok(`Tool ${t}: eigenes apple-touch-icon`, html.includes(`<link rel="apple-touch-icon" href="/${icon}">`) && !html.includes('href="/apple-touch-icon.png"'));
+    ok(`Tool ${t}: Name für den Home-Bildschirm`, /<meta name="apple-mobile-web-app-title" content="[^"]{1,12}">/.test(html));
+    const png = a.has(icon) ? fs.readFileSync(path.join(A, icon)) : Buffer.alloc(0);
+    ok(`Tool ${t}: Symbol 180×180 PNG ohne Alphakanal`, png.length > 33 && png.readUInt32BE(16) === 180 && png.readUInt32BE(20) === 180 && png[25] === 2);
+    ok(`Tool ${t}: SVG-Quelle vorhanden`, a.has('tools/' + t + '/icons/icon.svg'));
+  }
+  ok('Einheiten: Service Worker speichert das eigene Symbol', a.read(EH + 'sw.js').includes("SCOPE + 'icons/apple-touch-icon.png'"));
 } catch (e) { ok('A: Prüfung ohne Absturz', false, e.message); }
 
 // ===== B) Testbeiträge =====
