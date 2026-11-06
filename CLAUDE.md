@@ -30,14 +30,15 @@ src/
   data/tools.ts      Liste der Tools für /tools/ und /en/tools/ (Titel, Beschreibung, Tags auf DE und EN)
   layouts/Base.astro Gemeinsames Layout: <head>, hreflang, Menü, Sprachumschalter, Footer, Inline-Skripte
   layouts/Post.astro Layout für Blogbeiträge (Datum, Lesezeit, älter/neuer)
-  components/        Nav (Menü), Seo (Titel, Link-Vorschau, JSON-LD), BlogList, PersonJsonLd (schema.org/Person), Umami (Besucherstatistik)
-  lib/posts.ts       Beiträge: Datum/Sprache/Adresse aus dem Dateinamen, Lesezeit, älter/neuer, Gegenstück
+  components/        Nav (Menü), Seo (Titel, Link-Vorschau, JSON-LD), BlogList (3 neueste auf der Startseite), PersonJsonLd (schema.org/Person), Umami (Besucherstatistik)
+  lib/posts.ts       Beiträge: Datum/Sprache/Adresse aus dem Dateinamen, Lesezeit, älter/neuer, Gegenstück, postUrl()
   lib/feed.ts        Atom-Feeds
   lib/einheiten.ts   Rechenkern des Einheiten-Umrechners (reine Funktionen, TypeScript, ohne DOM)
   lib/remark-math-extras.mjs  $$…$$ allein im Absatz = Block-Formel; merkt sich, ob ein Beitrag Formeln hat
   pages/             Alle Seiten und Endpunkte, Pfad = Adresse (siehe "Adressen")
     index.astro, cv.astro, datenschutz.astro, 404.astro, tools/index.astro   Deutsch (404 Englisch, eine für alles)
     en/index.astro, en/cv.astro, en/privacy.astro, en/tools/index.astro      Englisch
+    blog/index.astro, en/blog/index.astro                        Blog-Übersicht (alle Beiträge, mit Beschreibung und Tags)
     blog/[slug]/index.astro, en/blog/[slug]/index.astro          Blogbeiträge
     feed.xml.ts, en/feed.xml.ts, sitemap.xml.ts                  Feeds und Sitemap
     tools/einheiten/index.astro                                  Einheiten-Umrechner (eigenständig, ohne Base-Layout)
@@ -75,14 +76,17 @@ Veröffentlicht wird nur, was Astro aus `src/pages/` erzeugt, plus der Inhalt vo
   ```yaml
   ---
   title: Titel des Beitrags
-  description: Ein Satz Zusammenfassung (für Blog-Liste und Link-Vorschau).
+  description: Ein Satz Zusammenfassung (für Blog-Übersicht und Link-Vorschau).
   ref: kurze-kennung
   ---
   ```
-- Optional: `image: /images/blog/bild.jpg` (eigene Link-Vorschau mit grossem Bild), `last_modified_at: JJJJ-MM-TT` (Feed und Sitemap), `slug:` (andere Adresse), `date:` (anderes Datum), `published: false` (nicht veröffentlichen).
-- Englische Übersetzung: `src/content/blog/en/JJJJ-MM-TT-english-title.md` mit **derselben `ref`**. Ohne Gegenstück führt der Sprachumschalter zur Blog-Liste der anderen Sprache.
+- Optional: `image: /images/blog/bild.jpg` (eigene Link-Vorschau mit grossem Bild, ideal 1200×630), `tags: [A, B]` (erscheinen in der Blog-Übersicht), `last_modified_at: JJJJ-MM-TT` (Feed und Sitemap), `slug:` (andere Adresse), `date:` (anderes Datum), `published: false` (nicht veröffentlichen).
+- Englische Übersetzung: `src/content/blog/en/JJJJ-MM-TT-english-title.md` mit **derselben `ref`**. Ohne Gegenstück führt der Sprachumschalter zur Blog-Übersicht der anderen Sprache.
 - Beiträge mit Datum in der Zukunft erscheinen erst beim ersten Build ab diesem Tag (nächster Push auf `main` oder die Action im Tab Actions von Hand starten).
 - Das Layout zeigt automatisch die Lesezeit (ca. 200 Wörter/Minute) und Links zum älteren/neueren Beitrag derselben Sprache (nur falls vorhanden).
+- **Blog-Übersicht** `/blog/` bzw. `/en/blog/`: alle Beiträge der Sprache, neueste zuerst, mit Beschreibung und Tags (Aufbau wie `/tools/`). Die Startseite zeigt im Abschnitt "Blog" nur die 3 neuesten knapp (Titel und Datum, `src/components/BlogList.astro`) mit Link "Alle Beiträge →".
+- Bilder im Text mit fester Breite als HTML, z. B. `<img src="/images/blog/bild.png" alt="…" width="480" loading="lazy">` (kramdown-Syntax `{: width=…}` funktioniert nicht).
+- Link von einem Projekt auf der Startseite zum Beitrag: `postUrl(ref, lang)` aus `src/lib/posts.ts`, Tag nur anzeigen, wenn der Beitrag veröffentlicht ist (siehe QR-tool), sonst scheitert der Linktest vor dem Veröffentlichungsdatum.
 - **Formeln (LaTeX):** inline `$…$`, als Block `$$…$$` allein in einem Absatz (oder `$$` auf eigenen Zeilen). Formeln werden beim Build gesetzt; `\{`, `\\`, `*` usw. funktionieren direkt, keine Umwege wie früher bei kramdown. Dollarzeichen als Text: `\$` (oder `<span class="nomath">$</span>`). Fehlerhafte Formeln erscheinen rot statt den Build abzubrechen: nach dem Schreiben in der Vorschau ansehen.
 - Typografie automatisch: `"…"` → “…”, `--` → –, `---` → —, `...` → …. Gilt nicht für Titel und Beschreibung im Front Matter.
 - Beiträge werden teils in Obsidian geschrieben: Wikilinks `[[...]]` in normale Markdown-Links umwandeln, Bilder nach `public/images/blog/` verschieben und mit absolutem Pfad (`/images/blog/...`) einbinden.
@@ -100,7 +104,7 @@ Veröffentlicht wird nur, was Astro aus `src/pages/` erzeugt, plus der Inhalt vo
 - Projekt-Icon: rund, 160×160 px, in `public/images/projekte/`, vor dem Titel mit `<img class="item-icon" src="/images/projekte/NAME.png" alt="" width="40" height="40" loading="lazy">`.
 
 ### Menü
-- Oben links auf allen Seiten mit `Base`-Layout: Start (EN: Home) · CV · Tools · Blog, rechts der Sprachumschalter. Aktiver Punkt über `ref` (`home`, `cv`, `tools`) bzw. Blogbeitrag.
+- Oben links auf allen Seiten mit `Base`-Layout: Start (EN: Home) · CV · Tools · Blog (→ `/blog/` bzw. `/en/blog/`), rechts der Sprachumschalter. Aktiver Punkt über `ref` (`home`, `cv`, `tools`, `blog`) bzw. Blogbeitrag.
 - Neue Hauptseiten bekommen ein eigenes `ref` (in `src/data/pages.ts`) und, falls sie ins Menü gehören, einen Eintrag in `src/components/Nav.astro` (beide Sprachen). Der Lebenslauf hat keinen Zurück-Button, das Menü ersetzt ihn.
 
 ### Lebenslauf und strukturierte Daten
@@ -137,7 +141,7 @@ Anders aufgebaut als die übrigen Tools, damit der Rechenkern in TypeScript gete
 Status: **umgesetzt** (Oktober 2026).
 
 - Deutsch unter den bestehenden URLs (`/`, `/cv.html`, `/blog/:slug/`), Englisch unter `/en/`, `/en/cv.html`, `/en/blog/:slug/`.
-- Sprachumschalter "DE | EN" oben rechts (reine Links, in `src/layouts/Base.astro`). Er sucht das Gegenstück mit gleicher `ref`: zuerst in `src/data/pages.ts`, dann bei den Beiträgen (`counterpartUrl()` in `src/lib/posts.ts`); ohne Gegenstück → Startseite der anderen Sprache (bei Beiträgen `#blog`).
+- Sprachumschalter "DE | EN" oben rechts (reine Links, in `src/layouts/Base.astro`). Er sucht das Gegenstück mit gleicher `ref`: zuerst in `src/data/pages.ts`, dann bei den Beiträgen (`counterpartUrl()` in `src/lib/posts.ts`); ohne Gegenstück → Startseite der anderen Sprache (bei Beiträgen deren Blog-Übersicht).
 - `hreflang`-Links (`de`, `en`, `x-default` → Deutsch) nur, wenn ein echtes Gegenstück existiert.
 - `src/data/i18n.ts` nur für Texte, die gemeinsame Layouts und Komponenten brauchen, immer in beiden Sprachen. Texte einer einzelnen Seite (z. B. Abschnittstitel) direkt in die Seite schreiben.
 - Datumsformat: Deutsch `3.11.2026`, Englisch `3 Nov 2026` (`formatDate()` in `src/data/i18n.ts`).

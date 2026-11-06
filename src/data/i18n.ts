@@ -13,8 +13,9 @@ export const i18n = {
     feedTitle: 'Josija Nydegger – Blog',
     tagline: 'Bauingenieurwesen · BIM · Digital Construction',
     langLabel: 'Sprache',
-    back: 'Zurück',
     blog: 'Blog',
+    blogUrl: '/blog/',
+    allPosts: 'Alle Beiträge',
     rssTitle: 'RSS-Feed abonnieren',
     noPosts: 'Die ersten Beiträge folgen bald.',
     // Blogbeitrag
@@ -39,8 +40,9 @@ export const i18n = {
     feedTitle: 'Josija Nydegger – Blog (English)',
     tagline: 'Civil Engineering · BIM · Digital Construction',
     langLabel: 'Language',
-    back: 'Back',
     blog: 'Blog',
+    blogUrl: '/en/blog/',
+    allPosts: 'All posts',
     rssTitle: 'Subscribe to the RSS feed',
     noPosts: 'The first posts are coming soon.',
     // Blog post

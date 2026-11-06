@@ -199,13 +199,27 @@ try {
   ok('Älter/neuer: gleicher Tag nach Dateiname', nav('blog/text/index.html') === 'prev /blog/eigener-slug/, next /blog/formeln/', nav('blog/text/index.html'));
   ok('Älter/neuer: nur gleiche Sprache', nav('en/blog/formulas/index.html') === 'prev /en/blog/only-english/', nav('en/blog/formulas/index.html'));
   ok('Umschalter zum Gegenstück', formeln.includes('href="/en/blog/formulas/" hreflang="en"') && formeln.includes('hreflang="en" href="https://josija-nydegger.ch/en/blog/formulas/"'));
-  ok('Umschalter ohne Gegenstück → Blog-Liste', b.read('blog/text/index.html').includes('href="/en/#blog" hreflang="en"') && !b.read('blog/text/index.html').includes('x-default'));
-  ok('Umschalter EN ohne Gegenstück → Blog-Liste', b.read('en/blog/only-english/index.html').includes('href="/#blog" hreflang="de"'));
+  ok('Umschalter ohne Gegenstück → Blog-Übersicht', b.read('blog/text/index.html').includes('href="/en/blog/" hreflang="en"') && !b.read('blog/text/index.html').includes('x-default'));
+  ok('Umschalter EN ohne Gegenstück → Blog-Übersicht', b.read('en/blog/only-english/index.html').includes('href="/blog/" hreflang="de"'));
+  ok('Beitrag: Zurück-Link zur Blog-Übersicht', b.doc('blog/text/index.html').querySelector('a.back').getAttribute('href') === '/blog/');
 
   // 10. Blog-Liste auf den Startseiten
   const list = p => [...b.doc(p).querySelectorAll('#blog a.item')].map(x => x.getAttribute('href')).join(' ');
   ok('Blog-Liste DE', list('index.html') === '/blog/formeln/ /blog/text/ /blog/eigener-slug/', list('index.html'));
   ok('Blog-Liste EN', list('en/index.html') === '/en/blog/formulas/ /en/blog/only-english/', list('en/index.html'));
+  ok('Blog-Liste Startseite: knapp, ohne Beschreibung', b.doc('index.html').querySelectorAll('#blog .item-sub').length === 0);
+  ok('Blog-Liste Startseite: Link zur Übersicht', b.doc('index.html').querySelector('#blog .page-note a')?.getAttribute('href') === '/blog/' && b.doc('en/index.html').querySelector('#blog .page-note a')?.getAttribute('href') === '/en/blog/');
+
+  // 10b. Blog-Übersicht /blog/ und /en/blog/: alle Beiträge, mit Beschreibung und Tags
+  const overview = p => [...b.doc(p).querySelectorAll('.item-title a')].map(x => x.getAttribute('href')).join(' ');
+  ok('Blog-Übersicht DE', overview('blog/index.html') === '/blog/formeln/ /blog/text/ /blog/eigener-slug/', overview('blog/index.html'));
+  ok('Blog-Übersicht EN', overview('en/blog/index.html') === '/en/blog/formulas/ /en/blog/only-english/', overview('en/blog/index.html'));
+  ok('Blog-Übersicht: Beschreibung', b.doc('blog/index.html').querySelectorAll('.item-sub').length === 3);
+  ok('Blog-Übersicht: Tags aus dem Front Matter', [...b.doc('blog/index.html').querySelectorAll('.tags .tag')].map(x => x.textContent).join(',') === 'Test,Formeln');
+  ok('Blog-Übersicht: Umschalter und hreflang', b.read('blog/index.html').includes('href="/en/blog/" hreflang="en"') && b.read('blog/index.html').includes('hreflang="en" href="https://josija-nydegger.ch/en/blog/"'));
+  const navBlog = p => b.doc(p).querySelector('.nav a[href$="/blog/"]');
+  ok('Menü: Blog → Übersicht, aktiv', navBlog('blog/index.html')?.getAttribute('aria-current') === 'page' && navBlog('en/index.html')?.getAttribute('href') === '/en/blog/');
+  ok('Menü: Blog aktiv im Beitrag', navBlog('blog/text/index.html')?.getAttribute('aria-current') === 'page');
 
   // 11. Link-Vorschau und JSON-LD der Beiträge
   const meta = (d, k) => d.querySelector(`meta[property="${k}"], meta[name="${k}"]`)?.getAttribute('content');

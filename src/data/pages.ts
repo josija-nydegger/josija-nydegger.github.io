@@ -6,6 +6,7 @@ export const pages = {
   home: { de: '/', en: '/en/' },
   cv: { de: '/cv.html', en: '/en/cv.html' },
   tools: { de: '/tools/', en: '/en/tools/' },
+  blog: { de: '/blog/', en: '/en/blog/' },
   privacy: { de: '/datenschutz.html', en: '/en/privacy.html' }
 } as const satisfies Record<string, Partial<Record<Lang, string>>>;
 
