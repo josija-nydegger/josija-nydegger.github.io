@@ -21,9 +21,9 @@ const t = i18n[lang];
 const other = otherLang(lang);
 const tOther = i18n[other];
 
-// Sprachumschalter: Gegenstück, sonst Startseite der anderen Sprache (bei Beiträgen deren Blog-Liste)
+// Sprachumschalter: Gegenstück, sonst Startseite der anderen Sprache (bei Beiträgen deren Blog-Übersicht)
 const otherUrl = await counterpartUrl(ref, lang);
-const switchUrl = otherUrl ?? (post ? `${tOther.homeUrl}#blog` : tOther.homeUrl);
+const switchUrl = otherUrl ?? (post ? tOther.blogUrl : tOther.homeUrl);
 const path = Astro.url.pathname;
 const deUrl = lang === 'de' ? path : otherUrl;
 ---

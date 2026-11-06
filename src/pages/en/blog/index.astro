@@ -1,0 +1,37 @@
+---
+// Blog overview (English), /en/blog/: all English posts, newest first, with description and tags.
+import Base from '../../../layouts/Base.astro';
+import { i18n, formatDate } from '../../../data/i18n';
+import { getPosts } from '../../../lib/posts';
+
+const t = i18n.en;
+const posts = await getPosts('en');
+---
+<Base
+  lang="en"
+  ref="blog"
+  title="Blog"
+  description="Posts on civil engineering, BIM, digital construction and my own projects."
+>
+<h1 class="page-title">Blog <a class="rss" href={t.feedUrl} title={t.rssTitle}>RSS</a></h1>
+<p class="page-intro">Posts on civil engineering, BIM, digital construction and my own projects, newest first.</p>
+
+<section>
+  {posts.length > 0 ? (
+    <ul class="list tool-list">
+      {posts.map(post => (
+        <li class="item">
+          <div class="item-head">
+            <p class="item-title"><a href={post.url}>{post.title}</a></p>
+            <span class="item-year">{formatDate(post.date, 'en')}</span>
+          </div>
+          <p class="item-sub">{post.description}</p>
+          {post.tags.length > 0 && <div class="tags">{post.tags.map(tag => <span class="tag">{tag}</span>)}</div>}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="item-sub">{t.noPosts}</p>
+  )}
+</section>
+</Base>

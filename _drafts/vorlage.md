@@ -1,6 +1,6 @@
 ---
 title: Titel des Beitrags
-description: Kurze Zusammenfassung in einem Satz (erscheint in der Blog-Liste).
+description: Kurze Zusammenfassung in einem Satz (erscheint in der Blog-Übersicht).
 ref: titel-des-beitrags
 ---
 
@@ -15,7 +15,7 @@ Diese Datei ist eine Vorlage und wird nicht veröffentlicht, weil sie im Ordner 
    `ref` ist eine kurze Kennung ohne Leerzeichen, z. B. `ifcopenshell-einstieg`.
 4. Mit `npm run dev` ansehen (http://localhost:4321/blog/ifcopenshell-einstieg/), vor dem Commit `npm test`.
 
-Optional im Front Matter: `image: /images/blog/bild.jpg` (grosses Vorschaubild beim Teilen),
+Optional im Front Matter: `image: /images/blog/bild.jpg` (grosses Vorschaubild beim Teilen, 1200×630), `tags: [A, B]` (in der Blog-Übersicht),
 `last_modified_at: 2026-11-10` (bei späteren Änderungen), `published: false` (noch nicht veröffentlichen).
 
 **Englische Version (optional):**
@@ -24,7 +24,7 @@ Optional im Front Matter: `image: /images/blog/bild.jpg` (grosses Vorschaubild b
    `src/content/blog/en/2026-11-03-getting-started-with-ifcopenshell.md`.
 2. Dieselbe `ref` wie beim deutschen Beitrag eintragen. Dann führt der Sprachumschalter
    "DE | EN" direkt zum übersetzten Beitrag. Sprache und Adresse (`/en/blog/...`) werden automatisch gesetzt.
-3. Ein Beitrag darf auch nur in einer Sprache existieren. Dann führt der Umschalter zur Blog-Liste
+3. Ein Beitrag darf auch nur in einer Sprache existieren. Dann führt der Umschalter zur Blog-Übersicht
    der anderen Sprache.
 
 ## Zwischentitel

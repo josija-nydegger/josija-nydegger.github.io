@@ -18,6 +18,8 @@ const blog = defineCollection({
     description: z.string(),
     ref: z.string(),
     image: z.string().optional(),
+    // Schlagwörter, erscheinen in der Blog-Übersicht /blog/ bzw. /en/blog/
+    tags: z.array(z.string()).default([]),
     // Optional wie bei Jekyll: anderes Datum bzw. andere Adresse als im Dateinamen
     date: z.coerce.date().optional(),
     slug: z.string().optional(),

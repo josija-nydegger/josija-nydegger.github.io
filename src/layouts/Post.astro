@@ -18,7 +18,7 @@ const { older, newer } = neighbours(await getPosts(post.lang), post);
 <Base lang={post.lang} ref={post.ref} title={post.title} description={post.description} post={post}>
   {math && <link slot="head" rel="stylesheet" href="/assets/katex/katex.min.css">}
 
-  <a class="back" href={`${t.homeUrl}#blog`}>← {t.back}</a>
+  <a class="back" href={t.blogUrl}>← {t.allPosts}</a>
 
   <article>
     <h1>{post.title}</h1>

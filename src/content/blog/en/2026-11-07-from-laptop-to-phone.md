@@ -2,12 +2,15 @@
 title: "From Laptop to Phone – No Cable, No Wi-Fi, No Login"
 description: How my project QR-tool sends text to a phone through a sequence of QR codes, and how it got faster, safer and more capable with every version.
 ref: qr-tool
+image: /images/blog/qr-tool-sender.jpg
 tags: [QR-tool, project, data transfer, security, AI]
 ---
 
 I'm sitting in a lecture with my notes on my laptop, and I'd like to have them on my phone for the train ride home. The usual options all need something I don't really want for that: a cable, a shared network, or a login to an email or cloud service.
 
 So I built **QR-tool**. The laptop shows a rapid sequence of QR codes, the phone films them with its camera and puts the text back together. No app, no account, and no internet connection between the two devices.
+
+![The sender shows four QR codes at once, changing 15 times per second](/images/blog/qr-tool-sender.jpg)
 
 ## What the tool can do
 
@@ -73,6 +76,6 @@ All of this has since been fixed. My takeaway: AI is a huge accelerator, but the
 
 ## Try it
 
-You can open the receiver directly on your phone: [QR-Reader](https://josija-nydegger.ch/QR-tool/QR-Reader.html). The sender (`QR-Streamer.html`) and all the code are on [GitHub](https://github.com/josija-nydegger/QR-tool).
+You can open the receiver directly on your phone: [QR-Reader](https://josija-nydegger.ch/QR-tool/QR-Reader.html). Open the sender on your laptop: [QR-Streamer](https://josija-nydegger.ch/QR-tool/QR-Streamer.html). You can also save the file and open it offline with a double-click. All the code is on [GitHub](https://github.com/josija-nydegger/QR-tool).
 
 Next, I want to make the receiver even faster and add support for whole files, not just text.

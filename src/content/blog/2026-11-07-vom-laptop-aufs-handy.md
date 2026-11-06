@@ -2,12 +2,15 @@
 title: "Vom Laptop aufs Handy – ohne Kabel, ohne WLAN, ohne Login"
 description: Wie mein Projekt QR-tool Text über eine Folge von QR-Codes aufs Handy überträgt und von Version zu Version schneller, sicherer und vielseitiger wurde.
 ref: qr-tool
+image: /images/blog/qr-tool-sender.jpg
 tags: [QR-tool, Projekt, Datenübertragung, Sicherheit, KI]
 ---
 
 Ich sitze in der Vorlesung, meine Notizen liegen auf dem Laptop, und für die Zugfahrt hätte ich sie gerne auf dem Handy. Die üblichen Wege brauchen alle etwas, das ich dafür eigentlich nicht will: ein Kabel, ein gemeinsames Netzwerk oder ein Login bei einem Mail- oder Cloud-Dienst.
 
 Deshalb habe ich **QR-tool** gebaut. Der Laptop zeigt eine schnelle Folge von QR-Codes, das Handy filmt sie mit der Kamera und setzt daraus den Text wieder zusammen. Es braucht keine App, kein Konto und keine Internetverbindung zwischen den Geräten.
+
+![Der Sender zeigt vier QR-Codes gleichzeitig, die sich 15-mal pro Sekunde ändern](/images/blog/qr-tool-sender.jpg)
 
 ## Was das Tool kann
 
@@ -73,6 +76,6 @@ Alles davon ist inzwischen behoben. Was ich daraus mitnehme: KI ist ein enormer 
 
 ## Ausprobieren
 
-Den Empfänger kannst du direkt auf dem Handy öffnen: [QR-Reader](https://josija-nydegger.ch/QR-tool/QR-Reader.html). Den Sender (`QR-Streamer.html`) und den gesamten Code findest du auf [GitHub](https://github.com/josija-nydegger/QR-tool).
+Den Empfänger kannst du direkt auf dem Handy öffnen: [QR-Reader](https://josija-nydegger.ch/QR-tool/QR-Reader.html). Den Sender öffnest du auf dem Laptop: [QR-Streamer](https://josija-nydegger.ch/QR-tool/QR-Streamer.html). Du kannst die Datei auch speichern und ohne Internet per Doppelklick öffnen. Den gesamten Code findest du auf [GitHub](https://github.com/josija-nydegger/QR-tool).
 
 Als Nächstes möchte ich den Empfänger noch schneller machen und neben Text auch ganze Dateien übertragen können.

@@ -14,6 +14,7 @@ export type Post = {
   description: string;
   ref: string;
   image?: string;
+  tags: string[];
 };
 
 // "en/2026-11-03-getting-started" → Sprache, Datum, Slug
@@ -33,7 +34,8 @@ function toPost(entry: CollectionEntry<'blog'>): Post {
     title: entry.data.title,
     description: entry.data.description,
     ref: entry.data.ref,
-    image: entry.data.image
+    image: entry.data.image,
+    tags: entry.data.tags
   };
 }
 
@@ -54,6 +56,11 @@ export async function getPosts(lang?: Lang): Promise<Post[]> {
     .filter(p => p.date <= today && (!lang || p.lang === lang));
   // Neueste zuerst; am gleichen Tag wie Jekyll nach Dateiname absteigend
   return posts.sort((a, b) => b.date.getTime() - a.date.getTime() || b.entry.id.localeCompare(a.entry.id));
+}
+
+/** Adresse des veröffentlichten Beitrags mit dieser ref in dieser Sprache (z. B. für Links von der Startseite) */
+export async function postUrl(ref: string, lang: Lang): Promise<string | undefined> {
+  return (await getPosts(lang)).find(p => p.ref === ref)?.url;
 }
 
 /** Älterer und neuerer Beitrag derselben Sprache (posts: neueste zuerst, nur diese Sprache) */

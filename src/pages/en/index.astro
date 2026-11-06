@@ -2,6 +2,10 @@
 // Startseite (English), /en/. Änderungen auch in src/pages/index.astro nachführen.
 import Base from '../../layouts/Base.astro';
 import BlogList from '../../components/BlogList.astro';
+import { postUrl } from '../../lib/posts';
+
+// Blog tag on projects only once the post is published (date reached)
+const qrPost = await postUrl('qr-tool', 'en');
 ---
 <Base
   lang="en"
@@ -89,6 +93,7 @@ import BlogList from '../../components/BlogList.astro';
         <div class="tags">
           <a class="tag" href="https://github.com/josija-nydegger/QR-tool" target="_blank" rel="noopener">Code</a>
           <a class="tag" href="https://josija-nydegger.ch/QR-tool/QR-Reader.html" target="_blank" rel="noopener">Demo</a>
+          {qrPost && <a class="tag" href={qrPost}>Blog</a>}
           <span class="tag">HTML / JavaScript</span>
         </div>
       </li>

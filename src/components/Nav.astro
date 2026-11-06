@@ -1,5 +1,5 @@
 ---
-// Menü oben links (Start/Home, CV, Tools, Blog), Gegenstück zum Sprachumschalter oben rechts.
+// Menü oben links (Start/Home, CV, Tools, Blog → /blog/ bzw. /en/blog/), Gegenstück zum Sprachumschalter oben rechts.
 // Eingebunden in src/layouts/Base.astro. Links folgen der Sprache der Seite (/ bzw. /en/).
 import { i18n, type Lang } from '../data/i18n';
 
@@ -17,5 +17,5 @@ const current = (active: boolean) => (active ? 'page' : undefined);
   <a href={home} aria-current={current(ref === 'home')}>{lang === 'en' ? 'Home' : 'Start'}</a>
   <a href={`${base}/cv.html`} aria-current={current(ref === 'cv')}>CV</a>
   <a href={`${base}/tools/`} aria-current={current(ref === 'tools')}>Tools</a>
-  <a href={`${home}#blog`} aria-current={current(isPost)}>Blog</a>
+  <a href={i18n[lang].blogUrl} aria-current={current(ref === 'blog' || isPost)}>Blog</a>
 </nav>
